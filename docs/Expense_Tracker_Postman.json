@@ -1,0 +1,207 @@
+{
+  "info": {
+    "name": "AI Expense Tracker API",
+    "description": "Postman API documentation collection for testing the AI Expense Tracker MEAN Stack application.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser\",\n  \"email\": \"testuser@tracker.com\",\n  \"password\": \"password123\",\n  \"role\": \"user\"\n}"
+            },
+            "url": { "raw": "http://localhost:5000/api/auth/register" }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"testuser@tracker.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": { "raw": "http://localhost:5000/api/auth/login" }
+          }
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "http://localhost:5000/api/auth/profile" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Income",
+      "item": [
+        {
+          "name": "Get Incomes",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "http://localhost:5000/api/income?page=1&limit=10" }
+          }
+        },
+        {
+          "name": "Create Income",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"source\": \"Salary\",\n  \"amount\": 5000,\n  \"date\": \"2026-07-01\",\n  \"description\": \"Monthly job salary\"\n}"
+            },
+            "url": { "raw": "http://localhost:5000/api/income" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Expense",
+      "item": [
+        {
+          "name": "Get Expenses",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "http://localhost:5000/api/expenses?page=1&limit=10" }
+          }
+        },
+        {
+          "name": "Create Expense",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 150,\n  \"category\": \"Food\",\n  \"date\": \"2026-07-01\",\n  \"description\": \"Restaurant dinner\"\n}"
+            },
+            "url": { "raw": "http://localhost:5000/api/expenses" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Budget",
+      "item": [
+        {
+          "name": "Get Current Budget",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "http://localhost:5000/api/budgets/current?month=2026-07" }
+          }
+        },
+        {
+          "name": "Set Budget Limit",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"monthlyBudget\": 2000,\n  \"month\": \"2026-07\"\n}"
+            },
+            "url": { "raw": "http://localhost:5000/api/budgets" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "item": [
+        {
+          "name": "Get Report Summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "http://localhost:5000/api/reports?type=monthly&period=2026-07" }
+          }
+        },
+        {
+          "name": "Download PDF Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "http://localhost:5000/api/reports?type=monthly&period=2026-07&pdf=true" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "AI Advisor",
+      "item": [
+        {
+          "name": "Get AI Suggestions",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "http://localhost:5000/api/ai/suggestions" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Get Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "http://localhost:5000/api/admin/users" }
+          }
+        },
+        {
+          "name": "Get System Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "http://localhost:5000/api/admin/analytics" }
+          }
+        }
+      ]
+    }
+  ]
+}

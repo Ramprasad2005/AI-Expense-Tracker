@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  database:
+    image: mongo:latest
+    container_name: expense-tracker-db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    restart: always
+
+  backend:
+    build: ./backend
+    container_name: expense-tracker-api
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - MONGO_URI=mongodb://database:27017/expense-tracker
+      - JWT_SECRET=supersecretjwtkeyforai-expensetracker123!
+      - GEMINI_API_KEY=YOUR_GEMINI_API_KEY_HERE
+      - NODE_ENV=production
+    depends_on:
+      - database
+    restart: always
+
+  frontend:
+    build: ./frontend
+    container_name: expense-tracker-ui
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    restart: always
+
+volumes:
+  mongo-data:
