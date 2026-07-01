@@ -1,0 +1,52 @@
+.dashboard-container {
+  min-height: calc(100vh - 70px);
+  background: radial-gradient(circle at 50% 50%, #0f172a 0%, #1e293b 100%);
+  padding: 3rem 1rem;
+  color: #f8fafc;
+}
+
+.stats-card {
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(12px);
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.stats-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.chart-card {
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  padding: 1.5rem;
+}
+
+.ai-card {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(76, 29, 149, 0.2) 100%);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px -5px rgba(139, 92, 246, 0.15);
+  backdrop-filter: blur(12px);
+}
+
+.chart-container {
+  position: relative;
+  height: 260px;
+  width: 100%;
+}
+
+.recent-transaction-item {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 0.75rem 0.5rem;
+}
+
+.recent-transaction-item:last-child {
+  border-bottom: none;
+}

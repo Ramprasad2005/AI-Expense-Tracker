@@ -1,0 +1,60 @@
+<div class="login-container">
+  <div class="card login-card p-4">
+    <div class="card-body">
+      <div class="text-center mb-4">
+        <i class="fa-solid fa-wallet fs-1 text-primary mb-3"></i>
+        <h2 class="fw-bold">Sign In</h2>
+        <p class="text-muted">Welcome back! Access your advisor dashboard.</p>
+      </div>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <div class="mb-3">
+          <label for="email" class="form-label">Email Address</label>
+          <div class="input-group">
+            <span class="input-group-text bg-dark border-secondary text-muted"><i class="fa-solid fa-envelope"></i></span>
+            <input 
+              type="email" 
+              id="email" 
+              class="form-control" 
+              formControlName="email" 
+              placeholder="name@example.com"
+              [class.is-invalid]="submitted && f['email'].errors"
+            >
+            <div *ngIf="submitted && f['email'].errors" class="invalid-feedback">
+              <div *ngIf="f['email'].errors['required']">Email is required</div>
+              <div *ngIf="f['email'].errors['email']">Email must be valid</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label for="password" class="form-label">Password</label>
+          <div class="input-group">
+            <span class="input-group-text bg-dark border-secondary text-muted"><i class="fa-solid fa-lock"></i></span>
+            <input 
+              type="password" 
+              id="password" 
+              class="form-control" 
+              formControlName="password" 
+              placeholder="••••••••"
+              [class.is-invalid]="submitted && f['password'].errors"
+            >
+            <div *ngIf="submitted && f['password'].errors" class="invalid-feedback">
+              <div *ngIf="f['password'].errors['required']">Password is required</div>
+              <div *ngIf="f['password'].errors['minlength']">Password must be at least 6 characters</div>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100 py-2.5 d-flex justify-content-center align-items-center" [disabled]="loading">
+          <span class="spinner-border spinner-border-sm me-2" *ngIf="loading" role="status" aria-hidden="true"></span>
+          <span>{{ loading ? 'Signing In...' : 'Sign In' }}</span>
+        </button>
+      </form>
+
+      <div class="text-center mt-4">
+        <p class="mb-0 text-muted">Don't have an account? <a routerLink="/register" class="text-info text-decoration-none fw-semibold">Register here</a></p>
+      </div>
+    </div>
+  </div>
+</div>

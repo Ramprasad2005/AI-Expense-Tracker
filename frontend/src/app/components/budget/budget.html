@@ -1,0 +1,170 @@
+<div class="budget-container">
+  <div class="container">
+    
+    <!-- Header -->
+    <div class="d-flex align-items-center mb-4">
+      <i class="fa-solid fa-piggy-bank text-warning fs-2 me-3"></i>
+      <div>
+        <h2 class="fw-bold mb-0">Monthly Budgets</h2>
+        <p class="text-muted mb-0">Define and monitor your monthly spending limits.</p>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <!-- Budget Setup Card -->
+      <div class="col-md-5">
+        <div class="card budget-card p-4 h-100">
+          <h4 class="fw-bold mb-4 text-white border-bottom border-secondary pb-2">
+            <i class="fa-solid fa-gears me-2 text-info"></i>Set Limit
+          </h4>
+
+          <form [formGroup]="budgetForm" (ngSubmit)="onSaveBudget()">
+            <div class="mb-3">
+              <label for="month" class="form-label">Select Month</label>
+              <input 
+                type="month" 
+                id="month" 
+                class="form-control text-light" 
+                formControlName="month"
+                (change)="onMonthChange()"
+              >
+            </div>
+
+            <div class="mb-4">
+              <label for="monthlyBudget" class="form-label">Monthly Limit ($)</label>
+              <div class="input-group">
+                <span class="input-group-text bg-dark border-secondary text-muted">$</span>
+                <input 
+                  type="number" 
+                  id="monthlyBudget" 
+                  class="form-control" 
+                  formControlName="monthlyBudget" 
+                  placeholder="0.00"
+                  min="0"
+                >
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 py-2 d-flex justify-content-center align-items-center" [disabled]="saveLoading">
+              <span class="spinner-border spinner-border-sm me-2" *ngIf="saveLoading"></span>
+              <span>{{ saveLoading ? 'Saving...' : 'Set Budget Limit' }}</span>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Current Status Card -->
+      <div class="col-md-7">
+        <div class="card budget-card p-4 h-100 d-flex flex-column justify-content-between">
+          <div>
+            <h4 class="fw-bold mb-4 text-white border-bottom border-secondary pb-2">
+              <i class="fa-solid fa-eye me-2 text-warning"></i>Status for {{ currentMonthLabel }}
+            </h4>
+
+            <div *ngIf="loading" class="text-center py-5">
+              <span class="spinner-border spinner-border-sm me-2"></span>
+              Calculating budget status...
+            </div>
+
+            <div *ngIf="!loading">
+              <!-- Summary Grid -->
+              <div class="row text-center g-3 mb-4">
+                <div class="col-4">
+                  <div class="p-2 bg-dark rounded border border-secondary">
+                    <span class="text-muted small d-block">Budget Limit</span>
+                    <strong class="fs-5 text-white">${{ currentBudget.monthlyBudget.toFixed(2) }}</strong>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="p-2 bg-dark rounded border border-secondary">
+                    <span class="text-muted small d-block">Total Spent</span>
+                    <strong class="fs-5 text-danger">${{ currentBudget.totalSpent.toFixed(2) }}</strong>
+                  </div>
+                </div>
+                <div class="col-4">
+                  <div class="p-2 bg-dark rounded border border-secondary">
+                    <span class="text-muted small d-block">Remaining</span>
+                    <strong class="fs-5" [ngClass]="currentBudget.remaining >= 0 ? 'text-success' : 'text-danger'">
+                      ${{ currentBudget.remaining.toFixed(2) }}
+                    </strong>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Meter/Progress Bar -->
+              <div class="mb-4" *ngIf="currentBudget.monthlyBudget > 0">
+                <div class="d-flex justify-content-between mb-2">
+                  <span class="text-muted">Usage percentage</span>
+                  <span class="fw-bold" [ngClass]="getPercentColorClass(spendPercentage)">
+                    {{ spendPercentage.toFixed(1) }}%
+                  </span>
+                </div>
+                <div class="progress">
+                  <div 
+                    class="progress-bar progress-bar-striped progress-bar-animated" 
+                    role="progressbar" 
+                    [style.width.%]="spendPercentage > 100 ? 100 : spendPercentage"
+                    [ngClass]="getProgressBarColorClass(spendPercentage)"
+                    [attr.aria-valuenow]="spendPercentage" 
+                    aria-valuemin="0" 
+                    aria-valuemax="100"
+                  >
+                  </div>
+                </div>
+              </div>
+
+              <!-- Status Alert Block -->
+              <div class="alert mb-0 text-center" [ngClass]="getStatusAlertClass()">
+                <i class="fa-solid me-2" 
+                   [class.fa-check-circle]="currentBudget.status === 'within_limit'"
+                   [class.fa-triangle-exclamation]="currentBudget.status === 'exceeded'"
+                   [class.fa-circle-question]="currentBudget.status === 'no_budget'">
+                </i>
+                <span class="fw-bold" *ngIf="currentBudget.status === 'within_limit'">You are within your budget limit. Good job!</span>
+                <span class="fw-bold" *ngIf="currentBudget.status === 'exceeded'">Alert! You have exceeded this month's budget limit!</span>
+                <span class="fw-bold" *ngIf="currentBudget.status === 'no_budget'">No budget limit has been set for this month yet.</span>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Budget History Table -->
+    <div class="row mt-4">
+      <div class="col-12">
+        <div class="card budget-card p-4">
+          <h4 class="fw-bold mb-4 text-white border-bottom border-secondary pb-2">
+            <i class="fa-solid fa-clock-rotate-left me-2 text-secondary"></i>Budget Settings History
+          </h4>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-dark">
+                <tr>
+                  <th scope="col" class="ps-4">Month</th>
+                  <th scope="col">Budget Limit</th>
+                  <th scope="col" class="pe-4">Created Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngIf="historyLoading" class="text-center">
+                  <td colspan="3" class="py-4 text-muted">Loading history...</td>
+                </tr>
+                <tr *ngIf="!historyLoading && budgetHistory.length === 0" class="text-center">
+                  <td colspan="3" class="py-4 text-muted">No budget records recorded.</td>
+                </tr>
+                <tr *ngFor="let b of budgetHistory" *ngIf="!historyLoading">
+                  <td class="ps-4 text-white fw-semibold">{{ b.month }}</td>
+                  <td class="text-info fw-bold">${{ b.monthlyBudget.toFixed(2) }}</td>
+                  <td class="pe-4">{{ b.createdAt | date:'medium' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

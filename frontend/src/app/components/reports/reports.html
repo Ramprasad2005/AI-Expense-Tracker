@@ -1,0 +1,184 @@
+<div class="reports-container">
+  <div class="container">
+    
+    <!-- Header -->
+    <div class="d-flex align-items-center mb-4">
+      <i class="fa-solid fa-file-invoice-dollar text-primary fs-2 me-3"></i>
+      <div>
+        <h2 class="fw-bold mb-0">Financial Reports</h2>
+        <p class="text-muted mb-0">Generate, review, and export PDF statements of your cash flows.</p>
+      </div>
+    </div>
+
+    <!-- Parameter Config Card -->
+    <div class="card report-card p-4 mb-4">
+      <form (ngSubmit)="generateReport()">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-3">
+            <label for="reportType" class="form-label text-muted small">Report Type</label>
+            <select id="reportType" class="form-select text-light" [(ngModel)]="type" name="reportType">
+              <option value="monthly">Monthly Report</option>
+              <option value="yearly">Yearly Report</option>
+            </select>
+          </div>
+
+          <div class="col-md-3">
+            <label for="period" class="form-label text-muted small">Select Period</label>
+            <input 
+              *ngIf="type === 'monthly'" 
+              type="month" 
+              id="period" 
+              class="form-control text-light" 
+              [(ngModel)]="period" 
+              name="period"
+            >
+            <input 
+              *ngIf="type === 'yearly'" 
+              type="number" 
+              id="periodYear" 
+              class="form-control text-light" 
+              [(ngModel)]="periodYear" 
+              name="periodYear" 
+              min="2000" 
+              max="2100"
+            >
+          </div>
+
+          <div class="col-md-6 d-flex gap-2 justify-content-md-end mt-4 mt-md-0">
+            <button type="submit" class="btn btn-primary px-4 py-2 d-flex align-items-center" [disabled]="loading">
+              <span class="spinner-border spinner-border-sm me-2" *ngIf="loading"></span>
+              <i class="fa-solid fa-sync me-2" *ngIf="!loading"></i>Generate Report
+            </button>
+            <button type="button" class="btn btn-outline-danger px-4 py-2 d-flex align-items-center" (click)="exportPdf()" [disabled]="pdfLoading || !reportLoaded">
+              <span class="spinner-border spinner-border-sm me-2" *ngIf="pdfLoading"></span>
+              <i class="fa-solid fa-file-pdf me-2" *ngIf="!pdfLoading"></i>Export PDF
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Report Loading State -->
+    <div *ngIf="loading" class="text-center py-5">
+      <span class="spinner-border spinner-border-sm me-2"></span>
+      Compiling financial records...
+    </div>
+
+    <!-- Report View -->
+    <div *ngIf="!loading && reportLoaded" class="row g-4">
+      
+      <!-- Metrics Summaries -->
+      <div class="col-12">
+        <div class="card report-card p-4">
+          <h4 class="fw-bold mb-4 text-white border-bottom border-secondary pb-2">
+            <i class="fa-solid fa-chart-pie me-2 text-warning"></i>Overview Summary ({{ activePeriod }})
+          </h4>
+          <div class="row g-3 text-center">
+            <div class="col-md-3 col-6">
+              <div class="p-3 bg-dark bg-opacity-40 rounded border border-secondary">
+                <span class="text-muted small d-block mb-1">Total Income</span>
+                <strong class="fs-4 text-success">${{ reportData.totalIncome.toFixed(2) }}</strong>
+              </div>
+            </div>
+            <div class="col-md-3 col-6">
+              <div class="p-3 bg-dark bg-opacity-40 rounded border border-secondary">
+                <span class="text-muted small d-block mb-1">Total Expense</span>
+                <strong class="fs-4 text-danger">${{ reportData.totalExpense.toFixed(2) }}</strong>
+              </div>
+            </div>
+            <div class="col-md-3 col-6">
+              <div class="p-3 bg-dark bg-opacity-40 rounded border border-secondary">
+                <span class="text-muted small d-block mb-1">Net Savings</span>
+                <strong class="fs-4 text-warning">${{ reportData.savings.toFixed(2) }}</strong>
+              </div>
+            </div>
+            <div class="col-md-3 col-6">
+              <div class="p-3 bg-dark bg-opacity-40 rounded border border-secondary">
+                <span class="text-muted small d-block mb-1">Savings Rate</span>
+                <strong class="fs-4 text-info">{{ savingsRate }}%</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Expense Categories Breakdown -->
+      <div class="col-md-5">
+        <div class="card report-card p-4 h-100">
+          <h5 class="fw-bold text-white mb-3 border-bottom border-secondary pb-2">
+            <i class="fa-solid fa-chart-simple text-info me-2"></i>Expenses by Category
+          </h5>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 small">
+              <thead class="table-dark">
+                <tr>
+                  <th scope="col">Category</th>
+                  <th scope="col">Amount</th>
+                  <th scope="col" class="text-end">Percentage</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let cat of activeBreakdown">
+                  <td class="fw-semibold text-light">{{ cat.category }}</td>
+                  <td class="text-danger fw-bold">${{ cat.amount.toFixed(2) }}</td>
+                  <td class="text-end text-muted">{{ getPercentOfExpense(cat.amount) }}%</td>
+                </tr>
+                <tr *ngIf="activeBreakdown.length === 0">
+                  <td colspan="3" class="text-center py-4 text-muted">No expense records categorized this month.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detailed Transactions List -->
+      <div class="col-md-7">
+        <div class="card report-card p-4 h-100">
+          <h5 class="fw-bold text-white mb-3 border-bottom border-secondary pb-2">
+            <i class="fa-solid fa-list-ul text-secondary me-2"></i>Transactions Ledger
+          </h5>
+          <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+            <table class="table table-hover align-middle mb-0 small">
+              <thead class="table-dark">
+                <tr>
+                  <th scope="col">Date</th>
+                  <th scope="col">Type</th>
+                  <th scope="col">Source/Category</th>
+                  <th scope="col">Description</th>
+                  <th scope="col" class="text-end">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let tx of reportData.recentTransactions">
+                  <td>{{ tx.date | date:'shortDate' }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="tx.type === 'Income' ? 'bg-success' : 'bg-danger'">
+                      {{ tx.type }}
+                    </span>
+                  </td>
+                  <td class="text-light fw-semibold">{{ tx.categoryOrSource }}</td>
+                  <td class="text-truncate" style="max-width: 120px;">{{ tx.description || '-' }}</td>
+                  <td class="text-end fw-bold" [ngClass]="tx.type === 'Income' ? 'text-success' : 'text-danger'">
+                    {{ tx.type === 'Income' ? '+' : '-' }}${{ tx.amount.toFixed(2) }}
+                  </td>
+                </tr>
+                <tr *ngIf="reportData.recentTransactions.length === 0">
+                  <td colspan="5" class="text-center py-4 text-muted">No transactions found in this period.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Instructions when not loaded -->
+    <div *ngIf="!loading && !reportLoaded" class="text-center py-5 text-muted border border-secondary border-dashed rounded-3">
+      <i class="fa-solid fa-calculator fs-1 mb-3 opacity-50"></i>
+      <p class="mb-0">Choose a timeframe above and click "Generate Report" to view analytics and statements.</p>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,22 @@
+.admin-container {
+  min-height: calc(100vh - 70px);
+  background: radial-gradient(circle at 50% 50%, #0f172a 0%, #1e293b 100%);
+  padding: 3rem 1rem;
+  color: #f8fafc;
+}
+
+.admin-card {
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(12px);
+}
+
+.table {
+  color: #f8fafc;
+}
+
+.table tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.02);
+}

@@ -1,0 +1,136 @@
+<div class="profile-container">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        
+        <!-- Page Title -->
+        <div class="d-flex align-items-center mb-4">
+          <i class="fa-solid fa-user-gear text-primary fs-2 me-3"></i>
+          <div>
+            <h2 class="fw-bold mb-0">Profile Settings</h2>
+            <p class="text-muted mb-0">Manage your profile details and security settings.</p>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <!-- Main Profile Info -->
+          <div class="col-md-6">
+            <div class="card profile-card p-4 h-100">
+              <h4 class="fw-bold mb-4 text-white border-bottom border-secondary pb-2">
+                <i class="fa-solid fa-id-card me-2 text-info"></i>Personal Info
+              </h4>
+              
+              <form [formGroup]="infoForm" (ngSubmit)="onUpdateInfo()">
+                <div class="mb-3">
+                  <label for="username" class="form-label">Username</label>
+                  <input 
+                    type="text" 
+                    id="username" 
+                    class="form-control" 
+                    formControlName="username"
+                    [class.is-invalid]="infoSubmitted && fi['username'].errors"
+                  >
+                  <div *ngIf="infoSubmitted && fi['username'].errors" class="invalid-feedback">
+                    <div *ngIf="fi['username'].errors['required']">Username is required</div>
+                    <div *ngIf="fi['username'].errors['minlength']">Username must be at least 3 characters</div>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="email" class="form-label">Email Address</label>
+                  <input 
+                    type="email" 
+                    id="email" 
+                    class="form-control" 
+                    formControlName="email"
+                    [class.is-invalid]="infoSubmitted && fi['email'].errors"
+                  >
+                  <div *ngIf="infoSubmitted && fi['email'].errors" class="invalid-feedback">
+                    <div *ngIf="fi['email'].errors['required']">Email is required</div>
+                    <div *ngIf="fi['email'].errors['email']">Email must be valid</div>
+                  </div>
+                </div>
+
+                <div class="mb-4">
+                  <label class="form-label">Account Role</label>
+                  <input type="text" class="form-control bg-dark border-secondary text-muted" [value]="authService.currentUserValue?.role | uppercase" readonly>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-2 d-flex justify-content-center align-items-center" [disabled]="infoLoading">
+                  <span class="spinner-border spinner-border-sm me-2" *ngIf="infoLoading"></span>
+                  <span>{{ infoLoading ? 'Updating...' : 'Save Changes' }}</span>
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Change Password -->
+          <div class="col-md-6">
+            <div class="card profile-card p-4 h-100">
+              <h4 class="fw-bold mb-4 text-white border-bottom border-secondary pb-2">
+                <i class="fa-solid fa-key me-2 text-warning"></i>Change Password
+              </h4>
+              
+              <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()">
+                <div class="mb-3">
+                  <label for="oldPassword" class="form-label">Current Password</label>
+                  <input 
+                    type="password" 
+                    id="oldPassword" 
+                    class="form-control" 
+                    formControlName="oldPassword"
+                    placeholder="••••••••"
+                    [class.is-invalid]="pwSubmitted && fp['oldPassword'].errors"
+                  >
+                  <div *ngIf="pwSubmitted && fp['oldPassword'].errors" class="invalid-feedback">
+                    <div *ngIf="fp['oldPassword'].errors['required']">Current password is required</div>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="newPassword" class="form-label">New Password</label>
+                  <input 
+                    type="password" 
+                    id="newPassword" 
+                    class="form-control" 
+                    formControlName="newPassword"
+                    placeholder="••••••••"
+                    [class.is-invalid]="pwSubmitted && fp['newPassword'].errors"
+                  >
+                  <div *ngIf="pwSubmitted && fp['newPassword'].errors" class="invalid-feedback">
+                    <div *ngIf="fp['newPassword'].errors['required']">New password is required</div>
+                    <div *ngIf="fp['newPassword'].errors['minlength']">Password must be at least 6 characters</div>
+                  </div>
+                </div>
+
+                <div class="mb-4">
+                  <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                  <input 
+                    type="password" 
+                    id="confirmPassword" 
+                    class="form-control" 
+                    formControlName="confirmPassword"
+                    placeholder="••••••••"
+                    [class.is-invalid]="pwSubmitted && (fp['confirmPassword'].errors || passwordForm.errors?.['mismatch'])"
+                  >
+                  <div *ngIf="pwSubmitted && fp['confirmPassword'].errors" class="invalid-feedback">
+                    <div *ngIf="fp['confirmPassword'].errors['required']">Please confirm new password</div>
+                  </div>
+                  <div *ngIf="pwSubmitted && passwordForm.errors?.['mismatch']" class="invalid-feedback d-block">
+                    Passwords do not match
+                  </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-2 d-flex justify-content-center align-items-center" [disabled]="pwLoading">
+                  <span class="spinner-border spinner-border-sm me-2" *ngIf="pwLoading"></span>
+                  <span>{{ pwLoading ? 'Changing...' : 'Update Password' }}</span>
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
