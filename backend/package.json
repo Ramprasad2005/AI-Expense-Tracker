@@ -17,6 +17,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.8.2",
     "morgan": "^1.10.0",
+    "nodemailer": "^9.0.3",
     "pdfmake": "^0.2.14"
   },
   "devDependencies": {

@@ -25,6 +25,33 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['user', 'admin'],
     default: 'user'
+  },
+  tokenVersion: {
+    type: Number,
+    default: 0
+  },
+  resetOtp: {
+    type: String,
+    select: false
+  },
+  resetOtpExpire: {
+    type: Date,
+    select: false
+  },
+  resetOtpAttempts: {
+    type: Number,
+    default: 0,
+    select: false
+  },
+  notificationPreferences: {
+    type: Map,
+    of: Boolean,
+    default: {
+      expenseAdded: true,
+      incomeAdded: true,
+      budgetExceeded: true,
+      monthlyReportGenerated: true
+    }
   }
 }, {
   timestamps: true
