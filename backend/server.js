@@ -23,6 +23,10 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'ok', message: 'AI Expense Tracker API is running' });
 });
 
+// Routes
+const authRoutes = require('./routes/authRoutes');
+app.use('/api/auth', authRoutes);
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
