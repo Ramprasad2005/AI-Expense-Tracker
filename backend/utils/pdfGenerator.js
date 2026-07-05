@@ -1,4 +1,3 @@
-const puppeteer = require('puppeteer-core');
 const crypto = require('crypto');
 
 // ─── Chrome Executable Path ───────────────────────────────────────────────────
@@ -580,9 +579,10 @@ const buildReportHTML = (reportData) => {
 exports.generateFinancialReportPDF = async (reportData, res) => {
   let browser = null;
   try {
+    const { launch } = await import('puppeteer-core');
     const html = buildReportHTML(reportData);
 
-    browser = await puppeteer.launch({
+    browser = await launch({
       headless: 'new',
       executablePath: getChromePath(),
       args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu']
