@@ -1,35 +1,90 @@
 .reports-container {
-  min-height: calc(100vh - 70px);
-  background: radial-gradient(circle at 50% 50%, #0f172a 0%, #1e293b 100%);
+  min-height: calc(100vh - 72px);
+  background-color: var(--bg-color);
   padding: 3rem 1rem;
-  color: #f8fafc;
+  color: var(--text-primary);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .report-card {
-  background: rgba(30, 41, 59, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(12px);
+  background-color: var(--card-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sm);
+  padding: 32px;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
-.form-control, .form-select {
-  background-color: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #f8fafc;
-}
-
-.form-control:focus, .form-select:focus {
-  background-color: rgba(15, 23, 42, 0.8);
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
-  color: #f8fafc;
+.table-card {
+  background-color: var(--card-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sm);
+  padding: 28px;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .table {
-  color: #f8fafc;
+  color: var(--text-primary);
 }
 
 .table tbody tr:hover {
-  background-color: rgba(255, 255, 255, 0.02);
+  background-color: rgba(59, 130, 246, 0.04) !important;
+}
+
+body.dark-theme .table tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+}
+
+/* Skeleton Loaders */
+.skeleton-card {
+  overflow: hidden;
+  position: relative;
+  background-color: var(--card-color) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+.skeleton-line {
+  height: 16px;
+  background-color: rgba(148, 163, 184, 0.15);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+body.dark-theme .skeleton-line {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.skeleton-line::after,
+.skeleton-card::after {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: skeleton-shimmer 1.5s infinite;
+}
+
+body.dark-theme .skeleton-line::after,
+body.dark-theme .skeleton-card::after {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.03),
+    transparent
+  );
+}
+
+@keyframes skeleton-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }

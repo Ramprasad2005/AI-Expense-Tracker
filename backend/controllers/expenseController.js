@@ -78,15 +78,16 @@ exports.getExpenses = async (req, res, next) => {
 
     // Search query (checks category or description)
     if (search) {
+      const searchStr = String(search).trim();
       query.$or = [
-        { category: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } }
+        { category: { $regex: searchStr, $options: 'i' } },
+        { description: { $regex: searchStr, $options: 'i' } }
       ];
     }
 
     // Filter by category
     if (category) {
-      query.category = category;
+      query.category = String(category);
     }
 
     // Filter by date range
@@ -102,11 +103,13 @@ exports.getExpenses = async (req, res, next) => {
 
     // Sorting
     const sort = {};
-    sort[sortBy] = sortOrder === 'asc' ? 1 : -1;
+    const validSortFields = ['date', 'amount', 'category'];
+    const finalSortBy = validSortFields.includes(sortBy) ? sortBy : 'date';
+    sort[finalSortBy] = sortOrder === 'asc' ? 1 : -1;
 
     // Pagination
-    const pageNum = parseInt(page, 10);
-    const limitNum = parseInt(limit, 10);
+    const pageNum = parseInt(page, 10) || 1;
+    const limitNum = parseInt(limit, 10) || 10;
     const skip = (pageNum - 1) * limitNum;
 
     // Execute query
@@ -139,6 +142,11 @@ exports.getExpenses = async (req, res, next) => {
 // @access  Private
 exports.getExpenseById = async (req, res, next) => {
   try {
+    const mongoose = require('mongoose');
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, message: 'Invalid ID format' });
+    }
+
     const expense = await Expense.findOne({ _id: req.params.id, user: req.user._id });
     if (!expense) {
       return res.status(404).json({ success: false, message: 'Expense not found' });
@@ -164,14 +172,14 @@ exports.createExpense = async (req, res, next) => {
 
     const expense = await Expense.create({
       user: req.user._id,
-      amount,
-      category,
+      amount: parseFloat(amount),
+      category: String(category),
       date: expenseDate,
-      description
+      description: description ? String(description) : ''
     });
 
     // Check notifications asynchronously
-    checkBudgetAndCreateNotification(req.user._id, amount, expenseDate, category);
+    checkBudgetAndCreateNotification(req.user._id, expense.amount, expense.date, expense.category);
 
     res.status(201).json({ success: true, data: expense });
   } catch (error) {
@@ -184,14 +192,27 @@ exports.createExpense = async (req, res, next) => {
 // @access  Private
 exports.updateExpense = async (req, res, next) => {
   try {
+    const mongoose = require('mongoose');
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, message: 'Invalid ID format' });
+    }
+
     let expense = await Expense.findOne({ _id: req.params.id, user: req.user._id });
     if (!expense) {
       return res.status(404).json({ success: false, message: 'Expense not found' });
     }
 
+    // Mass assignment protection: update only allowed fields
+    const { amount, category, date, description } = req.body;
+    const updateData = {};
+    if (amount !== undefined) updateData.amount = parseFloat(amount);
+    if (category !== undefined) updateData.category = String(category);
+    if (date !== undefined) updateData.date = new Date(date);
+    if (description !== undefined) updateData.description = String(description);
+
     expense = await Expense.findByIdAndUpdate(
       req.params.id,
-      { $set: req.body },
+      { $set: updateData },
       { new: true, runValidators: true }
     );
 
@@ -209,6 +230,11 @@ exports.updateExpense = async (req, res, next) => {
 // @access  Private
 exports.deleteExpense = async (req, res, next) => {
   try {
+    const mongoose = require('mongoose');
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, message: 'Invalid ID format' });
+    }
+
     const expense = await Expense.findOne({ _id: req.params.id, user: req.user._id });
     if (!expense) {
       return res.status(404).json({ success: false, message: 'Expense not found' });

@@ -1,8 +1,10 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { IncomeService } from '../../services/income.service';
+import { AuthService } from '../../services/auth.service';
 import { NotificationService } from '../../services/notification.service';
+import { DataSyncService } from '../../services/datasync.service';
 
 @Component({
   selector: 'app-income',
@@ -14,10 +16,14 @@ import { NotificationService } from '../../services/notification.service';
 export class IncomeComponent implements OnInit {
   private fb = inject(FormBuilder);
   private incomeService = inject(IncomeService);
+  private authService = inject(AuthService);
   private notificationService = inject(NotificationService);
+  private dataSyncService = inject(DataSyncService);
+  private cdr = inject(ChangeDetectorRef);
 
   incomes: any[] = [];
   loading = false;
+  backgroundRefreshing = false;
   
   // Filters state
   filters = {
@@ -47,7 +53,7 @@ export class IncomeComponent implements OnInit {
   modalLoading = false;
 
   ngOnInit(): void {
-    this.loadIncomes();
+    this.loadIncomes(false);
     this.initForm();
   }
 
@@ -65,18 +71,55 @@ export class IncomeComponent implements OnInit {
     return this.incomeForm.controls;
   }
 
-  loadIncomes(): void {
+  getStorageKey(): string {
+    const user = this.authService.currentUserValue;
+    const userId = user ? user._id : 'guest';
+    return `cached_income_${userId}_page_${this.filters.page}_limit_${this.filters.limit}_sort_${this.filters.sortBy}_order_${this.filters.sortOrder}_search_${this.filters.search}_source_${this.filters.source}_start_${this.filters.startDate}_end_${this.filters.endDate}`;
+  }
+
+  loadIncomes(forceFresh = false): void {
+    const key = this.getStorageKey();
+    const cached = localStorage.getItem(key);
+    
+    if (cached && !forceFresh) {
+      try {
+        const parsed = JSON.parse(cached);
+        this.incomes = parsed.data;
+        this.pagination = parsed.pagination;
+        this.loading = false;
+        
+        // Background refresh only (stale-while-revalidate)
+        this.backgroundRefreshing = true;
+        this.fetchFreshIncomes(key);
+        return;
+      } catch (e) {
+        console.error('Error loading cached income:', e);
+      }
+    }
+    
+    // Fallback if no cache exists or fresh reload requested
     this.loading = true;
+    this.fetchFreshIncomes(key);
+  }
+
+  fetchFreshIncomes(cacheKey: string): void {
     this.incomeService.getIncomes(this.filters).subscribe({
       next: (res) => {
         this.loading = false;
+        this.backgroundRefreshing = false;
         if (res.success) {
           this.incomes = res.data;
           this.pagination = res.pagination;
+          try {
+            localStorage.setItem(cacheKey, JSON.stringify(res));
+          } catch (e) {
+            console.error('Error saving cache:', e);
+          }
         }
       },
       error: (err) => {
         this.loading = false;
+        this.backgroundRefreshing = false;
         console.error(err);
         this.notificationService.showToast('Failed to load income records', 'danger');
       }
@@ -85,12 +128,12 @@ export class IncomeComponent implements OnInit {
 
   onFilterChange(): void {
     this.filters.page = 1;
-    this.loadIncomes();
+    this.loadIncomes(true);
   }
 
   changePage(newPage: number): void {
     this.filters.page = newPage;
-    this.loadIncomes();
+    this.loadIncomes(false);
   }
 
   openAddModal(): void {
@@ -127,7 +170,8 @@ export class IncomeComponent implements OnInit {
         next: (res) => {
           if (res.success) {
             this.notificationService.showToast('Income deleted successfully', 'success');
-            this.loadIncomes();
+            this.dataSyncService.announceTransactionChange();
+            this.loadIncomes(true);
           }
         },
         error: (err) => {
@@ -154,12 +198,15 @@ export class IncomeComponent implements OnInit {
           this.modalLoading = false;
           this.showModal = false;
           this.notificationService.showToast('Income updated successfully', 'success');
-          this.loadIncomes();
+          this.dataSyncService.announceTransactionChange();
+          this.loadIncomes(true);
+          this.cdr.detectChanges();
         },
         error: (err) => {
           this.modalLoading = false;
           console.error(err);
           this.notificationService.showToast('Failed to update income', 'danger');
+          this.cdr.detectChanges();
         }
       });
     } else {
@@ -168,12 +215,15 @@ export class IncomeComponent implements OnInit {
           this.modalLoading = false;
           this.showModal = false;
           this.notificationService.showToast('Income added successfully', 'success');
-          this.loadIncomes();
+          this.dataSyncService.announceTransactionChange();
+          this.loadIncomes(true);
+          this.cdr.detectChanges();
         },
         error: (err) => {
           this.modalLoading = false;
           console.error(err);
           this.notificationService.showToast('Failed to add income', 'danger');
+          this.cdr.detectChanges();
         }
       });
     }

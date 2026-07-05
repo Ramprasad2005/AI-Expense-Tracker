@@ -1,0 +1,208 @@
+<div class="settings-container">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        
+        <!-- Header -->
+        <div class="d-flex align-items-center mb-5 fade-in-up">
+          <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-3 me-3">
+            <i class="fa-solid fa-sliders fs-3"></i>
+          </div>
+          <div>
+            <h2 class="fw-bold mb-1">Settings</h2>
+            <p class="text-muted mb-0">Control your account parameters, notification triggers, and active device sessions.</p>
+          </div>
+        </div>
+
+        <div class="row g-4 fade-in-up">
+          <!-- Profile Settings -->
+          <div class="col-md-6">
+            <div class="card settings-card border-0 mb-4">
+              <h5 class="fw-bold mb-4 border-bottom border-light pb-2">
+                <i class="fa-solid fa-id-card me-2 text-primary small"></i>Account Details
+              </h5>
+              
+              <form [formGroup]="infoForm" (ngSubmit)="onUpdateInfo()">
+                <div class="mb-3">
+                  <label for="username" class="form-label-premium">Username</label>
+                  <input 
+                    type="text" 
+                    id="username" 
+                    class="form-control-premium" 
+                    formControlName="username"
+                    [class.is-invalid]="infoSubmitted && fi['username'].errors"
+                  >
+                  <div *ngIf="infoSubmitted && fi['username'].errors" class="invalid-feedback-premium">
+                    <span *ngIf="fi['username'].errors['required']">Username is required</span>
+                    <span *ngIf="fi['username'].errors['minlength']">Username must be at least 3 characters</span>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="email" class="form-label-premium">Email Address</label>
+                  <input 
+                    type="email" 
+                    id="email" 
+                    class="form-control-premium" 
+                    formControlName="email"
+                    [class.is-invalid]="infoSubmitted && fi['email'].errors"
+                  >
+                  <div *ngIf="infoSubmitted && fi['email'].errors" class="invalid-feedback-premium">
+                    <span *ngIf="fi['email'].errors['required']">Email is required</span>
+                    <span *ngIf="fi['email'].errors['email']">Please enter a valid email address</span>
+                  </div>
+                </div>
+
+                <button type="submit" class="btn-premium-primary w-100 d-flex justify-content-center align-items-center" [disabled]="infoLoading">
+                  <span class="spinner-border spinner-border-sm me-2" *ngIf="infoLoading"></span>
+                  <span>Save Changes</span>
+                </button>
+              </form>
+            </div>
+
+            <!-- Notification Preferences -->
+            <div class="card settings-card border-0">
+              <h5 class="fw-bold mb-4 border-bottom border-light pb-2">
+                <i class="fa-solid fa-bell me-2 text-primary small"></i>Notification Settings
+              </h5>
+              
+              <form [formGroup]="prefForm" (ngSubmit)="onUpdatePrefs()">
+                <div class="form-check mb-3">
+                  <input class="form-check-input" type="checkbox" id="expenseAdded" formControlName="expenseAdded">
+                  <label class="form-check-label small" for="expenseAdded">
+                    Notify when an expense is logged
+                  </label>
+                </div>
+                <div class="form-check mb-3">
+                  <input class="form-check-input" type="checkbox" id="incomeAdded" formControlName="incomeAdded">
+                  <label class="form-check-label small" for="incomeAdded">
+                    Notify when an income is logged
+                  </label>
+                </div>
+                <div class="form-check mb-3">
+                  <input class="form-check-input" type="checkbox" id="budgetExceeded" formControlName="budgetExceeded">
+                  <label class="form-check-label small" for="budgetExceeded">
+                    Notify on monthly budget overruns
+                  </label>
+                </div>
+                <div class="form-check mb-4">
+                  <input class="form-check-input" type="checkbox" id="monthlyReportGenerated" formControlName="monthlyReportGenerated">
+                  <label class="form-check-label small" for="monthlyReportGenerated">
+                    Notify when report statement is compiled
+                  </label>
+                </div>
+
+                <button type="submit" class="btn-premium-primary w-100 d-flex justify-content-center align-items-center" [disabled]="prefLoading">
+                  <span class="spinner-border spinner-border-sm me-2" *ngIf="prefLoading"></span>
+                  <span>Update Preferences</span>
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Password Settings & Theme -->
+          <div class="col-md-6">
+            <div class="card settings-card border-0 mb-4">
+              <h5 class="fw-bold mb-4 border-bottom border-light pb-2">
+                <i class="fa-solid fa-key me-2 text-warning small"></i>Security Credentials
+              </h5>
+              
+              <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()">
+                <!-- Current -->
+                <div class="mb-3">
+                  <label for="oldPassword" class="form-label-premium">Current Password</label>
+                  <input 
+                    type="password" 
+                    id="oldPassword" 
+                    class="form-control-premium" 
+                    formControlName="oldPassword"
+                    placeholder="••••••••"
+                    [class.is-invalid]="pwSubmitted && fp['oldPassword'].errors"
+                  >
+                  <div *ngIf="pwSubmitted && fp['oldPassword'].errors" class="invalid-feedback-premium">
+                    <span *ngIf="fp['oldPassword'].errors['required']">Current password is required</span>
+                  </div>
+                </div>
+
+                <!-- New -->
+                <div class="mb-3">
+                  <label for="newPassword" class="form-label-premium">New Password</label>
+                  <input 
+                    type="password" 
+                    id="newPassword" 
+                    class="form-control-premium" 
+                    formControlName="newPassword"
+                    placeholder="••••••••"
+                    (input)="checkPasswordStrength()"
+                    [class.is-invalid]="pwSubmitted && fp['newPassword'].errors"
+                  >
+                  <div *ngIf="pwSubmitted && fp['newPassword'].errors" class="invalid-feedback-premium">
+                    <span *ngIf="fp['newPassword'].errors['required']">New password is required</span>
+                    <span *ngIf="fp['newPassword'].errors['minlength']">Password must be at least 6 characters</span>
+                  </div>
+                  
+                  <!-- Strength indicator -->
+                  <div class="mt-2" *ngIf="passwordForm.get('newPassword')?.value">
+                    <div class="progress" style="height: 5px; border-radius: 3px; background-color: #E2E8F0;">
+                      <div 
+                        class="progress-bar" 
+                        [style.width.%]="strengthScore * 33.3"
+                        [ngClass]="strengthScore === 1 ? 'bg-danger' : (strengthScore === 2 ? 'bg-warning' : 'bg-success')"
+                      ></div>
+                    </div>
+                    <span class="extra-small text-muted mt-1 d-block">
+                      Strength: <strong [ngClass]="strengthScore === 1 ? 'text-danger' : (strengthScore === 2 ? 'text-warning' : 'text-success')">{{ strengthLabel }}</strong>
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Confirm -->
+                <div class="mb-4">
+                  <label for="confirmPassword" class="form-label-premium">Confirm New Password</label>
+                  <input 
+                    type="password" 
+                    id="confirmPassword" 
+                    class="form-control-premium" 
+                    formControlName="confirmPassword"
+                    placeholder="••••••••"
+                    [class.is-invalid]="pwSubmitted && (fp['confirmPassword'].errors || passwordForm.errors?.['mismatch'])"
+                  >
+                  <div *ngIf="pwSubmitted && fp['confirmPassword'].errors" class="invalid-feedback-premium">
+                    <span *ngIf="fp['confirmPassword'].errors['required']">Please confirm password</span>
+                  </div>
+                  <div *ngIf="pwSubmitted && passwordForm.errors?.['mismatch']" class="invalid-feedback-premium">
+                    Passwords do not match
+                  </div>
+                </div>
+
+                <button type="submit" class="btn-premium-primary w-100 d-flex justify-content-center align-items-center" [disabled]="pwLoading">
+                  <span class="spinner-border spinner-border-sm me-2" *ngIf="pwLoading"></span>
+                  <span>Update Password</span>
+                </button>
+              </form>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="card settings-card border-danger border-opacity-50">
+              <h5 class="fw-bold mb-4 text-danger border-bottom border-danger border-opacity-10 pb-2">
+                <i class="fa-solid fa-triangle-exclamation me-2 text-danger small"></i>Danger Zone
+              </h5>
+              
+              <div class="d-flex flex-column gap-3">
+                <button type="button" class="btn btn-outline-danger w-100 py-2.5 rounded-3 fw-semibold small" (click)="onLogoutAll()" [disabled]="logoutLoading">
+                  <span class="spinner-border spinner-border-sm me-2" *ngIf="logoutLoading"></span>
+                  <i class="fa-solid fa-right-from-bracket me-1"></i> Logout From All Devices
+                </button>
+                <button type="button" class="btn btn-danger w-100 py-2.5 rounded-3 fw-semibold small" (click)="onDeleteAccount()" [disabled]="deleteLoading">
+                  <span class="spinner-border spinner-border-sm me-2" *ngIf="deleteLoading"></span>
+                  <i class="fa-solid fa-trash-can me-1"></i> Permanently Delete Account
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

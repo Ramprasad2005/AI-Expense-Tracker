@@ -1,22 +1,30 @@
 .admin-container {
-  min-height: calc(100vh - 70px);
-  background: radial-gradient(circle at 50% 50%, #0f172a 0%, #1e293b 100%);
+  min-height: calc(100vh - 72px);
+  background-color: #F8FAFC;
   padding: 3rem 1rem;
-  color: #f8fafc;
+  color: #111827;
 }
 
-.admin-card {
-  background: rgba(30, 41, 59, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+.stats-card {
+  background-color: #FFFFFF;
+  border: 1px solid #E5E7EB;
   border-radius: 16px;
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(12px);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  padding: 24px;
+}
+
+.table-card {
+  background-color: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  padding: 28px;
 }
 
 .table {
-  color: #f8fafc;
+  color: #111827;
 }
 
 .table tbody tr:hover {
-  background-color: rgba(255, 255, 255, 0.02);
+  background-color: #F9FAFB;
 }

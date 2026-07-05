@@ -1,33 +1,16 @@
 .profile-container {
-  min-height: calc(100vh - 70px);
-  background: radial-gradient(circle at 50% 50%, #0f172a 0%, #1e293b 100%);
+  min-height: calc(100vh - 72px);
+  background-color: var(--bg-color);
+  color: var(--text-primary);
   padding: 3rem 1rem;
-  color: #f8fafc;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .profile-card {
-  background: rgba(30, 41, 59, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(12px);
-}
-
-.form-control {
-  background-color: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #f8fafc;
-}
-
-.form-control:focus {
-  background-color: rgba(15, 23, 42, 0.8);
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
-  color: #f8fafc;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  border: none;
-  font-weight: 600;
+  background-color: var(--card-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sm);
+  padding: 32px;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }

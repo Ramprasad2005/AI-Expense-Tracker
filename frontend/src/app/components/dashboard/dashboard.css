@@ -1,50 +1,50 @@
 .dashboard-container {
-  min-height: calc(100vh - 70px);
-  background: radial-gradient(circle at 50% 50%, #0f172a 0%, #1e293b 100%);
+  min-height: calc(100vh - 72px);
+  background-color: var(--bg-color);
   padding: 3rem 1rem;
-  color: #f8fafc;
+  color: var(--text-primary);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .stats-card {
-  background: rgba(30, 41, 59, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: var(--card-color);
+  border: 1px solid var(--border-color);
   border-radius: 16px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(12px);
-  transition: transform 0.2s, border-color 0.2s;
+  box-shadow: var(--shadow-sm);
+  padding: 24px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .stats-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 .chart-card {
-  background: rgba(30, 41, 59, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: var(--card-color);
+  border: 1px solid var(--border-color);
   border-radius: 16px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(10px);
-  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  padding: 28px;
 }
 
 .ai-card {
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(76, 29, 149, 0.2) 100%);
-  border: 1px solid rgba(139, 92, 246, 0.2);
+  background: var(--card-color);
+  border: 1px solid var(--border-color);
   border-radius: 16px;
-  box-shadow: 0 10px 30px -5px rgba(139, 92, 246, 0.15);
-  backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-sm);
+  padding: 28px;
 }
 
 .chart-container {
   position: relative;
-  height: 260px;
+  height: 280px;
   width: 100%;
 }
 
 .recent-transaction-item {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  padding: 0.75rem 0.5rem;
+  border-bottom: 1px solid #F3F4F6;
+  padding: 12px 8px;
 }
 
 .recent-transaction-item:last-child {

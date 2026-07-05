@@ -43,6 +43,18 @@ const userSchema = new mongoose.Schema({
     default: 0,
     select: false
   },
+  isVerified: {
+    type: Boolean,
+    default: false
+  },
+  verificationOtp: {
+    type: String,
+    select: false
+  },
+  verificationOtpExpire: {
+    type: Date,
+    select: false
+  },
   notificationPreferences: {
     type: Map,
     of: Boolean,

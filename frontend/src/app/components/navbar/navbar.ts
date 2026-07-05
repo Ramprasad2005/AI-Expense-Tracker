@@ -21,12 +21,33 @@ export class NavbarComponent implements OnInit, OnDestroy {
   unreadCount = 0;
   private pollSub?: Subscription;
 
+  currentTheme: 'light' | 'dark' = 'light';
+
   ngOnInit(): void {
+    // Initialize theme state
+    this.currentTheme = (localStorage.getItem('theme') as 'light' | 'dark') || 'light';
+    if (this.currentTheme === 'dark') {
+      document.body.classList.add('dark-theme');
+    } else {
+      document.body.classList.remove('dark-theme');
+    }
+
     if (this.authService.isLoggedIn()) {
       this.loadNotifications();
       // Poll notifications every 30 seconds
       this.pollSub = interval(30000).subscribe(() => this.loadNotifications());
     }
+  }
+
+  toggleTheme(): void {
+    this.currentTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+    localStorage.setItem('theme', this.currentTheme);
+    if (this.currentTheme === 'dark') {
+      document.body.classList.add('dark-theme');
+    } else {
+      document.body.classList.remove('dark-theme');
+    }
+    window.dispatchEvent(new Event('themeChanged'));
   }
 
   ngOnDestroy(): void {

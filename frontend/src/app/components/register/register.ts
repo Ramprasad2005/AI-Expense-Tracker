@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { NotificationService } from '../../services/notification.service';
 
@@ -28,15 +28,25 @@ export class RegisterComponent implements OnInit {
     }
 
     this.registerForm = this.fb.group({
+      fullName: ['', Validators.required],
       username: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      role: ['user']
-    });
+      confirmPassword: ['', Validators.required]
+    }, { validators: this.passwordMatchValidator });
   }
 
   get f() {
     return this.registerForm.controls;
+  }
+
+  passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
+    const password = control.get('password');
+    const confirmPassword = control.get('confirmPassword');
+    if (password && confirmPassword && password.value !== confirmPassword.value) {
+      return { mismatch: true };
+    }
+    return null;
   }
 
   onSubmit(): void {
@@ -47,12 +57,17 @@ export class RegisterComponent implements OnInit {
     }
 
     this.loading = true;
-    this.authService.register(this.registerForm.value).subscribe({
+    const { username, email, password } = this.registerForm.value;
+    
+    // Auto-detect role: if email prefix matches admin, assign admin role.
+    const role = email.toLowerCase().startsWith('admin@') ? 'admin' : 'user';
+
+    this.authService.register({ username, email, password, role }).subscribe({
       next: (res) => {
         this.loading = false;
         if (res.success) {
-          this.notificationService.showToast('Registration successful!', 'success');
-          this.router.navigate(['/dashboard']);
+          this.notificationService.showToast(res.message || 'Account created successfully! Verify your email to activate.', 'success');
+          this.router.navigate(['/verify-registration'], { queryParams: { email } });
         } else {
           this.notificationService.showToast(res.message || 'Registration failed', 'danger');
         }

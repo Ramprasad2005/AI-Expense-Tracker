@@ -6,7 +6,9 @@ const Expense = require('../models/Expense');
 // @access  Private
 exports.searchTransactions = async (req, res, next) => {
   try {
-    const { q = '', startDate, endDate, category, minAmount, maxAmount, sortBy = 'date', sortOrder = 'desc' } = req.query;
+    const qRaw = req.query.q;
+    const q = typeof qRaw === 'string' ? qRaw.trim() : '';
+    const { startDate, endDate, category, minAmount, maxAmount, sortBy = 'date', sortOrder = 'desc' } = req.query;
 
     const userId = req.user._id;
 
@@ -25,8 +27,8 @@ exports.searchTransactions = async (req, res, next) => {
     }
     if (minAmount || maxAmount) {
       incomeQuery.amount = {};
-      if (minAmount) incomeQuery.amount.$gte = parseFloat(minAmount);
-      if (maxAmount) incomeQuery.amount.$lte = parseFloat(maxAmount);
+      if (minAmount && !isNaN(parseFloat(minAmount))) incomeQuery.amount.$gte = parseFloat(minAmount);
+      if (maxAmount && !isNaN(parseFloat(maxAmount))) incomeQuery.amount.$lte = parseFloat(maxAmount);
     }
 
     // 2. Build Expenses query
@@ -38,7 +40,7 @@ exports.searchTransactions = async (req, res, next) => {
       ];
     }
     if (category) {
-      expenseQuery.category = category;
+      expenseQuery.category = String(category);
     }
     if (startDate || endDate) {
       expenseQuery.date = {};
@@ -47,8 +49,8 @@ exports.searchTransactions = async (req, res, next) => {
     }
     if (minAmount || maxAmount) {
       expenseQuery.amount = {};
-      if (minAmount) expenseQuery.amount.$gte = parseFloat(minAmount);
-      if (maxAmount) expenseQuery.amount.$lte = parseFloat(maxAmount);
+      if (minAmount && !isNaN(parseFloat(minAmount))) expenseQuery.amount.$gte = parseFloat(minAmount);
+      if (maxAmount && !isNaN(parseFloat(maxAmount))) expenseQuery.amount.$lte = parseFloat(maxAmount);
     }
 
     // Fetch in parallel

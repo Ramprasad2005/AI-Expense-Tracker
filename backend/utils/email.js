@@ -6,44 +6,69 @@ const sendEmail = async (options) => {
   const port = process.env.EMAIL_PORT;
   const user = process.env.EMAIL_USER;
   const pass = process.env.EMAIL_PASSWORD;
-  const from = process.env.EMAIL_FROM || 'noreply@tracker.com';
+  const from = process.env.EMAIL_FROM || user || 'noreply@tracker.com';
+
+  console.log('\n[EMAIL DEBUG] ─── sendEmail called ───');
+  console.log(`[EMAIL DEBUG] To: ${options.email}`);
+  console.log(`[EMAIL DEBUG] Subject: ${options.subject}`);
+  console.log(`[EMAIL DEBUG] EMAIL_HOST: ${host || '(not set)'}`);
+  console.log(`[EMAIL DEBUG] EMAIL_PORT: ${port || '(not set)'}`);
+  console.log(`[EMAIL DEBUG] EMAIL_USER: ${user || '(not set)'}`);
+  console.log(`[EMAIL DEBUG] EMAIL_PASSWORD: ${pass ? '****' + pass.slice(-4) : '(not set)'}`);
+  console.log(`[EMAIL DEBUG] EMAIL_FROM: ${from}`);
 
   const hasCredentials = host && port && user && pass;
 
-  if (hasCredentials) {
-    try {
-      const transporter = nodemailer.createTransport({
-        host,
-        port: parseInt(port),
-        secure: parseInt(port) === 465,
-        auth: { user, pass }
-      });
-
-      const mailOptions = {
-        from: `"AI Expense Tracker" <${from}>`,
-        to: options.email,
-        subject: options.subject,
-        html: options.html
-      };
-
-      await transporter.sendMail(mailOptions);
-      console.log(`[EMAIL] Real email sent successfully to ${options.email}`);
-      return true;
-    } catch (error) {
-      console.error('[EMAIL ERROR] Failed to send real email:', error.message);
-    }
+  if (!hasCredentials) {
+    console.warn('[EMAIL WARN] Missing SMTP credentials. Falling back to mock console email.');
+    console.warn('[EMAIL WARN] Set EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASSWORD in .env');
+    // Graceful fallback to console logging for local sandbox testing
+    const plainText = options.html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    console.log('\n========================================================================');
+    console.log(`[MOCK EMAIL SENT]`);
+    console.log(`To:      ${options.email}`);
+    console.log(`Subject: ${options.subject}`);
+    console.log(`Body:    ${plainText.slice(0, 300)}...`);
+    console.log('========================================================================\n');
+    return { success: true, mock: true };
   }
 
-  // Graceful fallback to console logging for local sandbox testing
-  const plainText = options.html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-  console.log('\n========================================================================');
-  console.log(`[MOCK EMAIL SENT]`);
-  console.log(`To:      ${options.email}`);
-  console.log(`Subject: ${options.subject}`);
-  console.log(`Body:    ${plainText.slice(0, 160)}...`);
-  console.log('========================================================================\n');
-  return true;
+  try {
+    console.log('[EMAIL DEBUG] Creating Nodemailer transporter...');
+    const transporter = nodemailer.createTransport({
+      host,
+      port: parseInt(port),
+      secure: parseInt(port) === 465,
+      auth: { user, pass }
+    });
+
+    console.log('[EMAIL DEBUG] Verifying SMTP connection with transporter.verify()...');
+    await transporter.verify();
+    console.log('[EMAIL DEBUG] ✅ SMTP connection verified successfully.');
+
+    const mailOptions = {
+      from: `"AI Expense Tracker" <${from}>`,
+      to: options.email,
+      subject: options.subject,
+      html: options.html
+    };
+
+    console.log('[EMAIL DEBUG] Sending email...');
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`[EMAIL DEBUG] ✅ Email sent successfully!`);
+    console.log(`[EMAIL DEBUG] Message ID: ${info.messageId}`);
+    console.log(`[EMAIL DEBUG] Response: ${info.response}`);
+    return { success: true, mock: false, messageId: info.messageId };
+  } catch (error) {
+    console.error('[EMAIL ERROR] ❌ Failed to send email:');
+    console.error(`[EMAIL ERROR] Code: ${error.code || 'N/A'}`);
+    console.error(`[EMAIL ERROR] Message: ${error.message}`);
+    console.error(`[EMAIL ERROR] Stack: ${error.stack}`);
+    // Re-throw so the caller can decide how to handle it
+    throw error;
+  }
 };
+
 
 // HTML Email Layout Wrapper
 const getHtmlLayout = (title, content) => {
@@ -94,6 +119,23 @@ const sendWelcomeEmail = async (email, username) => {
     email,
     subject: 'Welcome to AI Expense Tracker',
     html: getHtmlLayout('Welcome', content)
+  });
+};
+
+// Verification OTP for Registration
+const sendVerificationEmail = async (email, username, otpCode) => {
+  const content = `
+    <h3>Welcome to AI Expense Tracker, ${username}!</h3>
+    <p>Thank you for registering. Use the following 6-digit verification code to complete your registration and activate your account. This code is valid for exactly <strong>24 hours</strong>.</p>
+    <div style="font-size: 32px; font-weight: 800; text-align: center; margin: 30px 0; letter-spacing: 5px; color: #2563EB;">
+      ${otpCode}
+    </div>
+    <p>If you did not create an account, please ignore this email.</p>
+  `;
+  await sendEmail({
+    email,
+    subject: 'Activate Your AI Expense Tracker Account - Verification Code',
+    html: getHtmlLayout('Email Verification', content)
   });
 };
 
@@ -162,6 +204,7 @@ const sendAccountNotificationEmail = async (email, subject, message) => {
 
 module.exports = {
   sendWelcomeEmail,
+  sendVerificationEmail,
   sendOtpEmail,
   sendPasswordChangedEmail,
   sendBudgetAlertEmail,

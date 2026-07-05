@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class AiService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:5000/api/ai';
+  private apiUrl = 'http://localhost:5050/api/ai';
 
   getSuggestions(): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/suggestions`, {});

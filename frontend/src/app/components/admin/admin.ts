@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminService } from '../../services/admin.service';
+import { AuthService } from '../../services/auth.service';
 import { NotificationService } from '../../services/notification.service';
 
 @Component({
@@ -12,6 +13,7 @@ import { NotificationService } from '../../services/notification.service';
 })
 export class AdminComponent implements OnInit {
   private adminService = inject(AdminService);
+  public authService = inject(AuthService);
   private notificationService = inject(NotificationService);
 
   loading = false;
@@ -46,8 +48,13 @@ export class AdminComponent implements OnInit {
   }
 
   onDeleteUser(user: any): void {
+    if (user.email === this.authService.currentUserValue?.email) {
+      this.notificationService.showToast('Cannot delete your own administrator account', 'warning');
+      return;
+    }
+
     if (user.role === 'admin') {
-      this.notificationService.showToast('Cannot delete administrative users', 'warning');
+      this.notificationService.showToast('Cannot delete other administrative users', 'warning');
       return;
     }
 

@@ -1,64 +1,70 @@
 <div class="profile-container">
   <div class="container">
     <div class="row justify-content-center">
-      <div class="col-lg-8">
+      <div class="col-lg-10">
         
-        <!-- Page Title -->
-        <div class="d-flex align-items-center mb-4">
-          <i class="fa-solid fa-user-gear text-primary fs-2 me-3"></i>
+        <!-- Header -->
+        <div class="d-flex align-items-center mb-5 fade-in-up">
+          <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-3 me-3">
+            <i class="fa-solid fa-user-gear fs-3"></i>
+          </div>
           <div>
-            <h2 class="fw-bold mb-0">Profile Settings</h2>
-            <p class="text-muted mb-0">Manage your profile details and security settings.</p>
+            <h2 class="fw-bold mb-1">Settings</h2>
+            <p class="text-muted mb-0">Update your profile parameters and secure your credentials.</p>
           </div>
         </div>
 
-        <div class="row g-4">
+        <div class="row g-4 fade-in-up">
           <!-- Main Profile Info -->
           <div class="col-md-6">
-            <div class="card profile-card p-4 h-100">
-              <h4 class="fw-bold mb-4 text-white border-bottom border-secondary pb-2">
-                <i class="fa-solid fa-id-card me-2 text-info"></i>Personal Info
-              </h4>
+            <div class="card profile-card border-0">
+              <h5 class="fw-bold mb-4 border-bottom border-light pb-2">
+                <i class="fa-solid fa-id-card me-2 text-primary small"></i>Account Details
+              </h5>
               
               <form [formGroup]="infoForm" (ngSubmit)="onUpdateInfo()">
+                
+                <!-- Username -->
                 <div class="mb-3">
-                  <label for="username" class="form-label">Username</label>
+                  <label for="username" class="form-label-premium">Username</label>
                   <input 
                     type="text" 
                     id="username" 
-                    class="form-control" 
+                    class="form-control-premium" 
                     formControlName="username"
                     [class.is-invalid]="infoSubmitted && fi['username'].errors"
                   >
-                  <div *ngIf="infoSubmitted && fi['username'].errors" class="invalid-feedback">
-                    <div *ngIf="fi['username'].errors['required']">Username is required</div>
-                    <div *ngIf="fi['username'].errors['minlength']">Username must be at least 3 characters</div>
+                  <div *ngIf="infoSubmitted && fi['username'].errors" class="invalid-feedback-premium">
+                    <span *ngIf="fi['username'].errors['required']">Username is required</span>
+                    <span *ngIf="fi['username'].errors['minlength']">Username must be at least 3 characters</span>
                   </div>
                 </div>
 
+                <!-- Email -->
                 <div class="mb-3">
-                  <label for="email" class="form-label">Email Address</label>
+                  <label for="email" class="form-label-premium">Email Address</label>
                   <input 
                     type="email" 
                     id="email" 
-                    class="form-control" 
+                    class="form-control-premium" 
                     formControlName="email"
                     [class.is-invalid]="infoSubmitted && fi['email'].errors"
                   >
-                  <div *ngIf="infoSubmitted && fi['email'].errors" class="invalid-feedback">
-                    <div *ngIf="fi['email'].errors['required']">Email is required</div>
-                    <div *ngIf="fi['email'].errors['email']">Email must be valid</div>
+                  <div *ngIf="infoSubmitted && fi['email'].errors" class="invalid-feedback-premium">
+                    <span *ngIf="fi['email'].errors['required']">Email is required</span>
+                    <span *ngIf="fi['email'].errors['email']">Please enter a valid email address</span>
                   </div>
                 </div>
 
+                <!-- Role -->
                 <div class="mb-4">
-                  <label class="form-label">Account Role</label>
-                  <input type="text" class="form-control bg-dark border-secondary text-muted" [value]="authService.currentUserValue?.role | uppercase" readonly>
+                  <label class="form-label-premium">Access Level</label>
+                  <input type="text" class="form-control-premium bg-light border-light text-muted" [value]="authService.currentUserValue?.role | uppercase" readonly style="pointer-events: none;">
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100 py-2 d-flex justify-content-center align-items-center" [disabled]="infoLoading">
+                <button type="submit" class="btn-premium-primary w-100 d-flex justify-content-center align-items-center" [disabled]="infoLoading">
                   <span class="spinner-border spinner-border-sm me-2" *ngIf="infoLoading"></span>
-                  <span>{{ infoLoading ? 'Updating...' : 'Save Changes' }}</span>
+                  <span>{{ infoLoading ? 'Saving...' : 'Save Changes' }}</span>
                 </button>
               </form>
             </div>
@@ -66,62 +72,66 @@
 
           <!-- Change Password -->
           <div class="col-md-6">
-            <div class="card profile-card p-4 h-100">
-              <h4 class="fw-bold mb-4 text-white border-bottom border-secondary pb-2">
-                <i class="fa-solid fa-key me-2 text-warning"></i>Change Password
-              </h4>
+            <div class="card profile-card border-0">
+              <h5 class="fw-bold mb-4 border-bottom border-light pb-2">
+                <i class="fa-solid fa-key me-2 text-warning small"></i>Security Credentials
+              </h5>
               
               <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()">
+                
+                <!-- Current Password -->
                 <div class="mb-3">
-                  <label for="oldPassword" class="form-label">Current Password</label>
+                  <label for="oldPassword" class="form-label-premium">Current Password</label>
                   <input 
                     type="password" 
                     id="oldPassword" 
-                    class="form-control" 
+                    class="form-control-premium" 
                     formControlName="oldPassword"
                     placeholder="••••••••"
                     [class.is-invalid]="pwSubmitted && fp['oldPassword'].errors"
                   >
-                  <div *ngIf="pwSubmitted && fp['oldPassword'].errors" class="invalid-feedback">
-                    <div *ngIf="fp['oldPassword'].errors['required']">Current password is required</div>
+                  <div *ngIf="pwSubmitted && fp['oldPassword'].errors" class="invalid-feedback-premium">
+                    <span *ngIf="fp['oldPassword'].errors['required']">Current password is required</span>
                   </div>
                 </div>
 
+                <!-- New Password -->
                 <div class="mb-3">
-                  <label for="newPassword" class="form-label">New Password</label>
+                  <label for="newPassword" class="form-label-premium">New Password</label>
                   <input 
                     type="password" 
                     id="newPassword" 
-                    class="form-control" 
+                    class="form-control-premium" 
                     formControlName="newPassword"
                     placeholder="••••••••"
                     [class.is-invalid]="pwSubmitted && fp['newPassword'].errors"
                   >
-                  <div *ngIf="pwSubmitted && fp['newPassword'].errors" class="invalid-feedback">
-                    <div *ngIf="fp['newPassword'].errors['required']">New password is required</div>
-                    <div *ngIf="fp['newPassword'].errors['minlength']">Password must be at least 6 characters</div>
+                  <div *ngIf="pwSubmitted && fp['newPassword'].errors" class="invalid-feedback-premium">
+                    <span *ngIf="fp['newPassword'].errors['required']">New password is required</span>
+                    <span *ngIf="fp['newPassword'].errors['minlength']">Password must be at least 6 characters</span>
                   </div>
                 </div>
 
+                <!-- Confirm Password -->
                 <div class="mb-4">
-                  <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                  <label for="confirmPassword" class="form-label-premium">Confirm New Password</label>
                   <input 
                     type="password" 
                     id="confirmPassword" 
-                    class="form-control" 
+                    class="form-control-premium" 
                     formControlName="confirmPassword"
                     placeholder="••••••••"
                     [class.is-invalid]="pwSubmitted && (fp['confirmPassword'].errors || passwordForm.errors?.['mismatch'])"
                   >
-                  <div *ngIf="pwSubmitted && fp['confirmPassword'].errors" class="invalid-feedback">
-                    <div *ngIf="fp['confirmPassword'].errors['required']">Please confirm new password</div>
+                  <div *ngIf="pwSubmitted && fp['confirmPassword'].errors" class="invalid-feedback-premium">
+                    <span *ngIf="fp['confirmPassword'].errors['required']">Please confirm new password</span>
                   </div>
-                  <div *ngIf="pwSubmitted && passwordForm.errors?.['mismatch']" class="invalid-feedback d-block">
+                  <div *ngIf="pwSubmitted && passwordForm.errors?.['mismatch']" class="invalid-feedback-premium">
                     Passwords do not match
                   </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100 py-2 d-flex justify-content-center align-items-center" [disabled]="pwLoading">
+                <button type="submit" class="btn-premium-primary w-100 d-flex justify-content-center align-items-center" [disabled]="pwLoading">
                   <span class="spinner-border spinner-border-sm me-2" *ngIf="pwLoading"></span>
                   <span>{{ pwLoading ? 'Changing...' : 'Update Password' }}</span>
                 </button>

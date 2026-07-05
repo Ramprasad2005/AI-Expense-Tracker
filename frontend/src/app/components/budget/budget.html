@@ -2,167 +2,157 @@
   <div class="container">
     
     <!-- Header -->
-    <div class="d-flex align-items-center mb-4">
-      <i class="fa-solid fa-piggy-bank text-warning fs-2 me-3"></i>
-      <div>
-        <h2 class="fw-bold mb-0">Monthly Budgets</h2>
-        <p class="text-muted mb-0">Define and monitor your monthly spending limits.</p>
+    <div class="row mb-5 fade-in-up">
+      <div class="col-12">
+        <h2 class="fw-bold mb-1">
+          <i class="fa-solid fa-piggy-bank text-primary me-2"></i>Budget Management
+        </h2>
+        <p class="text-muted small mb-0">Define spending thresholds per month to trigger automated alerts and limit overruns.</p>
       </div>
     </div>
 
-    <div class="row g-4">
-      <!-- Budget Setup Card -->
-      <div class="col-md-5">
-        <div class="card budget-card p-4 h-100">
-          <h4 class="fw-bold mb-4 text-white border-bottom border-secondary pb-2">
-            <i class="fa-solid fa-gears me-2 text-info"></i>Set Limit
-          </h4>
+    <!-- Sync Indicators -->
+    <div *ngIf="backgroundRefreshing || historyRefreshing" class="alert alert-info py-2 px-3 mb-3 d-flex align-items-center justify-content-between d-print-none fade-in-up" style="border-radius: 8px; font-size: 0.85rem;">
+      <span><span class="spinner-border spinner-border-sm text-primary me-2" role="status"></span>Syncing budget data...</span>
+      <span class="badge bg-primary text-white">Cached Version Shown</span>
+    </div>
 
-          <form [formGroup]="budgetForm" (ngSubmit)="onSaveBudget()">
+    <div class="row g-4 mb-5 fade-in-up">
+      <!-- Set Budget Card -->
+      <div class="col-lg-6">
+        <div class="card budget-card border-0">
+          <h5 class="fw-bold mb-4 border-bottom border-light pb-2">
+            <i class="fa-solid fa-gears me-2 text-primary small"></i>Set Limit
+          </h5>
+
+          <form [formGroup]="budgetForm" (ngSubmit)="onSetBudget()">
+            <!-- Month Selector -->
             <div class="mb-3">
-              <label for="month" class="form-label">Select Month</label>
+              <label for="month" class="form-label-premium">Target Month</label>
               <input 
                 type="month" 
                 id="month" 
-                class="form-control text-light" 
+                class="form-control-premium" 
                 formControlName="month"
-                (change)="onMonthChange()"
+                [class.is-invalid]="submitted && f['month'].errors"
               >
-            </div>
-
-            <div class="mb-4">
-              <label for="monthlyBudget" class="form-label">Monthly Limit ($)</label>
-              <div class="input-group">
-                <span class="input-group-text bg-dark border-secondary text-muted">$</span>
-                <input 
-                  type="number" 
-                  id="monthlyBudget" 
-                  class="form-control" 
-                  formControlName="monthlyBudget" 
-                  placeholder="0.00"
-                  min="0"
-                >
+              <div *ngIf="submitted && f['month'].errors" class="invalid-feedback-premium">
+                <span *ngIf="f['month'].errors['required']">Target month is required</span>
               </div>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100 py-2 d-flex justify-content-center align-items-center" [disabled]="saveLoading">
-              <span class="spinner-border spinner-border-sm me-2" *ngIf="saveLoading"></span>
-              <span>{{ saveLoading ? 'Saving...' : 'Set Budget Limit' }}</span>
+            <!-- Limit Input -->
+            <div class="mb-4">
+              <label for="monthlyBudget" class="form-label-premium">Monthly Budget Limit ($)</label>
+              <input 
+                type="number" 
+                id="monthlyBudget" 
+                class="form-control-premium" 
+                formControlName="monthlyBudget"
+                placeholder="e.g. 2000"
+                [class.is-invalid]="submitted && f['monthlyBudget'].errors"
+              >
+              <div *ngIf="submitted && f['monthlyBudget'].errors" class="invalid-feedback-premium">
+                <span *ngIf="f['monthlyBudget'].errors['required']">Budget value is required</span>
+                <span *ngIf="f['monthlyBudget'].errors['min']">Budget must be greater than zero</span>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-premium-primary w-100 d-flex justify-content-center align-items-center" [disabled]="loading">
+              <span class="spinner-border spinner-border-sm me-2" *ngIf="loading && budgetHistory.length === 0"></span>
+              <span>Set Budget Limit</span>
             </button>
           </form>
         </div>
       </div>
 
       <!-- Current Status Card -->
-      <div class="col-md-7">
-        <div class="card budget-card p-4 h-100 d-flex flex-column justify-content-between">
+      <div class="col-lg-6">
+        <div class="card budget-card border-0 h-100 d-flex flex-column justify-content-between">
           <div>
-            <h4 class="fw-bold mb-4 text-white border-bottom border-secondary pb-2">
-              <i class="fa-solid fa-eye me-2 text-warning"></i>Status for {{ currentMonthLabel }}
-            </h4>
+            <h5 class="fw-bold mb-4 border-bottom border-light pb-2">
+              <i class="fa-solid fa-gauge-high me-2 text-info small"></i>Spend Analyzer
+            </h5>
 
-            <div *ngIf="loading" class="text-center py-5">
-              <span class="spinner-border spinner-border-sm me-2"></span>
-              Calculating budget status...
+            <!-- Analyzer Skeleton -->
+            <div *ngIf="loading && budget.monthlyBudget === 0" class="py-4">
+              <div class="skeleton-line w-75 mb-3"></div>
+              <div class="skeleton-line w-50 mb-3"></div>
+              <div class="skeleton-line w-100 mb-2"></div>
+              <div class="skeleton-line w-100"></div>
             </div>
 
-            <div *ngIf="!loading">
-              <!-- Summary Grid -->
-              <div class="row text-center g-3 mb-4">
-                <div class="col-4">
-                  <div class="p-2 bg-dark rounded border border-secondary">
-                    <span class="text-muted small d-block">Budget Limit</span>
-                    <strong class="fs-5 text-white">${{ currentBudget.monthlyBudget.toFixed(2) }}</strong>
-                  </div>
-                </div>
-                <div class="col-4">
-                  <div class="p-2 bg-dark rounded border border-secondary">
-                    <span class="text-muted small d-block">Total Spent</span>
-                    <strong class="fs-5 text-danger">${{ currentBudget.totalSpent.toFixed(2) }}</strong>
-                  </div>
-                </div>
-                <div class="col-4">
-                  <div class="p-2 bg-dark rounded border border-secondary">
-                    <span class="text-muted small d-block">Remaining</span>
-                    <strong class="fs-5" [ngClass]="currentBudget.remaining >= 0 ? 'text-success' : 'text-danger'">
-                      ${{ currentBudget.remaining.toFixed(2) }}
-                    </strong>
-                  </div>
+            <div *ngIf="!loading && budget.monthlyBudget === 0" class="text-center py-5 text-muted small">
+              <i class="fa-solid fa-triangle-exclamation fs-3 text-warning mb-3 opacity-75"></i>
+              <p class="mb-0">No budget parameters configured for the selected target month.</p>
+            </div>
+
+            <div *ngIf="budget.monthlyBudget > 0" class="py-2">
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <span class="small text-muted">Month Target:</span>
+                <span class="fw-bold">{{ budget.month }}</span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <span class="small text-muted">Status:</span>
+                <span class="badge rounded-pill" [ngClass]="budget.status === 'exceeded' ? 'bg-danger text-white' : 'bg-success text-white'">
+                  {{ budget.status === 'exceeded' ? 'Overspent' : 'Within Limit' }}
+                </span>
+              </div>
+              <div class="d-flex justify-content-between small text-secondary mb-2">
+                <span>Spent: ${{ budget.totalSpent.toFixed(2) }}</span>
+                <span>Limit: ${{ budget.monthlyBudget.toFixed(2) }}</span>
+              </div>
+              <div class="progress mb-3" style="height: 12px; border-radius: 6px;">
+                <div 
+                  class="progress-bar" 
+                  [style.width.%]="spendPercentage > 100 ? 100 : spendPercentage"
+                  [ngClass]="spendPercentage > 100 ? 'bg-danger' : (spendPercentage > 75 ? 'bg-warning' : 'bg-success')"
+                >
                 </div>
               </div>
-
-              <!-- Meter/Progress Bar -->
-              <div class="mb-4" *ngIf="currentBudget.monthlyBudget > 0">
-                <div class="d-flex justify-content-between mb-2">
-                  <span class="text-muted">Usage percentage</span>
-                  <span class="fw-bold" [ngClass]="getPercentColorClass(spendPercentage)">
-                    {{ spendPercentage.toFixed(1) }}%
-                  </span>
-                </div>
-                <div class="progress">
-                  <div 
-                    class="progress-bar progress-bar-striped progress-bar-animated" 
-                    role="progressbar" 
-                    [style.width.%]="spendPercentage > 100 ? 100 : spendPercentage"
-                    [ngClass]="getProgressBarColorClass(spendPercentage)"
-                    [attr.aria-valuenow]="spendPercentage" 
-                    aria-valuemin="0" 
-                    aria-valuemax="100"
-                  >
-                  </div>
-                </div>
-              </div>
-
-              <!-- Status Alert Block -->
-              <div class="alert mb-0 text-center" [ngClass]="getStatusAlertClass()">
-                <i class="fa-solid me-2" 
-                   [class.fa-check-circle]="currentBudget.status === 'within_limit'"
-                   [class.fa-triangle-exclamation]="currentBudget.status === 'exceeded'"
-                   [class.fa-circle-question]="currentBudget.status === 'no_budget'">
-                </i>
-                <span class="fw-bold" *ngIf="currentBudget.status === 'within_limit'">You are within your budget limit. Good job!</span>
-                <span class="fw-bold" *ngIf="currentBudget.status === 'exceeded'">Alert! You have exceeded this month's budget limit!</span>
-                <span class="fw-bold" *ngIf="currentBudget.status === 'no_budget'">No budget limit has been set for this month yet.</span>
-              </div>
-
+              <span class="small d-block text-center fw-semibold mt-3" [ngClass]="budget.remaining >= 0 ? 'text-success' : 'text-danger'">
+                {{ budget.remaining >= 0 ? '$' + budget.remaining.toFixed(2) + ' remaining' : 'Over budget by $' + mathAbs(budget.remaining).toFixed(2) }}
+              </span>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Budget History Table -->
-    <div class="row mt-4">
-      <div class="col-12">
-        <div class="card budget-card p-4">
-          <h4 class="fw-bold mb-4 text-white border-bottom border-secondary pb-2">
-            <i class="fa-solid fa-clock-rotate-left me-2 text-secondary"></i>Budget Settings History
-          </h4>
-          <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-              <thead class="table-dark">
-                <tr>
-                  <th scope="col" class="ps-4">Month</th>
-                  <th scope="col">Budget Limit</th>
-                  <th scope="col" class="pe-4">Created Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngIf="historyLoading" class="text-center">
-                  <td colspan="3" class="py-4 text-muted">Loading history...</td>
-                </tr>
-                <tr *ngIf="!historyLoading && budgetHistory.length === 0" class="text-center">
-                  <td colspan="3" class="py-4 text-muted">No budget records recorded.</td>
-                </tr>
-                <tr *ngFor="let b of budgetHistory" *ngIf="!historyLoading">
-                  <td class="ps-4 text-white fw-semibold">{{ b.month }}</td>
-                  <td class="text-info fw-bold">${{ b.monthlyBudget.toFixed(2) }}</td>
-                  <td class="pe-4">{{ b.createdAt | date:'medium' }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+    <!-- History list -->
+    <div class="card table-card border-0 overflow-hidden fade-in-up">
+      <h5 class="fw-bold mb-4 border-bottom border-light pb-2">
+        <i class="fa-solid fa-clock-rotate-left me-2 text-secondary small"></i>Historical Limits
+      </h5>
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col" class="ps-4 text-secondary small fw-bold py-3">MONTH</th>
+              <th scope="col" class="text-secondary small fw-bold py-3">BUDGET LIMIT</th>
+              <th scope="col" class="pe-4 text-secondary small fw-bold py-3">CREATED AT</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Skeleton Rows -->
+            <ng-container *ngIf="historyLoading && budgetHistory.length === 0">
+              <tr *ngFor="let item of [1,2,3]">
+                <td class="ps-4 py-3"><div class="skeleton-line w-40"></div></td>
+                <td class="py-3"><div class="skeleton-line w-25"></div></td>
+                <td class="pe-4 py-3"><div class="skeleton-line w-50"></div></td>
+              </tr>
+            </ng-container>
+
+            <tr *ngIf="!historyLoading && budgetHistory.length === 0" class="text-center">
+              <td colspan="3" class="py-4 text-muted small">No budget limits recorded.</td>
+            </tr>
+            <tr *ngFor="let b of budgetHistory">
+              <td class="ps-4 fw-bold">{{ b.month }}</td>
+              <td class="text-primary fw-bold">${{ b.monthlyBudget.toFixed(2) }}</td>
+              <td class="pe-4 text-secondary small">{{ b.createdAt | date:'medium' }}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 

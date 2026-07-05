@@ -11,15 +11,16 @@ exports.getIncomes = async (req, res, next) => {
 
     // Search query
     if (search) {
+      const searchStr = String(search).trim();
       query.$or = [
-        { source: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } }
+        { source: { $regex: searchStr, $options: 'i' } },
+        { description: { $regex: searchStr, $options: 'i' } }
       ];
     }
 
     // Filter by source
     if (source) {
-      query.source = { $regex: source, $options: 'i' };
+      query.source = { $regex: String(source).trim(), $options: 'i' };
     }
 
     // Filter by date range
@@ -35,11 +36,13 @@ exports.getIncomes = async (req, res, next) => {
 
     // Sorting
     const sort = {};
-    sort[sortBy] = sortOrder === 'asc' ? 1 : -1;
+    const validSortFields = ['date', 'amount', 'source'];
+    const finalSortBy = validSortFields.includes(sortBy) ? sortBy : 'date';
+    sort[finalSortBy] = sortOrder === 'asc' ? 1 : -1;
 
     // Pagination
-    const pageNum = parseInt(page, 10);
-    const limitNum = parseInt(limit, 10);
+    const pageNum = parseInt(page, 10) || 1;
+    const limitNum = parseInt(limit, 10) || 10;
     const skip = (pageNum - 1) * limitNum;
 
     // Execute query
@@ -72,6 +75,11 @@ exports.getIncomes = async (req, res, next) => {
 // @access  Private
 exports.getIncomeById = async (req, res, next) => {
   try {
+    const mongoose = require('mongoose');
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, message: 'Invalid ID format' });
+    }
+
     const income = await Income.findOne({ _id: req.params.id, user: req.user._id });
     if (!income) {
       return res.status(404).json({ success: false, message: 'Income not found' });
@@ -95,10 +103,10 @@ exports.createIncome = async (req, res, next) => {
 
     const income = await Income.create({
       user: req.user._id,
-      source,
-      amount,
-      date: date || new Date(),
-      description
+      source: String(source),
+      amount: parseFloat(amount),
+      date: date ? new Date(date) : new Date(),
+      description: description ? String(description) : ''
     });
 
     res.status(201).json({ success: true, data: income });
@@ -112,14 +120,27 @@ exports.createIncome = async (req, res, next) => {
 // @access  Private
 exports.updateIncome = async (req, res, next) => {
   try {
+    const mongoose = require('mongoose');
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, message: 'Invalid ID format' });
+    }
+
     let income = await Income.findOne({ _id: req.params.id, user: req.user._id });
     if (!income) {
       return res.status(404).json({ success: false, message: 'Income not found' });
     }
 
+    // Mass assignment prevention: only allow specific fields to update
+    const { source, amount, date, description } = req.body;
+    const updateData = {};
+    if (source !== undefined) updateData.source = String(source);
+    if (amount !== undefined) updateData.amount = parseFloat(amount);
+    if (date !== undefined) updateData.date = new Date(date);
+    if (description !== undefined) updateData.description = String(description);
+
     income = await Income.findByIdAndUpdate(
       req.params.id,
-      { $set: req.body },
+      { $set: updateData },
       { new: true, runValidators: true }
     );
 
@@ -134,6 +155,11 @@ exports.updateIncome = async (req, res, next) => {
 // @access  Private
 exports.deleteIncome = async (req, res, next) => {
   try {
+    const mongoose = require('mongoose');
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, message: 'Invalid ID format' });
+    }
+
     const income = await Income.findOne({ _id: req.params.id, user: req.user._id });
     if (!income) {
       return res.status(404).json({ success: false, message: 'Income not found' });

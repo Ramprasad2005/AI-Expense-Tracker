@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class ExpenseService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:5000/api/expenses';
+  private apiUrl = 'http://localhost:5050/api/expenses';
 
   getExpenses(filters: any = {}): Observable<any> {
     let params = new HttpParams();

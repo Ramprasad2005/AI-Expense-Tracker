@@ -46,10 +46,20 @@ app.use('/api/search', searchRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(err.status || 500).json({
+  if (process.env.NODE_ENV !== 'production') {
+    console.error(err.stack);
+  } else {
+    console.error(`${err.name}: ${err.message}`);
+  }
+
+  const statusCode = err.status || 500;
+  const message = (process.env.NODE_ENV === 'production' && statusCode === 500)
+    ? 'Internal Server Error'
+    : (err.message || 'Internal Server Error');
+
+  res.status(statusCode).json({
     success: false,
-    message: err.message || 'Internal Server Error'
+    message
   });
 });
 

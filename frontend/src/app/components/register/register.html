@@ -1,90 +1,117 @@
-<div class="register-container">
-  <div class="card register-card p-4">
-    <div class="card-body">
+<div class="register-container fade-in-up">
+  <div class="card register-card border-0">
+    <div class="card-body p-0">
+      
+      <!-- Brand & Title -->
       <div class="text-center mb-4">
-        <i class="fa-solid fa-user-plus fs-1 text-primary mb-3"></i>
-        <h2 class="fw-bold">Create Account</h2>
-        <p class="text-muted">Start tracking and optimizing your finances with AI.</p>
+        <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-3 p-3 mb-3">
+          <i class="fa-solid fa-user-plus fs-2 text-primary"></i>
+        </div>
+        <h3 class="fw-bold mb-1">Create Account</h3>
+        <p class="text-muted small">Register to track, analyze, and optimize your finances with AI.</p>
       </div>
 
+      <!-- Form -->
       <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+        
+        <!-- Full Name -->
         <div class="mb-3">
-          <label for="username" class="form-label">Username</label>
-          <div class="input-group">
-            <span class="input-group-text bg-dark border-secondary text-muted"><i class="fa-solid fa-user"></i></span>
-            <input 
-              type="text" 
-              id="username" 
-              class="form-control" 
-              formControlName="username" 
-              placeholder="johndoe"
-              [class.is-invalid]="submitted && f['username'].errors"
-            >
-            <div *ngIf="submitted && f['username'].errors" class="invalid-feedback">
-              <div *ngIf="f['username'].errors['required']">Username is required</div>
-              <div *ngIf="f['username'].errors['minlength']">Username must be at least 3 characters</div>
-            </div>
+          <label for="fullName" class="form-label-premium">Full Name</label>
+          <input 
+            type="text" 
+            id="fullName" 
+            class="form-control-premium" 
+            formControlName="fullName" 
+            placeholder="John Doe"
+            [class.is-invalid]="submitted && f['fullName'].errors"
+          >
+          <div *ngIf="submitted && f['fullName'].errors" class="invalid-feedback-premium">
+            <span *ngIf="f['fullName'].errors['required']">Full name is required</span>
           </div>
         </div>
 
+        <!-- Username -->
         <div class="mb-3">
-          <label for="email" class="form-label">Email Address</label>
-          <div class="input-group">
-            <span class="input-group-text bg-dark border-secondary text-muted"><i class="fa-solid fa-envelope"></i></span>
-            <input 
-              type="email" 
-              id="email" 
-              class="form-control" 
-              formControlName="email" 
-              placeholder="name@example.com"
-              [class.is-invalid]="submitted && f['email'].errors"
-            >
-            <div *ngIf="submitted && f['email'].errors" class="invalid-feedback">
-              <div *ngIf="f['email'].errors['required']">Email is required</div>
-              <div *ngIf="f['email'].errors['email']">Email must be valid</div>
-            </div>
+          <label for="username" class="form-label-premium">Username</label>
+          <input 
+            type="text" 
+            id="username" 
+            class="form-control-premium" 
+            formControlName="username" 
+            placeholder="johndoe"
+            [class.is-invalid]="submitted && f['username'].errors"
+          >
+          <div *ngIf="submitted && f['username'].errors" class="invalid-feedback-premium">
+            <span *ngIf="f['username'].errors['required']">Username is required</span>
+            <span *ngIf="f['username'].errors['minlength']">Username must be at least 3 characters</span>
           </div>
         </div>
 
+        <!-- Email -->
         <div class="mb-3">
-          <label for="password" class="form-label">Password</label>
-          <div class="input-group">
-            <span class="input-group-text bg-dark border-secondary text-muted"><i class="fa-solid fa-lock"></i></span>
-            <input 
-              type="password" 
-              id="password" 
-              class="form-control" 
-              formControlName="password" 
-              placeholder="••••••••"
-              [class.is-invalid]="submitted && f['password'].errors"
-            >
-            <div *ngIf="submitted && f['password'].errors" class="invalid-feedback">
-              <div *ngIf="f['password'].errors['required']">Password is required</div>
-              <div *ngIf="f['password'].errors['minlength']">Password must be at least 6 characters</div>
-            </div>
+          <label for="email" class="form-label-premium">Email Address</label>
+          <input 
+            type="email" 
+            id="email" 
+            class="form-control-premium" 
+            formControlName="email" 
+            placeholder="name@example.com"
+            [class.is-invalid]="submitted && f['email'].errors"
+          >
+          <div *ngIf="submitted && f['email'].errors" class="invalid-feedback-premium">
+            <span *ngIf="f['email'].errors['required']">Email is required</span>
+            <span *ngIf="f['email'].errors['email']">Please enter a valid email address</span>
           </div>
         </div>
 
+        <!-- Password -->
+        <div class="mb-3">
+          <label for="password" class="form-label-premium">Password</label>
+          <input 
+            type="password" 
+            id="password" 
+            class="form-control-premium" 
+            formControlName="password" 
+            placeholder="••••••••"
+            [class.is-invalid]="submitted && f['password'].errors"
+          >
+          <div *ngIf="submitted && f['password'].errors" class="invalid-feedback-premium">
+            <span *ngIf="f['password'].errors['required']">Password is required</span>
+            <span *ngIf="f['password'].errors['minlength']">Password must be at least 6 characters</span>
+          </div>
+        </div>
+
+        <!-- Confirm Password -->
         <div class="mb-4">
-          <label for="role" class="form-label">Account Type (for testing)</label>
-          <div class="input-group">
-            <span class="input-group-text bg-dark border-secondary text-muted"><i class="fa-solid fa-shield"></i></span>
-            <select id="role" class="form-select bg-dark border-secondary text-light" formControlName="role">
-              <option value="user">Standard User</option>
-              <option value="admin">Administrator</option>
-            </select>
+          <label for="confirmPassword" class="form-label-premium">Confirm Password</label>
+          <input 
+            type="password" 
+            id="confirmPassword" 
+            class="form-control-premium" 
+            formControlName="confirmPassword" 
+            placeholder="••••••••"
+            [class.is-invalid]="submitted && (f['confirmPassword'].errors || registerForm.errors?.['mismatch'])"
+          >
+          <div *ngIf="submitted && f['confirmPassword'].errors" class="invalid-feedback-premium">
+            <span *ngIf="f['confirmPassword'].errors['required']">Please confirm your password</span>
+          </div>
+          <div *ngIf="submitted && registerForm.errors?.['mismatch']" class="invalid-feedback-premium">
+            Passwords do not match
           </div>
         </div>
 
-        <button type="submit" class="btn btn-primary w-100 py-2.5 d-flex justify-content-center align-items-center" [disabled]="loading">
+        <!-- Submit Button -->
+        <button type="submit" class="btn-premium-primary w-100 py-3 d-flex justify-content-center align-items-center" [disabled]="loading">
           <span class="spinner-border spinner-border-sm me-2" *ngIf="loading" role="status" aria-hidden="true"></span>
           <span>{{ loading ? 'Creating Account...' : 'Register' }}</span>
         </button>
       </form>
 
+      <!-- Navigation Link -->
       <div class="text-center mt-4">
-        <p class="mb-0 text-muted">Already have an account? <a routerLink="/login" class="text-info text-decoration-none fw-semibold">Sign In here</a></p>
+        <p class="mb-0 text-muted small">Already have an account? <a routerLink="/login" class="text-primary text-decoration-none fw-semibold">Sign In here</a></p>
       </div>
+
     </div>
   </div>
 </div>

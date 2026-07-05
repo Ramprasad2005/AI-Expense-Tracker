@@ -7,17 +7,26 @@ import { Observable } from 'rxjs';
 })
 export class ReportService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:5000/api/reports';
+  private apiUrl = 'http://localhost:5050/api/reports';
 
-  getReport(type: string, period: string): Observable<any> {
-    return this.http.get<any>(this.apiUrl, {
-      params: { type, period, pdf: 'false' }
+  getReport(type: string, period: string, startDate?: string, endDate?: string, refresh?: boolean): Observable<any> {
+    const params: any = { type, period, startDate: startDate || '', endDate: endDate || '', pdf: 'false' };
+    if (refresh) {
+      params.refresh = 'true';
+    }
+    return this.http.get<any>(this.apiUrl, { params });
+  }
+
+  downloadReportPdf(type: string, period: string, startDate?: string, endDate?: string): Observable<Blob> {
+    return this.http.get(this.apiUrl, {
+      params: { type, period, startDate: startDate || '', endDate: endDate || '', pdf: 'true' },
+      responseType: 'blob'
     });
   }
 
-  downloadReportPdf(type: string, period: string): Observable<Blob> {
+  downloadReportCsv(type: string, period: string, startDate?: string, endDate?: string): Observable<Blob> {
     return this.http.get(this.apiUrl, {
-      params: { type, period, pdf: 'true' },
+      params: { type, period, startDate: startDate || '', endDate: endDate || '', csv: 'true' },
       responseType: 'blob'
     });
   }

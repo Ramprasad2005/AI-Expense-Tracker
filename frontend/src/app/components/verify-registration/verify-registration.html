@@ -1,0 +1,118 @@
+<div class="forgot-container fade-in-up">
+  <div class="card forgot-card border-0">
+    <div class="card-body p-0">
+      
+      <div class="text-center mb-4">
+        <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-3 p-3 mb-3">
+          <i class="fa-solid fa-envelope-circle-check fs-2 text-primary"></i>
+        </div>
+        <h3 class="fw-bold mb-1">Verify Your Email</h3>
+        <p class="text-muted small">We've sent a 6-digit activation OTP code to <strong>{{ email }}</strong>. Please enter the code below to verify your account.</p>
+      </div>
+
+      <form [formGroup]="otpForm" (ngSubmit)="onSubmit()">
+        <div class="mb-4 text-center">
+          <label class="form-label-premium d-block text-start mb-3">Verification Code</label>
+          
+          <!-- Six individual OTP boxes container -->
+          <div class="d-flex justify-content-center gap-2 mb-2" (paste)="onOtpPaste($event)">
+            <input 
+              type="text" 
+              id="otp-0"
+              maxLength="1"
+              class="form-control-premium text-center fw-bold fs-4"
+              style="width: 48px; height: 56px; padding: 0;"
+              formControlName="otp0"
+              (input)="onOtpInput($event, 0)"
+              (keydown)="onOtpKeyDown($event, 0)"
+              autocomplete="off"
+            >
+            <input 
+              type="text" 
+              id="otp-1"
+              maxLength="1"
+              class="form-control-premium text-center fw-bold fs-4"
+              style="width: 48px; height: 56px; padding: 0;"
+              formControlName="otp1"
+              (input)="onOtpInput($event, 1)"
+              (keydown)="onOtpKeyDown($event, 1)"
+              autocomplete="off"
+            >
+            <input 
+              type="text" 
+              id="otp-2"
+              maxLength="1"
+              class="form-control-premium text-center fw-bold fs-4"
+              style="width: 48px; height: 56px; padding: 0;"
+              formControlName="otp2"
+              (input)="onOtpInput($event, 2)"
+              (keydown)="onOtpKeyDown($event, 2)"
+              autocomplete="off"
+            >
+            <input 
+              type="text" 
+              id="otp-3"
+              maxLength="1"
+              class="form-control-premium text-center fw-bold fs-4"
+              style="width: 48px; height: 56px; padding: 0;"
+              formControlName="otp3"
+              (input)="onOtpInput($event, 3)"
+              (keydown)="onOtpKeyDown($event, 3)"
+              autocomplete="off"
+            >
+            <input 
+              type="text" 
+              id="otp-4"
+              maxLength="1"
+              class="form-control-premium text-center fw-bold fs-4"
+              style="width: 48px; height: 56px; padding: 0;"
+              formControlName="otp4"
+              (input)="onOtpInput($event, 4)"
+              (keydown)="onOtpKeyDown($event, 4)"
+              autocomplete="off"
+            >
+            <input 
+              type="text" 
+              id="otp-5"
+              maxLength="1"
+              class="form-control-premium text-center fw-bold fs-4"
+              style="width: 48px; height: 56px; padding: 0;"
+              formControlName="otp5"
+              (input)="onOtpInput($event, 5)"
+              (keydown)="onOtpKeyDown($event, 5)"
+              autocomplete="off"
+            >
+          </div>
+          
+          <div *ngIf="submitted && otpForm.invalid" class="text-danger small mt-2 text-start">
+            Please enter the complete 6-digit verification code.
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-4 text-muted small">
+          <span>Remaining time: <strong>{{ timerLabel }}</strong></span>
+          <button 
+            type="button" 
+            class="btn btn-link btn-sm text-decoration-none p-0 fw-semibold" 
+            [disabled]="resendCooldown > 0" 
+            (click)="resendOtp()"
+          >
+            {{ resendCooldown > 0 ? 'Resend in ' + resendCooldown + 's' : 'Resend OTP' }}
+          </button>
+        </div>
+
+        <button type="submit" class="btn-premium-primary w-100 py-3 d-flex justify-content-center align-items-center" [disabled]="loading">
+          <span class="spinner-border spinner-border-sm me-2" *ngIf="loading"></span>
+          <span>Verify Account</span>
+        </button>
+      </form>
+
+      <div class="text-center mt-4">
+        <a routerLink="/login" class="text-secondary text-decoration-none small fw-semibold">
+          <i class="fa-solid fa-arrow-left me-1"></i> Back to Sign In
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>

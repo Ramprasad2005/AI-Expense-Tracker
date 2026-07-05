@@ -42,6 +42,35 @@ const reportSchema = new mongoose.Schema({
         default: 0
       }
     }
+  ],
+  aiAdvice: {
+    type: String,
+    default: ''
+  },
+  recentTransactions: [
+    {
+      date: {
+        type: Date,
+        required: true
+      },
+      type: {
+        type: String,
+        enum: ['Income', 'Expense'],
+        required: true
+      },
+      categoryOrSource: {
+        type: String,
+        required: true
+      },
+      description: {
+        type: String,
+        default: ''
+      },
+      amount: {
+        type: Number,
+        required: true
+      }
+    }
   ]
 }, {
   timestamps: true

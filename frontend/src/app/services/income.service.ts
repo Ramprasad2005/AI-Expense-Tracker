@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class IncomeService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:5000/api/income';
+  private apiUrl = 'http://localhost:5050/api/income';
 
   getIncomes(filters: any = {}): Observable<any> {
     let params = new HttpParams();

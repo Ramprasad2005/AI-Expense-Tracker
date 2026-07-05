@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class AdminService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:5000/api/admin';
+  private apiUrl = 'http://localhost:5050/api/admin';
 
   getUsers(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/users`);

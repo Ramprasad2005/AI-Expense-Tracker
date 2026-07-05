@@ -13,7 +13,7 @@ export interface Toast {
 })
 export class NotificationService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:5000/api/notifications';
+  private apiUrl = 'http://localhost:5050/api/notifications';
 
   private toastSubject = new BehaviorSubject<Toast[]>([]);
   public toasts$ = this.toastSubject.asObservable();
@@ -42,5 +42,9 @@ export class NotificationService {
 
   markAllAsRead(): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/read-all`, {});
+  }
+
+  deleteNotification(id: string): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/${id}`);
   }
 }
