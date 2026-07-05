@@ -11,10 +11,12 @@ import { AdminComponent } from './components/admin/admin';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password';
 import { VerifyRegistrationComponent } from './components/verify-registration/verify-registration';
 import { SettingsComponent } from './components/settings/settings';
+import { LandingComponent } from './components/landing/landing';
 import { authGuard } from './guards/auth.guard';
 import { adminGuard } from './guards/admin.guard';
 
 export const routes: Routes = [
+  { path: '', component: LandingComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'verify-registration', component: VerifyRegistrationComponent },
@@ -29,6 +31,5 @@ export const routes: Routes = [
   { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
   { path: 'settings', component: SettingsComponent, canActivate: [authGuard] },
   { path: 'admin', component: AdminComponent, canActivate: [authGuard, adminGuard] },
-  { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
-  { path: '**', redirectTo: '/dashboard' }
+  { path: '**', redirectTo: '' }
 ];
