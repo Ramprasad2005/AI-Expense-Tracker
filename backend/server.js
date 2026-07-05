@@ -19,6 +19,10 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // Basic Route
+app.get('/', (req, res) => {
+  res.status(200).json({ status: 'ok', message: 'AI Expense Tracker API is active' });
+});
+
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'ok', message: 'AI Expense Tracker API is running' });
 });
