@@ -2,6 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 
+import { API_BASE_URL } from '../config';
+
 export interface Toast {
   message: string;
   type: 'success' | 'danger' | 'warning' | 'info';
@@ -13,7 +15,7 @@ export interface Toast {
 })
 export class NotificationService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:5050/api/notifications';
+  private apiUrl = `${API_BASE_URL}/notifications`;
 
   private toastSubject = new BehaviorSubject<Toast[]>([]);
   public toasts$ = this.toastSubject.asObservable();

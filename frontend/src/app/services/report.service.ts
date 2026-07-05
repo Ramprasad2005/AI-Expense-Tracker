@@ -2,12 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+import { API_BASE_URL } from '../config';
+
 @Injectable({
   providedIn: 'root'
 })
 export class ReportService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:5050/api/reports';
+  private apiUrl = `${API_BASE_URL}/reports`;
 
   getReport(type: string, period: string, startDate?: string, endDate?: string, refresh?: boolean): Observable<any> {
     const params: any = { type, period, startDate: startDate || '', endDate: endDate || '', pdf: 'false' };
