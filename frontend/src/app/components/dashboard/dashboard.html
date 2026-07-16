@@ -15,8 +15,14 @@
       <span class="badge bg-primary text-white">Cached Version Shown</span>
     </div>
 
-    <!-- SKELETON LOADER STATE (Displays on fresh login / no cache) -->
-    <div *ngIf="loading && totalIncome === 0 && totalExpense === 0" class="fade-in-up">
+    <!-- SKELETON LOADER STATE -->
+    <div *ngIf="loading" class="fade-in-up py-5 text-center">
+      <div class="spinner-border text-primary mb-3" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <h4 class="fw-bold text-muted">Loading Dashboard...</h4>
+      <p class="text-secondary small mb-5">Syncing your ledger data and generating AI insights...</p>
+      
       <!-- Skeletons Cards Grid -->
       <div class="row g-4 mb-4">
         <div class="col-md-3 col-sm-6" *ngFor="let item of [1,2,3,4]">
@@ -38,7 +44,7 @@
     </div>
 
     <!-- ACTUAL CONTENT STATE -->
-    <div *ngIf="!(loading && totalIncome === 0 && totalExpense === 0)" class="fade-in-up">
+    <div *ngIf="!loading" class="fade-in-up">
       <!-- Stat Cards Row -->
       <div class="row g-4 mb-4">
         <!-- Balance Card -->

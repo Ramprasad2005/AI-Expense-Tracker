@@ -8,7 +8,7 @@ import { AiService } from '../../services/ai.service';
 import { NotificationService } from '../../services/notification.service';
 import { DataSyncService } from '../../services/datasync.service';
 import { Chart, registerables } from 'chart.js';
-import { Subscription, forkJoin } from 'rxjs';
+import { Subscription, forkJoin, of, catchError } from 'rxjs';
 
 Chart.register(...registerables);
 
@@ -124,9 +124,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.categoryBreakdown = d.categoryBreakdown;
         this.budget = d.budget;
         this.spendPercentage = d.spendPercentage;
+        this.aiAdvice = d.aiAdvice || '';
         this.loading = false;
         
-        // Render charts based on cached metrics
+        // Force DOM rendering of elements first
+        this.cdr.detectChanges();
+        
+        // Render charts based on cached metrics in next tick
         setTimeout(() => this.initCharts(), 0);
         
         // Background refresh only (stale-while-revalidate)
@@ -143,16 +147,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   fetchFreshDashboard(month: string, cacheKey: string): void {
-    // parallel API calls via forkJoin
+    // parallel API calls via forkJoin including AI suggestions
     forkJoin({
-      report: this.reportService.getReport('monthly', month, '', '', true),
-      budget: this.budgetService.getCurrentBudget(month)
+      report: this.reportService.getReport('monthly', month, '', '', true).pipe(catchError(err => of({ success: false, error: err }))),
+      budget: this.budgetService.getCurrentBudget(month).pipe(catchError(err => of({ success: false, error: err }))),
+      ai: this.aiService.getSuggestions().pipe(catchError(err => of({ success: false, error: err })))
     }).subscribe({
-      next: (res) => {
+      next: (res: any) => {
         this.loading = false;
         this.backgroundRefreshing = false;
 
-        if (res.report.success && res.report.data) {
+        if (res.report && res.report.success && res.report.data) {
           const d = res.report.data;
           this.totalIncome = d.totalIncome;
           this.totalExpense = d.totalExpense;
@@ -162,11 +167,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.categoryBreakdown = d.categoryBreakdown;
         }
 
-        if (res.budget.success && res.budget.data) {
+        if (res.budget && res.budget.success && res.budget.data) {
           this.budget = res.budget.data;
           this.spendPercentage = this.budget.monthlyBudget > 0
             ? (this.budget.totalSpent / this.budget.monthlyBudget) * 100
             : 0;
+        }
+
+        if (res.ai && res.ai.success && res.ai.data) {
+          this.aiAdvice = res.ai.data;
+          this.aiError = false;
+          if (!this.aiHistory.includes(this.aiAdvice)) {
+            this.aiHistory.unshift(this.aiAdvice);
+            if (this.aiHistory.length > 5) this.aiHistory.pop();
+            localStorage.setItem(this.getStorageKey(), JSON.stringify(this.aiHistory));
+          }
+        } else if (res.ai && res.ai.error) {
+          // If no active AI advice but we have history, keep it
+          if (!this.aiAdvice && this.aiHistory.length > 0) {
+            this.aiAdvice = this.aiHistory[0];
+          }
         }
 
         // Cache combined payload
@@ -178,7 +198,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
           recentTransactions: this.recentTransactions,
           categoryBreakdown: this.categoryBreakdown,
           budget: this.budget,
-          spendPercentage: this.spendPercentage
+          spendPercentage: this.spendPercentage,
+          aiAdvice: this.aiAdvice
         };
 
         try {
@@ -187,8 +208,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
           console.error('Error saving dashboard cache:', e);
         }
 
-        this.initCharts();
+        // Trigger change detection to render the DOM canvas elements
         this.cdr.detectChanges();
+
+        // Initialize charts in the next tick
+        setTimeout(() => {
+          this.initCharts();
+          this.cdr.detectChanges();
+        }, 0);
       },
       error: (err) => {
         this.loading = false;
@@ -215,125 +242,131 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // A. Bar Chart: Income vs Expense
     if (barCtx) {
-      this.barChartInstance = new Chart(barCtx, {
-        type: 'bar',
-        data: {
-          labels: ['Current Month'],
-          datasets: [
-            {
-              label: 'Income',
-              data: [this.totalIncome],
-              backgroundColor: '#10B981', // Emerald 500
-              borderRadius: 8,
-              maxBarThickness: 60
-            },
-            {
-              label: 'Expense',
-              data: [this.totalExpense],
-              backgroundColor: '#EF4444', // Red 500
-              borderRadius: 8,
-              maxBarThickness: 60
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { labels: { color: labelColor, font: { family: 'Inter', weight: 'normal' } } }
+      if (this.totalIncome > 0 || this.totalExpense > 0) {
+        this.barChartInstance = new Chart(barCtx, {
+          type: 'bar',
+          data: {
+            labels: ['Current Month'],
+            datasets: [
+              {
+                label: 'Income',
+                data: [this.totalIncome],
+                backgroundColor: '#10B981', // Emerald 500
+                borderRadius: 8,
+                maxBarThickness: 60
+              },
+              {
+                label: 'Expense',
+                data: [this.totalExpense],
+                backgroundColor: '#EF4444', // Red 500
+                borderRadius: 8,
+                maxBarThickness: 60
+              }
+            ]
           },
-          scales: {
-            x: { grid: { display: false }, ticks: { color: labelColor } },
-            y: { grid: { color: gridColor }, ticks: { color: labelColor } }
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { labels: { color: labelColor, font: { family: 'Inter', weight: 'normal' } } }
+            },
+            scales: {
+              x: { grid: { display: false }, ticks: { color: labelColor } },
+              y: { grid: { color: gridColor }, ticks: { color: labelColor } }
+            }
           }
-        }
-      });
+        });
+      }
     }
 
     // B. Line Chart: Expense Daily Trend
     if (lineCtx) {
       const expensesOnly = this.recentTransactions.filter(t => t.type === 'Expense');
-      const dailyMap: { [key: string]: number } = {};
-      
-      expensesOnly.forEach(t => {
-        const d = new Date(t.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
-        dailyMap[d] = (dailyMap[d] || 0) + t.amount;
-      });
+      if (expensesOnly.length > 0) {
+        const dailyMap: { [key: string]: number } = {};
+        
+        expensesOnly.forEach(t => {
+          const d = new Date(t.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+          dailyMap[d] = (dailyMap[d] || 0) + t.amount;
+        });
 
-      const dates = Object.keys(dailyMap).reverse();
-      const amounts = dates.map(d => dailyMap[d]);
+        const dates = Object.keys(dailyMap).reverse();
+        const amounts = dates.map(d => dailyMap[d]);
 
-      this.lineChartInstance = new Chart(lineCtx, {
-        type: 'line',
-        data: {
-          labels: dates.length > 0 ? dates : ['No Data'],
-          datasets: [
-            {
-              label: 'Daily Expenses',
-              data: amounts.length > 0 ? amounts : [0],
-              borderColor: '#2563EB', // Blue 600
-              backgroundColor: isDark ? 'rgba(37, 99, 235, 0.15)' : 'rgba(37, 99, 235, 0.05)',
-              borderWidth: 2,
-              tension: 0.3,
-              fill: true,
-              pointBackgroundColor: '#2563EB'
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { labels: { color: labelColor, font: { family: 'Inter' } } }
+        this.lineChartInstance = new Chart(lineCtx, {
+          type: 'line',
+          data: {
+            labels: dates,
+            datasets: [
+              {
+                label: 'Daily Expenses',
+                data: amounts,
+                borderColor: '#2563EB', // Blue 600
+                backgroundColor: isDark ? 'rgba(37, 99, 235, 0.15)' : 'rgba(37, 99, 235, 0.05)',
+                borderWidth: 2,
+                tension: 0.3,
+                fill: true,
+                pointBackgroundColor: '#2563EB'
+              }
+            ]
           },
-          scales: {
-            x: { grid: { color: gridColor }, ticks: { color: labelColor } },
-            y: { grid: { color: gridColor }, ticks: { color: labelColor } }
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { labels: { color: labelColor, font: { family: 'Inter' } } }
+            },
+            scales: {
+              x: { grid: { color: gridColor }, ticks: { color: labelColor } },
+              y: { grid: { color: gridColor }, ticks: { color: labelColor } }
+            }
           }
-        }
-      });
+        });
+      }
     }
 
     // C. Pie Chart: Category breakdown
     if (pieCtx) {
       const activeCategories = this.categoryBreakdown.filter(c => c.amount > 0);
-      const labels = activeCategories.map(c => c.category);
-      const data = activeCategories.map(c => c.amount);
+      if (activeCategories.length > 0) {
+        const labels = activeCategories.map(c => c.category);
+        const data = activeCategories.map(c => c.amount);
 
-      this.pieChartInstance = new Chart(pieCtx, {
-        type: 'doughnut',
-        data: {
-          labels: labels.length > 0 ? labels : ['No Expenses'],
-          datasets: [
-            {
-              data: data.length > 0 ? data : [1],
-              backgroundColor: [
-                '#F59E0B', // Food (Amber)
-                '#3B82F6', // Travel (Blue)
-                '#06B6D4', // Shopping (Cyan)
-                '#EF4444', // Rent (Red)
-                '#64748B', // Bills (Slate)
-                '#10B981', // Medical (Emerald)
-                '#8B5CF6', // Entertainment (Purple)
-                '#EC4899', // Education (Pink)
-                '#94A3B8'  // Others (Grey)
-              ],
-              borderWidth: 2,
-              borderColor: isDark ? '#1E293B' : '#FFFFFF'
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'right',
-              labels: { color: labelColor, boxWidth: 12, font: { family: 'Inter' } }
+        this.pieChartInstance = new Chart(pieCtx, {
+          type: 'doughnut',
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                data: data,
+                backgroundColor: [
+                  '#F59E0B', // Food (Amber)
+                  '#3B82F6', // Travel (Blue)
+                  '#06B6D4', // Shopping (Cyan)
+                  '#EF4444', // Rent (Red)
+                  '#64748B', // Bills (Slate)
+                  '#10B981', // Medical (Emerald)
+                  '#8B5CF6', // Entertainment (Purple)
+                  '#EC4899', // Education (Pink)
+                  '#94A3B8'  // Others (Grey)
+                ],
+                borderWidth: 2,
+                borderColor: isDark ? '#1E293B' : '#FFFFFF'
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'right',
+                labels: { color: labelColor, boxWidth: 12, font: { family: 'Inter' } }
+              }
             }
           }
-        }
-      });
+        });
+      }
     }
   }
 

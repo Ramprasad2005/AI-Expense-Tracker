@@ -1,6 +1,9 @@
 const crypto = require('crypto');
 
-// ─── Chrome Executable Path ───────────────────────────────────────────────────
+// ─── Chrome/Chromium Launch Config ────────────────────────────────────────────
+// On Vercel serverless we use @sparticuz/chromium; locally we use system Chrome.
+const isVercel = !!process.env.VERCEL || !!process.env.AWS_LAMBDA_FUNCTION_NAME;
+
 const getChromePath = () => {
   if (process.platform === 'darwin') {
     return '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
@@ -582,11 +585,27 @@ exports.generateFinancialReportPDF = async (reportData, res) => {
     const { launch } = await import('puppeteer-core');
     const html = buildReportHTML(reportData);
 
-    browser = await launch({
-      headless: 'new',
-      executablePath: getChromePath(),
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu']
-    });
+    let launchOptions;
+
+    if (isVercel) {
+      // Vercel serverless: use @sparticuz/chromium
+      const chromium = require('@sparticuz/chromium');
+      launchOptions = {
+        headless: chromium.headless,
+        executablePath: await chromium.executablePath(),
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport
+      };
+    } else {
+      // Local development: use system Chrome
+      launchOptions = {
+        headless: 'new',
+        executablePath: getChromePath(),
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu']
+      };
+    }
+
+    browser = await launch(launchOptions);
 
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 30000 });
