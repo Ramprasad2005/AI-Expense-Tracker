@@ -224,8 +224,28 @@ export class ReportsComponent implements OnInit {
       },
       error: (err) => {
         this.pdfLoading = false;
-        console.error(err);
-        this.notificationService.showToast('Failed to compile PDF', 'danger');
+        console.error('PDF EXPORT ERROR:', err);
+        console.error('Error status:', err.status);
+        console.error('Error message:', err.message);
+        if (err.error) {
+          console.error('Backend error:', err.error);
+          // If the response was a blob (due to responseType), try to read it as text
+          if (err.error instanceof Blob) {
+            err.error.text().then((text: string) => {
+              console.error('Backend error body:', text);
+              try {
+                const parsed = JSON.parse(text);
+                this.notificationService.showToast(parsed.message || 'PDF generation failed on server', 'danger');
+              } catch (e) {
+                this.notificationService.showToast('PDF generation failed. Check console for details.', 'danger');
+              }
+            });
+          } else {
+            this.notificationService.showToast(err.error?.message || 'Failed to compile PDF', 'danger');
+          }
+        } else {
+          this.notificationService.showToast('Failed to compile PDF: ' + (err.message || 'Unknown error'), 'danger');
+        }
         this.cdr.detectChanges();
       }
     });
