@@ -110,10 +110,11 @@ const getHtmlLayout = (title, content) => {
 
 // Welcome email
 const sendWelcomeEmail = async (email, username) => {
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
   const content = `
     <h3>Welcome to AI Expense Tracker, ${username}!</h3>
     <p>We are excited to help you optimize your personal budget. Log in to create custom limits, export PDF statements, and receive financial optimization suggestions compiled by Google Gemini AI.</p>
-    <a href="http://localhost:4200/login" class="btn">Access Dashboard</a>
+    <a href="${frontendUrl}/login" class="btn">Access Dashboard</a>
   `;
   await sendEmail({
     email,
