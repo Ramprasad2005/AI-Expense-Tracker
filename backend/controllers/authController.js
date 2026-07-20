@@ -7,7 +7,6 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const {
   sendWelcomeEmail,
-  sendVerificationEmail,
   sendPasswordResetEmail,
   sendPasswordChangedEmail
 } = require('../utils/email');
@@ -22,7 +21,7 @@ const generateToken = (id, tokenVersion = 0) => {
   });
 };
 
-// @desc    Register a new user
+// @desc    Register a new user (Auto-Verified)
 // @route   POST /api/auth/register
 // @access  Public
 exports.registerUser = async (req, res, next) => {
@@ -36,43 +35,44 @@ exports.registerUser = async (req, res, next) => {
     const cleanEmail = email.toLowerCase().trim();
     const cleanUsername = username.trim();
 
-    // ISSUE 1: Check MongoDB correctly for existing email
+    // Check MongoDB for duplicate email
     const existingEmail = await User.findOne({ email: cleanEmail });
     if (existingEmail) {
       return res.status(409).json({ success: false, message: 'Email already registered.' });
     }
 
+    // Check MongoDB for duplicate username
     const existingUsername = await User.findOne({ username: cleanUsername });
     if (existingUsername) {
       return res.status(409).json({ success: false, message: 'Username is already taken.' });
     }
 
-    // ISSUE 4: Generate secure verification token
-    const rawVerificationToken = crypto.randomBytes(32).toString('hex');
-    const hashedVerificationToken = hashToken(rawVerificationToken);
-
-    // Create user with isVerified: false and 24-hour verification token expiry
+    // Create user with isVerified: true for instant demo deployment readiness
     const user = await User.create({
       username: cleanUsername,
       email: cleanEmail,
       password,
       role: role || 'user',
       tokenVersion: 0,
-      isVerified: false,
-      verificationToken: hashedVerificationToken,
-      verificationExpires: Date.now() + 24 * 60 * 60 * 1000 // 24 hours
+      isVerified: true
     });
 
     if (user) {
-      console.log(`[AUTH] User registered: ${user.username} (Unverified)`);
+      console.log(`[AUTH] User registered & auto-verified: ${user.username} (${user.email})`);
 
-      // Dispatch verification email with token link
-      sendVerificationEmail(user.email, user.username, rawVerificationToken)
-        .catch(err => console.error('[AUTH ERROR] Verification email dispatch error:', err.message));
+      sendWelcomeEmail(user.email, user.username).catch(err => console.error('[AUTH ERROR] Welcome email failed:', err.message));
 
       res.status(201).json({
         success: true,
-        message: 'Verification email has been sent.'
+        message: 'Registration successful. You can log in now.',
+        data: {
+          _id: user._id,
+          username: user.username,
+          email: user.email,
+          role: user.role,
+          notificationPreferences: user.notificationPreferences,
+          token: generateToken(user._id, user.tokenVersion)
+        }
       });
     } else {
       res.status(400).json({ success: false, message: 'Invalid user data' });
@@ -85,51 +85,36 @@ exports.registerUser = async (req, res, next) => {
   }
 };
 
-// @desc    Verify Registration Email Link Token
+// @desc    Verify Email Link Token (Compatibility Stub)
 // @route   POST /api/auth/verify-email or GET /api/auth/verify-email
 // @access  Public
 exports.verifyEmail = async (req, res, next) => {
   try {
     const token = req.query.token || req.body.token;
     if (!token) {
-      return res.status(400).json({ success: false, message: 'Verification token is required.' });
+      return res.status(200).json({ success: true, message: 'Email Verified Successfully' });
     }
 
     const hashedToken = hashToken(token);
-
     const user = await User.findOne({
       verificationToken: hashedToken,
       verificationExpires: { $gt: Date.now() }
     }).select('+verificationToken +verificationExpires');
 
-    if (!user) {
-      return res.status(400).json({ success: false, message: 'Verification link expired.' });
+    if (user) {
+      user.isVerified = true;
+      user.verificationToken = undefined;
+      user.verificationExpires = undefined;
+      await user.save();
     }
-
-    // Mark user verified and delete token fields
-    user.isVerified = true;
-    user.verificationToken = undefined;
-    user.verificationExpires = undefined;
-    await user.save();
-
-    console.log(`[AUTH] User verified successfully: ${user.username}`);
-
-    sendWelcomeEmail(user.email, user.username).catch(err => console.error('Welcome email error:', err.message));
-
-    await Notification.create({
-      user: user._id,
-      message: 'Welcome to AI Expense Tracker! Your email has been verified successfully.',
-      type: 'month_end'
-    });
 
     res.status(200).json({ success: true, message: 'Email Verified Successfully' });
   } catch (error) {
-    console.error('[AUTH ERROR] verifyEmail failed:', error.message);
     next(error);
   }
 };
 
-// @desc    Auth user & get token
+// @desc    Auth user & get token (Instant Access)
 // @route   POST /api/auth/login
 // @access  Public
 exports.loginUser = async (req, res, next) => {
@@ -152,15 +137,6 @@ exports.loginUser = async (req, res, next) => {
       return res.status(401).json({ success: false, message: 'Invalid email or password.' });
     }
 
-    // ISSUE 2 & ISSUE 11: Reject unverified users with explicit response
-    if (!user.isVerified) {
-      return res.status(401).json({
-        success: false,
-        message: 'Your email is not verified.',
-        email: user.email
-      });
-    }
-
     res.status(200).json({
       success: true,
       data: {
@@ -177,48 +153,13 @@ exports.loginUser = async (req, res, next) => {
   }
 };
 
-// @desc    Resend Verification Email Link
+// @desc    Resend Verification Email Link (Compatibility)
 // @route   POST /api/auth/resend-verification
 // @access  Public
 exports.resendVerificationEmail = async (req, res, next) => {
   try {
-    const { email } = req.body;
-    if (!email) {
-      return res.status(400).json({ success: false, message: 'Please provide an email address.' });
-    }
-
-    const cleanEmail = email.toLowerCase().trim();
-    const user = await User.findOne({ email: cleanEmail }).select('+lastResendTimestamp');
-    if (!user) {
-      return res.status(400).json({ success: false, message: 'User account not found.' });
-    }
-
-    if (user.isVerified) {
-      return res.status(400).json({ success: false, message: 'Account is already verified.' });
-    }
-
-    // Enforce 1 email per minute rate limiting
-    if (user.lastResendTimestamp && (Date.now() - new Date(user.lastResendTimestamp).getTime() < 60000)) {
-      return res.status(429).json({
-        success: false,
-        message: 'Please wait 1 minute before requesting another verification email.'
-      });
-    }
-
-    // Generate new token & invalidate previous
-    const rawVerificationToken = crypto.randomBytes(32).toString('hex');
-    user.verificationToken = hashToken(rawVerificationToken);
-    user.verificationExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
-    user.lastResendTimestamp = Date.now();
-    await user.save();
-
-    console.log(`[AUTH] Resending verification email link to ${user.email}`);
-
-    await sendVerificationEmail(user.email, user.username, rawVerificationToken);
-
-    res.status(200).json({ success: true, message: 'Verification email sent.' });
+    res.status(200).json({ success: true, message: 'Your email address is already verified.' });
   } catch (error) {
-    console.error('[AUTH ERROR] resendVerificationEmail failed:', error.message);
     next(error);
   }
 };
@@ -237,7 +178,6 @@ exports.forgotPassword = async (req, res, next) => {
     const user = await User.findOne({ email: cleanEmail });
 
     if (!user) {
-      // Prevent email enumeration
       return res.status(200).json({ success: true, message: 'Verification email sent.' });
     }
 
@@ -283,12 +223,9 @@ exports.resetPassword = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Verification link expired.' });
     }
 
-    // Set new password (hashed via pre-save hook with 12 rounds bcrypt)
     user.password = newPassword;
     user.resetToken = undefined;
     user.resetExpires = undefined;
-    
-    // Invalidate previous sessions
     user.tokenVersion = (user.tokenVersion || 0) + 1;
     await user.save();
 

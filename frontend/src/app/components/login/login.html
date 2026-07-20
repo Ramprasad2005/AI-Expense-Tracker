@@ -1,32 +1,14 @@
 <div class="login-container fade-in-up">
-  <div class="card login-card border-0">
+  <div class="glass-card p-4 p-md-5 login-card">
     <div class="card-body p-0">
-      
-      <!-- Unverified Email Alert Box -->
-      <div *ngIf="isUnverified" class="alert alert-warning border-warning rounded-3 p-4 mb-4">
-        <div class="d-flex align-items-start mb-3">
-          <i class="fa-solid fa-triangle-exclamation fs-3 text-warning me-3 mt-1"></i>
-          <div>
-            <h5 class="fw-bold mb-1">Your email is not verified.</h5>
-            <p class="mb-0 small text-muted">We sent a verification link to <strong>{{ unverifiedEmail }}</strong>. Please check your inbox to activate your account.</p>
-          </div>
-        </div>
-        <div class="d-flex gap-2">
-          <button (click)="resendVerification()" class="btn btn-warning btn-sm fw-bold flex-fill py-2" [disabled]="resendLoading">
-            <span class="spinner-border spinner-border-sm me-1" *ngIf="resendLoading" role="status"></span>
-            <span>{{ resendLoading ? 'Sending...' : 'Resend Verification Email' }}</span>
-          </button>
-          <a routerLink="/register" class="btn btn-outline-secondary btn-sm fw-semibold py-2">Change Email</a>
-        </div>
-      </div>
 
       <!-- Brand & Title -->
       <div class="text-center mb-4">
-        <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-3 p-3 mb-3">
-          <i class="fa-solid fa-wallet fs-2 text-primary"></i>
+        <div class="brand-badge-gold mx-auto mb-3" style="width: 52px; height: 52px;">
+          <i class="fa-solid fa-vault fs-4 text-dark"></i>
         </div>
-        <h3 class="fw-bold mb-1">Welcome Back</h3>
-        <p class="text-muted small">Enter your credentials to access your financial dashboard.</p>
+        <h2 class="font-heading h3 text-gold mb-1">Institutional Access</h2>
+        <p class="text-secondary-custom small mb-0 font-body">Authenticate to enter your real-time executive ledger.</p>
       </div>
 
       <!-- Form -->
@@ -38,7 +20,7 @@
           <input 
             type="email" 
             id="email" 
-            class="form-control-premium" 
+            class="form-control-luxury" 
             formControlName="email" 
             placeholder="name@example.com"
             [class.is-invalid]="submitted && f['email'].errors"
@@ -55,7 +37,7 @@
           <input 
             type="password" 
             id="password" 
-            class="form-control-premium" 
+            class="form-control-luxury" 
             formControlName="password" 
             placeholder="••••••••"
             [class.is-invalid]="submitted && f['password'].errors"
@@ -69,24 +51,24 @@
         <!-- Remember Me & Forgot Password -->
         <div class="d-flex justify-content-between align-items-center mb-4">
           <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="rememberMe">
-            <label class="form-check-label text-muted small" for="rememberMe">
-              Remember me
+            <input class="form-check-input border-gold bg-dark" type="checkbox" id="rememberMe">
+            <label class="form-check-label text-secondary-custom small font-body" for="rememberMe">
+              Remember active session
             </label>
           </div>
-          <a routerLink="/forgot-password" class="text-primary text-decoration-none small fw-semibold">Forgot password?</a>
+          <a routerLink="/forgot-password" class="text-gold font-bold text-decoration-none small">Forgot password?</a>
         </div>
 
         <!-- Submit Button -->
-        <button type="submit" class="btn-premium-primary w-100 py-3 d-flex justify-content-center align-items-center" [disabled]="loading">
+        <button type="submit" class="btn-gold-primary w-100 py-3 d-flex justify-content-center align-items-center" [disabled]="loading">
           <span class="spinner-border spinner-border-sm me-2" *ngIf="loading" role="status" aria-hidden="true"></span>
-          <span>{{ loading ? 'Signing In...' : 'Sign In' }}</span>
+          <span>{{ loading ? 'Authenticating...' : 'Sign In to Dashboard' }}</span>
         </button>
       </form>
 
       <!-- Navigation Link -->
       <div class="text-center mt-4">
-        <p class="mb-0 text-muted small">Don't have an account? <a routerLink="/register" class="text-primary text-decoration-none fw-semibold">Register here</a></p>
+        <p class="mb-0 text-secondary-custom small font-body">Don't have an account? <a routerLink="/register" class="text-gold font-bold text-decoration-none ms-1">Register Here</a></p>
       </div>
 
     </div>

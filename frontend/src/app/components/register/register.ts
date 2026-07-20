@@ -22,11 +22,6 @@ export class RegisterComponent implements OnInit {
   loading = false;
   submitted = false;
 
-  // Registration success state
-  registeredSuccess = false;
-  registeredEmail = '';
-  resendLoading = false;
-
   ngOnInit(): void {
     if (this.authService.isLoggedIn()) {
       this.router.navigate(['/dashboard']);
@@ -67,12 +62,21 @@ export class RegisterComponent implements OnInit {
 
     this.authService.register({ username, email, password, role }).subscribe({
       next: (res) => {
-        this.loading = false;
         if (res.success) {
-          this.registeredSuccess = true;
-          this.registeredEmail = email;
-          this.notificationService.showToast('Verification email has been sent.', 'success');
+          this.notificationService.showToast('Registration successful! Signing in...', 'success');
+          // Auto login after registration
+          this.authService.login({ email, password }).subscribe({
+            next: () => {
+              this.loading = false;
+              this.router.navigate(['/dashboard']);
+            },
+            error: () => {
+              this.loading = false;
+              this.router.navigate(['/login']);
+            }
+          });
         } else {
+          this.loading = false;
           this.notificationService.showToast(res.message || 'Registration failed', 'danger');
         }
       },
@@ -83,27 +87,6 @@ export class RegisterComponent implements OnInit {
           ? (err.error?.message || 'Email already registered.')
           : (err.error?.message || 'Registration failed.');
         this.notificationService.showToast(errMsg, 'danger');
-      }
-    });
-  }
-
-  resendVerification(): void {
-    if (!this.registeredEmail) return;
-
-    this.resendLoading = true;
-    this.authService.resendVerification(this.registeredEmail).subscribe({
-      next: (res) => {
-        this.resendLoading = false;
-        if (res.success) {
-          this.notificationService.showToast('Verification email sent.', 'success');
-        } else {
-          this.notificationService.showToast(res.message || 'Failed to resend verification.', 'danger');
-        }
-      },
-      error: (err) => {
-        this.resendLoading = false;
-        console.error(err);
-        this.notificationService.showToast(err.error?.message || 'Failed to resend verification.', 'danger');
       }
     });
   }
