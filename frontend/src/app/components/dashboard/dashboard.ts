@@ -57,7 +57,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   loading = false;
   backgroundRefreshing = false;
 
-  // Quick AI Prompt Suggestions
   quickPrompts = [
     'How can I lower monthly expenses?',
     'Analyze my recurring spending habits',
@@ -74,17 +73,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private typingTimer?: any;
 
   ngOnInit(): void {
-    const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+    const currentMonth = new Date().toISOString().slice(0, 7);
     this.loadDashboardData(currentMonth, false);
     this.loadAiHistory();
 
-    // Sync dashboard on transaction edits
     this.txSub = this.dataSyncService.transactionChange$.subscribe(() => {
       const updatedMonth = new Date().toISOString().slice(0, 7);
       this.loadDashboardData(updatedMonth, true);
     });
 
-    // Sync dashboard on budget edits
     this.budgetSub = this.dataSyncService.budgetChange$.subscribe(() => {
       const updatedMonth = new Date().toISOString().slice(0, 7);
       this.loadDashboardData(updatedMonth, true);
@@ -264,12 +261,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const labelColor = '#E5E7EB';
     const gridColor = 'rgba(212, 175, 55, 0.1)';
 
-    // Bar Chart
+    // Bar Chart in Pure Royal Gold
     if (barCtx && (this.totalIncome > 0 || this.totalExpense > 0)) {
       const ctx = barCtx.getContext('2d');
       if (ctx) {
         const goldGradient = ctx.createLinearGradient(0, 0, 0, 300);
-        goldGradient.addColorStop(0, '#F4C542');
+        goldGradient.addColorStop(0, '#FFD700');
         goldGradient.addColorStop(1, '#D4AF37');
 
         const redGradient = ctx.createLinearGradient(0, 0, 0, 300);
@@ -313,7 +310,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       }
     }
 
-    // Line Chart
+    // Line Chart in Royal Gold Area Fill
     if (lineCtx) {
       const expensesOnly = this.recentTransactions.filter(t => t.type === 'Expense');
       if (expensesOnly.length > 0) {
@@ -327,11 +324,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
         const amounts = dates.map(d => dailyMap[d]);
 
         const ctx = lineCtx.getContext('2d');
-        let blueGradient: any = 'rgba(59, 130, 246, 0.15)';
+        let goldLineGradient: any = 'rgba(212, 175, 55, 0.15)';
         if (ctx) {
-          blueGradient = ctx.createLinearGradient(0, 0, 0, 300);
-          blueGradient.addColorStop(0, 'rgba(59, 130, 246, 0.35)');
-          blueGradient.addColorStop(1, 'rgba(59, 130, 246, 0.02)');
+          goldLineGradient = ctx.createLinearGradient(0, 0, 0, 300);
+          goldLineGradient.addColorStop(0, 'rgba(212, 175, 55, 0.35)');
+          goldLineGradient.addColorStop(1, 'rgba(212, 175, 55, 0.02)');
         }
 
         this.lineChartInstance = new Chart(lineCtx, {
@@ -340,14 +337,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
             labels: dates,
             datasets: [
               {
-                label: 'Daily Outflow ($)',
+                label: 'Daily Outflow (₹)',
                 data: amounts,
-                borderColor: '#3B82F6',
-                backgroundColor: blueGradient,
+                borderColor: '#D4AF37',
+                backgroundColor: goldLineGradient,
                 borderWidth: 3,
                 tension: 0.4,
                 fill: true,
-                pointBackgroundColor: '#D4AF37',
+                pointBackgroundColor: '#F4C542',
                 pointRadius: 5
               }
             ]
@@ -368,7 +365,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       }
     }
 
-    // Pie Chart
+    // Pie Chart in Gold and High-Contrast Royal Palette
     if (pieCtx) {
       const activeCategories = this.categoryBreakdown.filter(c => c.amount > 0);
       if (activeCategories.length > 0) {
@@ -384,8 +381,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 data: data,
                 backgroundColor: [
                   '#D4AF37',
-                  '#3B82F6',
-                  '#F59E0B',
+                  '#F4C542',
+                  '#FFD700',
                   '#EF4444',
                   '#10B981',
                   '#8B5CF6',
@@ -393,7 +390,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                   '#94A3B8'
                 ],
                 borderWidth: 2,
-                borderColor: '#111111'
+                borderColor: '#101010'
               }
             ]
           },

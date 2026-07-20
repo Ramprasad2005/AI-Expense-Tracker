@@ -35,10 +35,8 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   private windowHalfX = window.innerWidth / 2;
   private windowHalfY = window.innerHeight / 2;
 
-  // Active Tab for Live Preview
   activePreviewTab: 'overview' | 'analytics' | 'ai' = 'overview';
 
-  // FAQ Items
   faqItems = [
     {
       q: 'How does Gemini AI analyze my financial telemetry?',
@@ -91,22 +89,22 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
     this.renderer.setSize(width, height);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-    // 3. Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
+    // 3. Lighting (Pure Royal Gold Warm Lighting)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
     this.scene.add(ambientLight);
 
-    const bluePointLight = new THREE.PointLight(0x4f7cff, 3.5, 100);
-    bluePointLight.position.set(5, 5, 5);
-    this.scene.add(bluePointLight);
+    const goldPointLight1 = new THREE.PointLight(0xd4af37, 3.8, 100);
+    goldPointLight1.position.set(5, 5, 5);
+    this.scene.add(goldPointLight1);
 
-    const indigoPointLight = new THREE.PointLight(0x7c5cff, 2.5, 100);
-    indigoPointLight.position.set(-5, -5, 5);
-    this.scene.add(indigoPointLight);
+    const goldPointLight2 = new THREE.PointLight(0xf4c542, 2.8, 100);
+    goldPointLight2.position.set(-5, -5, 5);
+    this.scene.add(goldPointLight2);
 
     // 4. Create 3D Metallic Credit Card
     const cardGeometry = new THREE.BoxGeometry(3.4, 2.15, 0.08);
     const cardMaterial = new THREE.MeshStandardMaterial({
-      color: 0x101114,
+      color: 0x0c0c0c,
       metalness: 0.95,
       roughness: 0.15,
       wireframe: false
@@ -115,10 +113,10 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
     this.cardMesh.position.set(-0.8, 0, 0);
     this.scene.add(this.cardMesh);
 
-    // Add Electric Edge Overlay
+    // Add Royal Gold Edge Overlay
     const edgeGeometry = new THREE.BoxGeometry(3.42, 2.17, 0.02);
     const edgeMaterial = new THREE.MeshStandardMaterial({
-      color: 0x4f7cff,
+      color: 0xd4af37,
       metalness: 1.0,
       roughness: 0.05
     });
@@ -126,19 +124,19 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
     edgeMesh.position.set(0, 0, -0.04);
     this.cardMesh.add(edgeMesh);
 
-    // 5. Create Floating 3D AI Orb
+    // 5. Create Floating 3D AI Orb in Royal Gold
     const orbGeometry = new THREE.IcosahedronGeometry(0.85, 2);
     const orbMaterial = new THREE.MeshStandardMaterial({
-      color: 0x7c5cff,
+      color: 0xd4af37,
       wireframe: true,
-      metalness: 0.85,
-      roughness: 0.15
+      metalness: 0.9,
+      roughness: 0.1
     });
     this.orbMesh = new THREE.Mesh(orbGeometry, orbMaterial);
     this.orbMesh.position.set(2.2, 0.6, 0.5);
     this.scene.add(this.orbMesh);
 
-    // 6. Create Particles
+    // 6. Create Royal Gold Particle Mesh
     const particlesCount = 250;
     const posArray = new Float32Array(particlesCount * 3);
     for (let i = 0; i < particlesCount * 3; i++) {
@@ -148,7 +146,7 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
     particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
     const particlesMaterial = new THREE.PointsMaterial({
       size: 0.035,
-      color: 0x4f7cff,
+      color: 0xd4af37,
       transparent: true,
       opacity: 0.75
     });

@@ -4,26 +4,26 @@
     <!-- Welcome Header -->
     <div class="d-flex justify-content-between align-items-center mb-4 fade-in-up">
       <div>
-        <h1 class="font-heading display-6 mb-1 text-primary-accent">Executive Portfolio Ledger</h1>
+        <h1 class="font-heading display-6 mb-1 text-gold">Executive Portfolio Ledger</h1>
         <p class="text-secondary-custom small mb-0 font-body">Real-time asset telemetry, cash flow analytics, and Gemini AI wealth intelligence.</p>
       </div>
       <div class="d-none d-md-block">
-        <span class="luxury-badge-pill"><i class="fa-solid fa-shield-check text-primary-accent me-2"></i> LIVE CENTURION TELEMETRY</span>
+        <span class="luxury-badge-pill"><i class="fa-solid fa-shield-check text-gold me-2"></i> LIVE CENTURION TELEMETRY</span>
       </div>
     </div>
 
     <!-- Background Refreshing Indicator -->
-    <div *ngIf="backgroundRefreshing" class="alert alert-warning border-card py-2 px-3 mb-4 d-flex align-items-center justify-content-between d-print-none fade-in-up" style="background: rgba(79, 124, 255, 0.08);">
-      <span class="text-primary-accent font-body small"><span class="spinner-border spinner-border-sm text-primary-accent me-2" role="status"></span>Syncing ledger telemetry...</span>
-      <span class="badge bg-dark text-primary-accent border-card font-number">Cached Data</span>
+    <div *ngIf="backgroundRefreshing" class="alert alert-warning border-gold py-2 px-3 mb-4 d-flex align-items-center justify-content-between d-print-none fade-in-up" style="background: rgba(212, 175, 55, 0.08);">
+      <span class="text-gold font-body small"><span class="spinner-border spinner-border-sm text-gold me-2" role="status"></span>Syncing ledger telemetry...</span>
+      <span class="badge bg-dark text-gold border-gold font-number">Cached Data</span>
     </div>
 
     <!-- SKELETON LOADER STATE -->
     <div *ngIf="loading" class="fade-in-up py-5 text-center">
-      <div class="spinner-border text-primary-accent mb-3" style="width: 3rem; height: 3rem;" role="status">
+      <div class="spinner-border text-gold mb-3" style="width: 3rem; height: 3rem;" role="status">
         <span class="visually-hidden">Loading...</span>
       </div>
-      <h4 class="font-heading text-primary-accent mb-2">Syncing Financial Ledger</h4>
+      <h4 class="font-heading text-gold mb-2">Syncing Financial Ledger</h4>
       <p class="text-secondary-custom small mb-5">Retrieving portfolio metrics and synthesizing AI intelligence...</p>
       
       <div class="row g-4 mb-4">
@@ -45,12 +45,12 @@
         <div class="col-md-3 col-sm-6">
           <div class="glass-card p-4 kpi-card-income">
             <div class="d-flex align-items-center">
-              <div class="kpi-icon-blue me-3">
-                <i class="fa-solid fa-arrow-trend-up fs-4 text-white"></i>
+              <div class="kpi-icon-gold me-3">
+                <i class="fa-solid fa-arrow-trend-up fs-4 text-dark"></i>
               </div>
               <div>
                 <span class="text-secondary-custom small uppercase font-heading d-block">Total Income</span>
-                <strong class="font-number fs-3 text-primary-accent">${{ totalIncome.toFixed(2) }}</strong>
+                <strong class="font-number fs-3 text-gold">₹{{ totalIncome.toFixed(2) }}</strong>
               </div>
             </div>
           </div>
@@ -65,7 +65,7 @@
               </div>
               <div>
                 <span class="text-secondary-custom small uppercase font-heading d-block">Total Expenses</span>
-                <strong class="font-number fs-3 text-danger">${{ totalExpense.toFixed(2) }}</strong>
+                <strong class="font-number fs-3 text-danger">₹{{ totalExpense.toFixed(2) }}</strong>
               </div>
             </div>
           </div>
@@ -80,7 +80,7 @@
               </div>
               <div>
                 <span class="text-secondary-custom small uppercase font-heading d-block">Net Savings</span>
-                <strong class="font-number fs-3 text-success">${{ savings.toFixed(2) }}</strong>
+                <strong class="font-number fs-3 text-success">₹{{ savings.toFixed(2) }}</strong>
               </div>
             </div>
           </div>
@@ -91,11 +91,11 @@
           <div class="glass-card p-4 kpi-card-balance">
             <div class="d-flex align-items-center">
               <div class="kpi-icon-gold me-3">
-                <i class="fa-solid fa-scale-balanced fs-4 text-white"></i>
+                <i class="fa-solid fa-scale-balanced fs-4 text-dark"></i>
               </div>
               <div>
                 <span class="text-secondary-custom small uppercase font-heading d-block">Total Balance</span>
-                <strong class="font-number fs-3 text-gold">${{ balance.toFixed(2) }}</strong>
+                <strong class="font-number fs-3 text-gold-bright">₹{{ balance.toFixed(2) }}</strong>
               </div>
             </div>
           </div>
@@ -106,7 +106,7 @@
       <div class="row g-4 mb-4">
         <div class="col-lg-6">
           <div class="glass-card p-4">
-            <h3 class="font-heading h5 mb-4 text-primary-accent"><i class="fa-solid fa-chart-bar text-primary-accent me-2"></i>Inflow vs Outflow Velocity</h3>
+            <h3 class="font-heading h5 mb-4 text-gold"><i class="fa-solid fa-chart-bar text-gold me-2"></i>Inflow vs Outflow Velocity</h3>
             <div class="chart-container" style="height: 280px; position: relative;">
               <canvas id="barChart"></canvas>
             </div>
@@ -114,7 +114,7 @@
         </div>
         <div class="col-lg-6">
           <div class="glass-card p-4">
-            <h3 class="font-heading h5 mb-4 text-primary-accent"><i class="fa-solid fa-chart-line text-primary-accent me-2"></i>Daily Outflow Dynamics</h3>
+            <h3 class="font-heading h5 mb-4 text-gold"><i class="fa-solid fa-chart-line text-gold me-2"></i>Daily Outflow Dynamics</h3>
             <div class="chart-container" style="height: 280px; position: relative;">
               <canvas id="lineChart"></canvas>
             </div>
@@ -126,7 +126,7 @@
       <div class="row g-4 mb-4">
         <div class="col-lg-5">
           <div class="glass-card p-4 h-100">
-            <h3 class="font-heading h5 mb-4 text-primary-accent"><i class="fa-solid fa-chart-pie text-primary-accent me-2"></i>Category Breakdown</h3>
+            <h3 class="font-heading h5 mb-4 text-gold"><i class="fa-solid fa-chart-pie text-gold me-2"></i>Category Breakdown</h3>
             <div class="chart-container" style="height: 280px; position: relative;">
               <canvas id="pieChart"></canvas>
             </div>
@@ -134,15 +134,15 @@
         </div>
 
         <div class="col-lg-7">
-          <div class="glass-card p-4 h-100 card-blue-header">
+          <div class="glass-card p-4 h-100 card-gold-header">
             <!-- ChatGPT AI Header -->
             <div class="d-flex justify-content-between align-items-center mb-4 border-bottom-gold pb-3">
               <div class="d-flex align-items-center gap-3">
                 <div class="brand-badge-gold" style="width: 42px; height: 42px;">
-                  <i class="fa-solid fa-brain text-white fs-5"></i>
+                  <i class="fa-solid fa-brain text-dark fs-5"></i>
                 </div>
                 <div>
-                  <h3 class="font-heading h5 mb-0 text-primary-accent">Gemini AI Wealth Advisor</h3>
+                  <h3 class="font-heading h5 mb-0 text-gold">Gemini AI Wealth Advisor</h3>
                   <span class="text-success small font-number d-flex align-items-center gap-1 mt-0.5">
                     <i class="fa-solid fa-circle text-success fs-9 animate-pulse"></i> ChatGPT Interface Connected
                   </span>
@@ -150,10 +150,10 @@
               </div>
               
               <div class="d-flex align-items-center gap-2">
-                <button *ngIf="displayedAdvice && !aiLoading" class="btn btn-sm text-primary-accent p-0 me-2" (click)="copyAdvice()" title="Copy Advice">
+                <button *ngIf="displayedAdvice && !aiLoading" class="btn btn-sm text-gold p-0 me-2" (click)="copyAdvice()" title="Copy Advice">
                   <i class="fa-regular fa-copy fs-6"></i>
                 </button>
-                <button *ngIf="displayedAdvice && !aiLoading" class="btn btn-sm text-primary-accent p-0 me-2" (click)="downloadAdvice()" title="Download Text">
+                <button *ngIf="displayedAdvice && !aiLoading" class="btn btn-sm text-gold p-0 me-2" (click)="downloadAdvice()" title="Download Text">
                   <i class="fa-solid fa-download fs-6"></i>
                 </button>
 
@@ -167,15 +167,15 @@
 
             <!-- Prompt Quick Suggestion Chips -->
             <div class="d-flex flex-wrap gap-2 mb-3">
-              <button *ngFor="let prompt of quickPrompts" class="btn btn-sm btn-outline-secondary text-primary-accent border-card rounded-pill font-body extra-small py-1 px-3" (click)="getAiSuggestions()">
+              <button *ngFor="let prompt of quickPrompts" class="btn btn-sm btn-outline-secondary text-gold border-gold rounded-pill font-body extra-small py-1 px-3" (click)="getAiSuggestions()">
                 <i class="fa-solid fa-sparkles me-1"></i> {{ prompt }}
               </button>
             </div>
 
             <!-- Loading State -->
             <div *ngIf="aiLoading" class="py-4 text-center">
-              <div class="spinner-border text-primary-accent mb-3" role="status"></div>
-              <p class="text-primary-accent font-heading mb-0">Gemini AI is synthesizing ledger telemetry...</p>
+              <div class="spinner-border text-gold mb-3" role="status"></div>
+              <p class="text-gold font-heading mb-0">Gemini AI is synthesizing ledger telemetry...</p>
             </div>
 
             <!-- Error State -->
@@ -187,11 +187,11 @@
 
             <!-- ChatGPT Bubble Conversation Output with Typing Effect -->
             <div *ngIf="!aiLoading && displayedAdvice && !aiError" class="d-flex flex-column h-100">
-              <div class="chatgpt-response-bubble p-4 rounded-3" style="background: #101114; border: 1px solid #2B2C30;">
+              <div class="chatgpt-response-bubble p-4 rounded-3" style="background: #0A0A0A; border: 1px solid rgba(212, 175, 55, 0.2);">
                 <div [innerHTML]="getFormattedAdvice(displayedAdvice)" class="text-light font-body small" style="line-height: 1.8;"></div>
               </div>
-              <span *ngIf="isTypingAi" class="text-primary-accent font-number small mt-2 d-flex align-items-center gap-2">
-                <span class="spinner-grow spinner-grow-sm text-primary-accent" role="status"></span> Synthesizing response...
+              <span *ngIf="isTypingAi" class="text-gold font-number small mt-2 d-flex align-items-center gap-2">
+                <span class="spinner-grow spinner-grow-sm text-gold" role="status"></span> Synthesizing response...
               </span>
             </div>
           </div>
@@ -203,20 +203,20 @@
         <!-- Recent Transactions -->
         <div class="col-md-7">
           <div class="glass-card p-4 h-100">
-            <h3 class="font-heading h5 mb-4 text-primary-accent border-bottom-gold pb-3"><i class="fa-solid fa-list-ul text-primary-accent me-2"></i>Latest Ledger Activity</h3>
+            <h3 class="font-heading h5 mb-4 text-gold border-bottom-gold pb-3"><i class="fa-solid fa-list-ul text-gold me-2"></i>Latest Ledger Activity</h3>
             
             <div *ngIf="recentTransactions.length === 0" class="text-center py-5 text-secondary-custom small">
               No recent ledger transactions logged.
             </div>
 
             <div class="d-flex flex-column gap-2" *ngIf="recentTransactions.length > 0">
-              <div *ngFor="let tx of recentTransactions" class="d-flex justify-content-between align-items-center p-3 rounded-3" style="background: #101114; border: 1px solid #2B2C30;">
+              <div *ngFor="let tx of recentTransactions" class="d-flex justify-content-between align-items-center p-3 rounded-3" style="background: #0A0A0A; border: 1px solid rgba(212, 175, 55, 0.15);">
                 <div>
                   <strong class="d-block text-light font-body small">{{ tx.categoryOrSource }}</strong>
                   <span class="text-muted-custom extra-small">{{ tx.date | date:'shortDate' }} • {{ tx.description || 'General Log' }}</span>
                 </div>
                 <span class="font-number font-bold small" [ngClass]="tx.type === 'Income' ? 'text-success' : 'text-danger'">
-                  {{ tx.type === 'Income' ? '+' : '-' }}${{ tx.amount.toFixed(2) }}
+                  {{ tx.type === 'Income' ? '+' : '-' }}₹{{ tx.amount.toFixed(2) }}
                 </span>
               </div>
             </div>
@@ -227,8 +227,8 @@
         <div class="col-md-5">
           <div class="glass-card p-4 h-100 d-flex flex-column justify-content-between">
             <div>
-              <h3 class="font-heading h5 mb-4 text-primary-accent border-bottom-gold pb-3">
-                <i class="fa-solid fa-piggy-bank text-primary-accent me-2"></i>Monthly Envelope Threshold
+              <h3 class="font-heading h5 mb-4 text-gold border-bottom-gold pb-3">
+                <i class="fa-solid fa-piggy-bank text-gold me-2"></i>Monthly Envelope Threshold
               </h3>
               
               <div *ngIf="budget.monthlyBudget === 0" class="text-center py-4 text-secondary-custom small">
@@ -244,10 +244,10 @@
                   </span>
                 </div>
                 <div class="d-flex justify-content-between small font-number text-secondary-custom mb-2">
-                  <span>Outflow: ${{ budget.totalSpent.toFixed(2) }}</span>
-                  <span>Ceiling: ${{ budget.monthlyBudget.toFixed(2) }}</span>
+                  <span>Outflow: ₹{{ budget.totalSpent.toFixed(2) }}</span>
+                  <span>Ceiling: ₹{{ budget.monthlyBudget.toFixed(2) }}</span>
                 </div>
-                <div class="progress mb-3" style="height: 10px; background: #050505; border: 1px solid #2B2C30; border-radius: 6px;">
+                <div class="progress mb-3" style="height: 10px; background: #050505; border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 6px;">
                   <div 
                     class="progress-bar" 
                     [style.width.%]="spendPercentage > 100 ? 100 : spendPercentage"
@@ -255,7 +255,7 @@
                   ></div>
                 </div>
                 <span class="small d-block text-center font-number font-bold mt-2" [ngClass]="budget.remaining >= 0 ? 'text-success' : 'text-danger'">
-                  {{ budget.remaining >= 0 ? '$' + budget.remaining.toFixed(2) + ' reserve remaining' : 'Over envelope ceiling by $' + mathAbs(budget.remaining).toFixed(2) }}
+                  {{ budget.remaining >= 0 ? '₹' + budget.remaining.toFixed(2) + ' reserve remaining' : 'Over envelope ceiling by ₹' + mathAbs(budget.remaining).toFixed(2) }}
                 </span>
               </div>
             </div>
