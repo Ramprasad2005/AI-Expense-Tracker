@@ -2,89 +2,156 @@
   
   <!-- Hero Section -->
   <header class="hero-section position-relative overflow-hidden py-6">
-    <div class="container position-relative z-1 text-center py-5">
+    <div class="container position-relative z-1 text-center py-4">
       <div class="row justify-content-center">
         <div class="col-xl-10 col-lg-11">
           
           <div class="luxury-badge-pill mb-4 fade-in-up">
-            <i class="fa-solid fa-crown text-gold me-2"></i> INTRODUCING CENTURION FINANCIAL INTELLIGENCE
+            <i class="fa-solid fa-sparkles text-primary-accent me-2"></i> CENTURION AI FINANCIAL PLATFORM
           </div>
 
-          <h1 class="hero-headline mb-4 fade-in-up font-heading">
-            Take Control of Your <span class="text-gold-gradient">Financial Future</span>
+          <h1 class="hero-headline mb-4 fade-in-up font-heading display-3">
+            Autonomous <span class="text-primary-gradient">Wealth Intelligence</span> for Modern Enterprise
           </h1>
 
           <p class="hero-subtitle mb-5 mx-auto fade-in-up text-secondary-custom">
-            Track high-net-worth assets, income flows, enterprise budgets, and receive real-time financial advice powered by Google Gemini AI in an ultra-secure, royal-grade platform.
+            Monitor high-net-worth liquidity, income telemetry, corporate budgets, and synthesize real-time portfolio optimization powered by Google Gemini AI in an electric obsidian architecture.
           </p>
 
           <div class="hero-ctas d-flex flex-sm-row flex-column justify-content-center gap-4 align-items-center mb-5 fade-in-up">
-            <a class="btn-gold-primary px-5 py-3 fs-6" routerLink="/register">
-              Initialize Dashboard <i class="fa-solid fa-arrow-right ms-2"></i>
+            <a class="btn-gold-primary px-5 py-3 fs-6 font-btn" routerLink="/register">
+              Initialize Portal <i class="fa-solid fa-arrow-right ms-2"></i>
             </a>
-            <a class="btn-glass-secondary px-5 py-3 fs-6" routerLink="/login">
-              Access Private Portal
+            <a class="btn-glass-secondary px-5 py-3 fs-6 font-btn" routerLink="/login">
+              Access Private Sign In
             </a>
           </div>
 
         </div>
       </div>
 
-      <!-- Dashboard Mockup Frame -->
-      <div class="mockup-wrapper fade-in-up mt-4">
+      <!-- 3D Interactive Three.js Credit Card & Orb Canvas -->
+      <div class="three-canvas-container my-4 fade-in-up position-relative">
+        <canvas #heroCanvas class="hero-three-canvas"></canvas>
+        <div class="canvas-caption text-primary-accent font-number small opacity-75">
+          <i class="fa-solid fa-cube me-1"></i> Interactive 3D Centurion Metallic Card • Move mouse to rotate
+        </div>
+      </div>
+
+      <!-- Live Dashboard Interactive Preview Frame -->
+      <div class="mockup-wrapper fade-in-up mt-5">
         <div class="mockup-frame-glass p-1">
-          <div class="mockup-header-glass d-flex align-items-center justify-content-between px-4 py-3">
+          <div class="mockup-header-glass d-flex align-items-center justify-content-between px-4 py-3 border-bottom-gold">
             <div class="mockup-dots d-flex gap-2">
               <span class="dot-gold"></span><span class="dot-gold"></span><span class="dot-gold"></span>
             </div>
-            <div class="mockup-url-glass text-truncate px-4 py-1 font-number">https://fintech.ai-expensetracker.app/dashboard</div>
-            <div style="width: 48px;"></div>
+            <div class="mockup-nav-tabs d-flex gap-3">
+              <button class="tab-btn" [class.active]="activePreviewTab === 'overview'" (click)="activePreviewTab = 'overview'">
+                <i class="fa-solid fa-chart-pie me-1"></i> Overview
+              </button>
+              <button class="tab-btn" [class.active]="activePreviewTab === 'analytics'" (click)="activePreviewTab = 'analytics'">
+                <i class="fa-solid fa-chart-line me-1"></i> Telemetry
+              </button>
+              <button class="tab-btn" [class.active]="activePreviewTab === 'ai'" (click)="activePreviewTab = 'ai'">
+                <i class="fa-solid fa-brain me-1 text-primary-accent"></i> ChatGPT AI Advisor
+              </button>
+            </div>
+            <div class="mockup-url-glass text-truncate px-3 py-1 font-number d-none d-md-block">https://enterprise.centurion-fintech.ai/dashboard</div>
           </div>
           
           <div class="mockup-body-glass p-4 text-start position-relative">
-            <div class="row g-4">
-              <!-- KPI Mockup 1 -->
-              <div class="col-md-3 col-sm-6">
-                <div class="kpi-mock-glass p-3 border-gold-left">
-                  <span class="text-secondary-custom d-block small uppercase font-heading">Total Portfolio</span>
-                  <strong class="text-gold font-number fs-4">$1,248,500.00</strong>
+            <!-- TAB 1: OVERVIEW -->
+            <div *ngIf="activePreviewTab === 'overview'" class="fade-in-up">
+              <div class="row g-4 mb-4">
+                <div class="col-md-3 col-sm-6">
+                  <div class="kpi-mock-glass p-3">
+                    <span class="text-secondary-custom d-block small uppercase font-heading">Total Portfolio</span>
+                    <strong class="text-primary-accent font-number fs-3">$2,845,900.00</strong>
+                    <span class="text-success small d-block font-number mt-1"><i class="fa-solid fa-arrow-up me-1"></i>+18.4% yield</span>
+                  </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                  <div class="kpi-mock-glass p-3">
+                    <span class="text-secondary-custom d-block small uppercase font-heading">Monthly Revenue</span>
+                    <strong class="text-light font-number fs-3">$142,500.00</strong>
+                    <span class="text-success small d-block font-number mt-1"><i class="fa-solid fa-arrow-up me-1"></i>+12.1% growth</span>
+                  </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                  <div class="kpi-mock-glass p-3">
+                    <span class="text-secondary-custom d-block small uppercase font-heading">Operating Outflow</span>
+                    <strong class="text-danger font-number fs-3">$38,210.00</strong>
+                    <span class="text-muted-custom small d-block font-number mt-1"><i class="fa-solid fa-check me-1"></i>Within ceiling</span>
+                  </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                  <div class="kpi-mock-glass p-3">
+                    <span class="text-secondary-custom d-block small uppercase font-heading">Net Savings Reserve</span>
+                    <strong class="text-gold font-number fs-3">$104,290.00</strong>
+                    <span class="text-gold small d-block font-number mt-1"><i class="fa-solid fa-shield-halved me-1"></i>Secured</span>
+                  </div>
                 </div>
               </div>
-              <!-- KPI Mockup 2 -->
-              <div class="col-md-3 col-sm-6">
-                <div class="kpi-mock-glass p-3 border-emerald-left">
-                  <span class="text-secondary-custom d-block small uppercase font-heading">Monthly Inflow</span>
-                  <strong class="text-success font-number fs-4">+$84,200.00</strong>
+
+              <!-- Preview Charts Row -->
+              <div class="row g-4">
+                <div class="col-md-8">
+                  <div class="mock-chart-container p-4 glass-card">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <span class="font-heading text-primary-accent h6 mb-0">Inflow vs Outflow Telemetry</span>
+                      <span class="badge bg-dark text-primary-accent border-card font-number">2026 Fiscal Year</span>
+                    </div>
+                    <div class="mock-bar-visual d-flex align-items-end justify-content-between pt-4 px-2" style="height: 160px;">
+                      <div class="bar-group text-center"><div class="bar bar-gold" style="height: 70%;"></div><span class="small text-muted-custom font-number mt-1 d-block">Q1</span></div>
+                      <div class="bar-group text-center"><div class="bar bar-gold" style="height: 85%;"></div><span class="small text-muted-custom font-number mt-1 d-block">Q2</span></div>
+                      <div class="bar-group text-center"><div class="bar bar-gold" style="height: 60%;"></div><span class="small text-muted-custom font-number mt-1 d-block">Q3</span></div>
+                      <div class="bar-group text-center"><div class="bar bar-gold-bright" style="height: 95%;"></div><span class="small text-muted-custom font-number mt-1 d-block">Q4</span></div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <!-- KPI Mockup 3 -->
-              <div class="col-md-3 col-sm-6">
-                <div class="kpi-mock-glass p-3 border-crimson-left">
-                  <span class="text-secondary-custom d-block small uppercase font-heading">Outflow Volume</span>
-                  <strong class="text-danger font-number fs-4">-$18,450.00</strong>
-                </div>
-              </div>
-              <!-- KPI Mockup 4 -->
-              <div class="col-md-3 col-sm-6">
-                <div class="kpi-mock-glass p-3 border-platinum-left">
-                  <span class="text-secondary-custom d-block small uppercase font-heading">Net Yield</span>
-                  <strong class="text-platinum font-number fs-4">+78.1%</strong>
+                <div class="col-md-4">
+                  <div class="mock-donut-container p-4 glass-card h-100">
+                    <span class="font-heading text-primary-accent h6 mb-3 d-block">Category Allocations</span>
+                    <div class="d-flex flex-column gap-2 font-number small">
+                      <div class="d-flex justify-content-between"><span class="text-light">Infrastructure</span><strong class="text-primary-accent">42%</strong></div>
+                      <div class="d-flex justify-content-between"><span class="text-light">Personnel</span><strong class="text-primary-accent">28%</strong></div>
+                      <div class="d-flex justify-content-between"><span class="text-light">R&D Intelligence</span><strong class="text-primary-accent">18%</strong></div>
+                      <div class="d-flex justify-content-between"><span class="text-light">Treasury Reserves</span><strong class="text-gold">12%</strong></div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- Floating Intelligence Notice -->
-            <div class="floating-ai-glass p-3 d-none d-lg-block position-absolute">
-              <div class="d-flex align-items-center gap-3">
-                <div class="ai-orb-gold">
-                  <i class="fa-solid fa-wand-magic-sparkles text-dark fs-6"></i>
-                </div>
-                <div>
-                  <span class="d-block text-gold font-heading font-semibold small">Gemini Advisor Insight</span>
-                  <p class="mb-0 text-light small font-body">"Capital yield increased by +14.2% following cost optimizations."</p>
+            <!-- TAB 2: ANALYTICS -->
+            <div *ngIf="activePreviewTab === 'analytics'" class="fade-in-up p-3">
+              <div class="glass-card p-4">
+                <h5 class="font-heading text-primary-accent mb-3"><i class="fa-solid fa-chart-line me-2"></i>Institutional Financial Telemetry</h5>
+                <p class="text-secondary-custom">Automated trend projection, liquidity velocity, multi-currency conversion ledger, and variance audits.</p>
+                <div class="row g-3 mt-2">
+                  <div class="col-md-4"><div class="p-3 border-card rounded"><strong class="text-light font-number d-block">$842.5K</strong><span class="small text-muted-custom">Monthly Recurring Inflow</span></div></div>
+                  <div class="col-md-4"><div class="p-3 border-card rounded"><strong class="text-light font-number d-block">0.04%</strong><span class="small text-muted-custom">Ledger Variance Ratio</span></div></div>
+                  <div class="col-md-4"><div class="p-3 border-card rounded"><strong class="text-primary-accent font-number d-block">99.99%</strong><span class="small text-muted-custom">Audit Accuracy Score</span></div></div>
                 </div>
               </div>
             </div>
+
+            <!-- TAB 3: CHATGPT AI ADVISOR DEMO -->
+            <div *ngIf="activePreviewTab === 'ai'" class="fade-in-up p-3">
+              <div class="glass-card p-4">
+                <div class="d-flex align-items-center gap-3 mb-3 border-bottom-gold pb-3">
+                  <div class="brand-badge-gold"><i class="fa-solid fa-brain text-white"></i></div>
+                  <div>
+                    <strong class="font-heading text-primary-accent d-block">Gemini Advisor (ChatGPT Interface)</strong>
+                    <span class="text-success small font-number"><i class="fa-solid fa-circle me-1"></i> Active Synthesis</span>
+                  </div>
+                </div>
+                <div class="chat-bubble-ai p-3 rounded text-light font-body small">
+                  <i class="fa-solid fa-wand-magic-sparkles text-primary-accent me-2"></i> "Portfolio yield increased by +18.4% following infrastructure optimization. Reallocating $15,000 into liquid treasury reserves will increase net yield by +4.2% annually."
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
@@ -92,87 +159,181 @@
     </div>
   </header>
 
-  <!-- Features Grid Section -->
+  <!-- Capabilities / Features Grid -->
   <section id="features" class="features-section py-6 position-relative">
     <div class="container text-center py-4">
       <div class="row justify-content-center mb-5">
         <div class="col-lg-8">
-          <span class="luxury-badge-pill mb-2">CAPABILITIES</span>
-          <h2 class="section-title-gold font-heading display-5 mb-3">Enterprise Wealth Management</h2>
-          <p class="text-secondary-custom fs-5">Everything required to track transactions, analyze outlays, and project asset growths.</p>
+          <span class="luxury-badge-pill mb-3">ENTERPRISE CAPABILITIES</span>
+          <h2 class="section-title-gold font-heading display-4 mb-3">Architected for Wealth Precision</h2>
+          <p class="text-secondary-custom fs-5">Everything high-growth corporate treasuries and private clients need to monitor asset flows.</p>
         </div>
       </div>
 
       <div class="row g-4">
         <!-- Feature 1 -->
         <div class="col-lg-4 col-md-6">
-          <div class="glass-card h-100 p-4 text-start">
+          <div class="glass-card h-100 p-4 text-start card-blue-header">
             <div class="feature-icon-gold mb-4">
-              <i class="fa-solid fa-brain text-dark fs-4"></i>
+              <i class="fa-solid fa-brain text-white fs-4"></i>
             </div>
-            <h3 class="font-heading h4 text-light mb-3">AI Financial Consulting</h3>
-            <p class="text-secondary-custom">Direct wealth advice compiled by Google Gemini analyzing spending patterns and budget allocations.</p>
+            <h3 class="font-heading h4 text-light mb-3">Gemini Financial AI</h3>
+            <p class="text-secondary-custom">Generative wealth consultations analyzing spending habits, identifying unnecessary subscriptions, and providing real-time savings recommendations.</p>
           </div>
         </div>
+
         <!-- Feature 2 -->
         <div class="col-lg-4 col-md-6">
-          <div class="glass-card h-100 p-4 text-start">
+          <div class="glass-card h-100 p-4 text-start card-blue-header">
             <div class="feature-icon-gold mb-4">
-              <i class="fa-solid fa-chart-line text-dark fs-4"></i>
+              <i class="fa-solid fa-chart-column text-white fs-4"></i>
             </div>
             <h3 class="font-heading h4 text-light mb-3">Real-Time Ledger Analytics</h3>
-            <p class="text-secondary-custom">Instant data visualizations, Space Grotesk counter metrics, dynamic category ratios, and ledger filters.</p>
+            <p class="text-secondary-custom">Dynamic Chart.js visualizations with Space Grotesk counter metrics, category breakdown ratios, and daily outflow trendlines.</p>
           </div>
         </div>
+
         <!-- Feature 3 -->
-        <div class="col-lg-4 col-md-6 mx-auto">
-          <div class="glass-card h-100 p-4 text-start">
+        <div class="col-lg-4 col-md-6">
+          <div class="glass-card h-100 p-4 text-start card-blue-header">
             <div class="feature-icon-gold mb-4">
-              <i class="fa-solid fa-file-shield text-dark fs-4"></i>
+              <i class="fa-solid fa-file-shield text-white fs-4"></i>
             </div>
-            <h3 class="font-heading h4 text-light mb-3">Institutional PDF Audits</h3>
-            <p class="text-secondary-custom">Generate multi-page financial statements with charts, summary metrics, and itemized records.</p>
+            <h3 class="font-heading h4 text-light mb-3">Institutional Reports</h3>
+            <p class="text-secondary-custom">Export multi-page financial statements into high-resolution PDF and CSV files with transaction graphs, summaries, and category tables.</p>
+          </div>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="col-lg-4 col-md-6">
+          <div class="glass-card h-100 p-4 text-start card-blue-header">
+            <div class="feature-icon-gold mb-4">
+              <i class="fa-solid fa-vault text-white fs-4"></i>
+            </div>
+            <h3 class="font-heading h4 text-light mb-3">Smart Budget Enforcer</h3>
+            <p class="text-secondary-custom">Set monthly thresholds per category with instant warning alerts before budget depletion occurs.</p>
+          </div>
+        </div>
+
+        <!-- Feature 5 -->
+        <div class="col-lg-4 col-md-6">
+          <div class="glass-card h-100 p-4 text-start card-blue-header">
+            <div class="feature-icon-gold mb-4">
+              <i class="fa-solid fa-lock text-white fs-4"></i>
+            </div>
+            <h3 class="font-heading h4 text-light mb-3">Bank-Grade Encryption</h3>
+            <p class="text-secondary-custom">Secured by JWT authentication tokens, BCrypt password hashing, and encrypted MongoDB datastores.</p>
+          </div>
+        </div>
+
+        <!-- Feature 6 -->
+        <div class="col-lg-4 col-md-6">
+          <div class="glass-card h-100 p-4 text-start card-blue-header">
+            <div class="feature-icon-gold mb-4">
+              <i class="fa-solid fa-mobile-screen-button text-white fs-4"></i>
+            </div>
+            <h3 class="font-heading h4 text-light mb-3">Omnichannel Responsive</h3>
+            <p class="text-secondary-custom">Seamlessly accessible across desktop workstation displays, laptops, tablets, and smartphones.</p>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- AI Wealth Advisor Showcase -->
-  <section id="advisor" class="py-6 position-relative">
+  <!-- Pricing Section -->
+  <section id="pricing" class="py-6 position-relative">
     <div class="container text-center py-4">
       <div class="row justify-content-center mb-5">
         <div class="col-lg-8">
-          <span class="luxury-badge-pill mb-2"><i class="fa-solid fa-sparkles text-gold me-2"></i> GENERATIVE INTELLIGENCE</span>
-          <h2 class="section-title-gold font-heading display-5 mb-3">Your Private AI Wealth Advisor</h2>
-          <p class="text-secondary-custom fs-5">Receive private wealth recommendations tailored specifically to your accounts.</p>
+          <span class="luxury-badge-pill mb-3">TRANSPARENT PRICING</span>
+          <h2 class="section-title-gold font-heading display-4 mb-3">Centurion Platform Tiers</h2>
+          <p class="text-secondary-custom fs-5">Tailored plans for individuals, corporate treasuries, and high-net-worth offices.</p>
+        </div>
+      </div>
+
+      <div class="row g-4 align-items-center justify-content-center">
+        <!-- Tier 1 -->
+        <div class="col-lg-4 col-md-6">
+          <div class="glass-card p-5 text-start">
+            <h4 class="font-heading text-light mb-2">Private Client</h4>
+            <p class="text-secondary-custom small">For personal wealth tracking</p>
+            <div class="my-4">
+              <span class="font-number display-4 text-primary-accent font-bold">$0</span>
+              <span class="text-muted-custom"> / month</span>
+            </div>
+            <ul class="list-unstyled text-secondary-custom small mb-4 gap-2 d-flex flex-column">
+              <li><i class="fa-solid fa-check text-primary-accent me-2"></i> Unlimited Income & Expense logs</li>
+              <li><i class="fa-solid fa-check text-primary-accent me-2"></i> Basic Category Visualizations</li>
+              <li><i class="fa-solid fa-check text-primary-accent me-2"></i> Monthly PDF Statement Exports</li>
+              <li><i class="fa-solid fa-check text-primary-accent me-2"></i> Basic Gemini AI Consultations</li>
+            </ul>
+            <a routerLink="/register" class="btn-glass-secondary w-100">Get Started</a>
+          </div>
+        </div>
+
+        <!-- Tier 2 (Highlighted) -->
+        <div class="col-lg-4 col-md-6">
+          <div class="glass-card p-5 text-start border-card-bright shadow-lg position-relative" style="background: #17181C !important;">
+            <div class="badge bg-primary text-white position-absolute top-0 end-0 m-3 px-3 py-1 font-btn font-bold rounded-pill">MOST POPULAR</div>
+            <h4 class="font-heading text-primary-accent mb-2">Centurion Enterprise</h4>
+            <p class="text-secondary-custom small">For executive portfolios & teams</p>
+            <div class="my-4">
+              <span class="font-number display-4 text-primary-accent font-bold">$49</span>
+              <span class="text-muted-custom"> / month</span>
+            </div>
+            <ul class="list-unstyled text-secondary-custom small mb-4 gap-2 d-flex flex-column">
+              <li><i class="fa-solid fa-check text-primary-accent me-2"></i> Advanced Gemini AI Intelligence</li>
+              <li><i class="fa-solid fa-check text-primary-accent me-2"></i> Real-Time Budget Overrun Warnings</li>
+              <li><i class="fa-solid fa-check text-primary-accent me-2"></i> Institutional PDF & CSV Export Suite</li>
+              <li><i class="fa-solid fa-check text-primary-accent me-2"></i> Multi-Currency Ledger Analytics</li>
+              <li><i class="fa-solid fa-check text-primary-accent me-2"></i> Priority Executive Support</li>
+            </ul>
+            <a routerLink="/register" class="btn-gold-primary w-100">Initialize Enterprise</a>
+          </div>
+        </div>
+
+        <!-- Tier 3 -->
+        <div class="col-lg-4 col-md-6">
+          <div class="glass-card p-5 text-start">
+            <h4 class="font-heading text-light mb-2">Institutional Treasury</h4>
+            <p class="text-secondary-custom small">For large funds & multi-entity groups</p>
+            <div class="my-4">
+              <span class="font-number display-4 text-primary-accent font-bold">$199</span>
+              <span class="text-muted-custom"> / month</span>
+            </div>
+            <ul class="list-unstyled text-secondary-custom small mb-4 gap-2 d-flex flex-column">
+              <li><i class="fa-solid fa-check text-primary-accent me-2"></i> Dedicated AI Model Fine-Tuning</li>
+              <li><i class="fa-solid fa-check text-primary-accent me-2"></i> Custom API Ledger Integrations</li>
+              <li><i class="fa-solid fa-check text-primary-accent me-2"></i> Audit Compliance Logs</li>
+              <li><i class="fa-solid fa-check text-primary-accent me-2"></i> 24/7 Dedicated Account Director</li>
+            </ul>
+            <a routerLink="/register" class="btn-glass-secondary w-100">Contact Treasury</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section id="faq" class="py-6 position-relative">
+    <div class="container py-4">
+      <div class="row justify-content-center mb-5 text-center">
+        <div class="col-lg-8">
+          <span class="luxury-badge-pill mb-3">FREQUENTLY ASKED QUESTIONS</span>
+          <h2 class="section-title-gold font-heading display-4 mb-3">Client Inquiries</h2>
         </div>
       </div>
 
       <div class="row justify-content-center">
         <div class="col-lg-9">
-          <div class="glass-card p-5 text-start">
-            <div class="d-flex align-items-center gap-3 border-bottom-gold pb-3 mb-4">
-              <div class="brand-badge-gold">
-                <i class="fa-solid fa-crown text-dark"></i>
+          <div class="d-flex flex-column gap-3">
+            <div *ngFor="let item of faqItems; let i = index" class="glass-card p-4 cursor-pointer" (click)="toggleFaq(i)">
+              <div class="d-flex justify-content-between align-items-center">
+                <h5 class="font-heading text-light mb-0">{{ item.q }}</h5>
+                <i class="fa-solid text-primary-accent fs-5" [class.fa-chevron-down]="!item.open" [class.fa-chevron-up]="item.open"></i>
               </div>
-              <div>
-                <strong class="font-heading h5 mb-0 d-block text-gold">Gemini Wealth Advisor</strong>
-                <span class="text-success small font-number"><i class="fa-solid fa-circle fs-9 me-1"></i> Connected to Secure Ledger</span>
-              </div>
-            </div>
-
-            <div class="d-flex flex-column gap-3">
-              <div class="chat-bubble-user p-3 align-self-end text-light font-body small">
-                Analyze my recent outflows and suggest portfolio optimization steps.
-              </div>
-              <div class="chat-bubble-ai p-4 align-self-start text-light font-body small">
-                <p class="text-gold font-heading font-bold mb-2">Executive Wealth Analysis:</p>
-                <ul class="mb-0 ps-3 text-secondary-custom">
-                  <li class="mb-2">Discrepancy detected: Recurring recurring software subscriptions increased by +12.5% this quarter.</li>
-                  <li class="mb-2">Reallocating 15% of surplus cash flow into yield reserves will optimize net monthly balance.</li>
-                  <li>Projected quarterly savings growth: <strong>+$4,250.00</strong>.</li>
-                </ul>
+              <div *ngIf="item.open" class="mt-3 text-secondary-custom font-body fade-in-up">
+                {{ item.a }}
               </div>
             </div>
           </div>
@@ -181,20 +342,53 @@
     </div>
   </section>
 
-  <!-- Footer -->
-  <footer class="landing-footer py-5 border-top-gold mt-5">
-    <div class="container text-center text-md-start">
-      <div class="row justify-content-between align-items-center g-3">
-        <div class="col-md-6 d-flex align-items-center justify-content-center justify-content-md-start gap-3">
-          <div class="brand-badge-gold">
-            <i class="fa-solid fa-crown text-dark"></i>
+  <!-- Stripe/Linear Style Footer -->
+  <footer class="landing-footer py-5 border-top border-secondary mt-5">
+    <div class="container">
+      <div class="row g-4 justify-content-between mb-4">
+        <div class="col-lg-4">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="brand-badge-gold">
+              <i class="fa-solid fa-crown text-white"></i>
+            </div>
+            <span class="font-heading font-bold text-primary-accent fs-4">CENTURION AI</span>
           </div>
-          <span class="font-heading font-bold text-gold fs-5">AI Expense Tracker Enterprise</span>
+          <p class="text-secondary-custom small">Autonomous wealth intelligence and corporate expense tracking powered by Google Gemini AI.</p>
         </div>
-        <div class="col-md-6 text-center text-md-end">
-          <span class="text-secondary-custom small font-number">&copy; {{ currentYear }} AI Expense Tracker. All rights reserved.</span>
+
+        <div class="col-lg-2 col-6">
+          <h6 class="font-heading text-primary-accent mb-3">Platform</h6>
+          <ul class="list-unstyled text-secondary-custom small gap-2 d-flex flex-column">
+            <li><a class="text-decoration-none text-secondary-custom hover-gold" (click)="scrollToSection('features')">Capabilities</a></li>
+            <li><a class="text-decoration-none text-secondary-custom hover-gold" (click)="scrollToSection('pricing')">Pricing Tiers</a></li>
+            <li><a class="text-decoration-none text-secondary-custom hover-gold" routerLink="/login">Private Sign In</a></li>
+          </ul>
+        </div>
+
+        <div class="col-lg-2 col-6">
+          <h6 class="font-heading text-primary-accent mb-3">Security</h6>
+          <ul class="list-unstyled text-secondary-custom small gap-2 d-flex flex-column">
+            <li><span class="text-secondary-custom">JWT Encryption</span></li>
+            <li><span class="text-secondary-custom">Banking Compliance</span></li>
+            <li><span class="text-secondary-custom">SHA-256 Hashing</span></li>
+          </ul>
+        </div>
+
+        <div class="col-lg-3">
+          <h6 class="font-heading text-primary-accent mb-3">Enterprise Access</h6>
+          <a routerLink="/register" class="btn-gold-primary w-100 btn-sm py-2">Initialize Account</a>
+        </div>
+      </div>
+
+      <div class="border-top border-secondary pt-4 text-center text-md-between d-flex flex-column flex-md-row justify-content-between align-items-center">
+        <span class="text-muted-custom small font-number">&copy; {{ currentYear }} Centurion AI Expense Tracker. All rights reserved.</span>
+        <div class="d-flex gap-3 text-primary-accent fs-5 mt-3 mt-md-0">
+          <i class="fa-brands fa-github cursor-pointer"></i>
+          <i class="fa-brands fa-linkedin cursor-pointer"></i>
+          <i class="fa-brands fa-x-twitter cursor-pointer"></i>
         </div>
       </div>
     </div>
   </footer>
+
 </div>

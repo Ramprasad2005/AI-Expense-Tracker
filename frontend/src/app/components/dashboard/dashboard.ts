@@ -48,12 +48,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   // AI suggestions
   aiAdvice = '';
+  displayedAdvice = '';
+  isTypingAi = false;
   aiLoading = false;
   aiError = false;
   aiHistory: string[] = [];
 
   loading = false;
   backgroundRefreshing = false;
+
+  // Quick AI Prompt Suggestions
+  quickPrompts = [
+    'How can I lower monthly expenses?',
+    'Analyze my recurring spending habits',
+    'What percentage should I move to reserves?'
+  ];
 
   // Charts
   private barChartInstance?: Chart;
@@ -62,6 +71,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private txSub?: Subscription;
   private budgetSub?: Subscription;
+  private typingTimer?: any;
 
   ngOnInit(): void {
     const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
@@ -70,19 +80,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // Sync dashboard on transaction edits
     this.txSub = this.dataSyncService.transactionChange$.subscribe(() => {
-      console.log('[SYNC] Dashboard transactions updated');
       const updatedMonth = new Date().toISOString().slice(0, 7);
       this.loadDashboardData(updatedMonth, true);
     });
 
     // Sync dashboard on budget edits
     this.budgetSub = this.dataSyncService.budgetChange$.subscribe(() => {
-      console.log('[SYNC] Dashboard budget settings updated');
       const updatedMonth = new Date().toISOString().slice(0, 7);
       this.loadDashboardData(updatedMonth, true);
     });
 
-    // Listen to themeChanged event to adjust charts colors
     window.addEventListener('themeChanged', this.themeListener);
   }
 
@@ -90,6 +97,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.destroyCharts();
     if (this.txSub) this.txSub.unsubscribe();
     if (this.budgetSub) this.budgetSub.unsubscribe();
+    if (this.typingTimer) clearInterval(this.typingTimer);
     window.removeEventListener('themeChanged', this.themeListener);
   }
 
@@ -125,15 +133,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.budget = d.budget;
         this.spendPercentage = d.spendPercentage;
         this.aiAdvice = d.aiAdvice || '';
+        this.displayedAdvice = this.aiAdvice;
         this.loading = false;
         
-        // Force DOM rendering of elements first
         this.cdr.detectChanges();
-        
-        // Render charts based on cached metrics in next tick
         setTimeout(() => this.initCharts(), 0);
-        
-        // Background refresh only (stale-while-revalidate)
+
         this.backgroundRefreshing = true;
         this.fetchFreshDashboard(month, key);
         return;
@@ -147,7 +152,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   fetchFreshDashboard(month: string, cacheKey: string): void {
-    // parallel API calls via forkJoin including AI suggestions
     forkJoin({
       report: this.reportService.getReport('monthly', month, '', '', true).pipe(catchError(err => of({ success: false, error: err }))),
       budget: this.budgetService.getCurrentBudget(month).pipe(catchError(err => of({ success: false, error: err }))),
@@ -175,7 +179,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
 
         if (res.ai && res.ai.success && res.ai.data) {
-          this.aiAdvice = res.ai.data;
+          const newAdvice = res.ai.data;
+          if (newAdvice !== this.aiAdvice) {
+            this.aiAdvice = newAdvice;
+            this.triggerTypingEffect(this.aiAdvice);
+          } else {
+            this.displayedAdvice = this.aiAdvice;
+          }
           this.aiError = false;
           if (!this.aiHistory.includes(this.aiAdvice)) {
             this.aiHistory.unshift(this.aiAdvice);
@@ -183,13 +193,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
             localStorage.setItem(this.getStorageKey(), JSON.stringify(this.aiHistory));
           }
         } else if (res.ai && res.ai.error) {
-          // If no active AI advice but we have history, keep it
           if (!this.aiAdvice && this.aiHistory.length > 0) {
             this.aiAdvice = this.aiHistory[0];
+            this.displayedAdvice = this.aiAdvice;
           }
         }
 
-        // Cache combined payload
         const payload = {
           totalIncome: this.totalIncome,
           totalExpense: this.totalExpense,
@@ -208,10 +217,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
           console.error('Error saving dashboard cache:', e);
         }
 
-        // Trigger change detection to render the DOM canvas elements
         this.cdr.detectChanges();
-
-        // Initialize charts in the next tick
         setTimeout(() => {
           this.initCharts();
           this.cdr.detectChanges();
@@ -226,6 +232,26 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
 
+  triggerTypingEffect(fullText: string): void {
+    if (this.typingTimer) clearInterval(this.typingTimer);
+    this.displayedAdvice = '';
+    this.isTypingAi = true;
+    let i = 0;
+    const step = Math.max(1, Math.floor(fullText.length / 80));
+
+    this.typingTimer = setInterval(() => {
+      i += step;
+      if (i >= fullText.length) {
+        this.displayedAdvice = fullText;
+        this.isTypingAi = false;
+        clearInterval(this.typingTimer);
+      } else {
+        this.displayedAdvice = fullText.slice(0, i);
+      }
+      this.cdr.detectChanges();
+    }, 25);
+  }
+
   initCharts(): void {
     this.destroyCharts();
 
@@ -235,14 +261,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     if (!barCtx && !lineCtx && !pieCtx) return;
 
-    // Dynamically calculate grid and label colors based on the active theme
-    const isDark = document.body.classList.contains('dark-theme');
-    const labelColor = isDark ? '#94A3B8' : '#475569';
-    const gridColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)';
+    const labelColor = '#E5E7EB';
+    const gridColor = 'rgba(212, 175, 55, 0.1)';
 
-    // A. Bar Chart: Income vs Expense
-    if (barCtx) {
-      if (this.totalIncome > 0 || this.totalExpense > 0) {
+    // Bar Chart
+    if (barCtx && (this.totalIncome > 0 || this.totalExpense > 0)) {
+      const ctx = barCtx.getContext('2d');
+      if (ctx) {
+        const goldGradient = ctx.createLinearGradient(0, 0, 0, 300);
+        goldGradient.addColorStop(0, '#F4C542');
+        goldGradient.addColorStop(1, '#D4AF37');
+
+        const redGradient = ctx.createLinearGradient(0, 0, 0, 300);
+        redGradient.addColorStop(0, '#EF4444');
+        redGradient.addColorStop(1, '#991B1B');
+
         this.barChartInstance = new Chart(barCtx, {
           type: 'bar',
           data: {
@@ -251,22 +284,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
               {
                 label: 'Income',
                 data: [this.totalIncome],
-                backgroundColor: '#10B981', // Emerald 500
-                borderRadius: 8,
-                maxBarThickness: 60
+                backgroundColor: goldGradient,
+                borderRadius: 10,
+                maxBarThickness: 65
               },
               {
                 label: 'Expense',
                 data: [this.totalExpense],
-                backgroundColor: '#EF4444', // Red 500
-                borderRadius: 8,
-                maxBarThickness: 60
+                backgroundColor: redGradient,
+                borderRadius: 10,
+                maxBarThickness: 65
               }
             ]
           },
           options: {
             responsive: true,
             maintainAspectRatio: false,
+            animation: { duration: 1200, easing: 'easeOutQuart' },
             plugins: {
               legend: { labels: { color: labelColor, font: { family: 'Inter', weight: 'normal' } } }
             },
@@ -279,12 +313,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
       }
     }
 
-    // B. Line Chart: Expense Daily Trend
+    // Line Chart
     if (lineCtx) {
       const expensesOnly = this.recentTransactions.filter(t => t.type === 'Expense');
       if (expensesOnly.length > 0) {
         const dailyMap: { [key: string]: number } = {};
-        
         expensesOnly.forEach(t => {
           const d = new Date(t.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
           dailyMap[d] = (dailyMap[d] || 0) + t.amount;
@@ -293,26 +326,36 @@ export class DashboardComponent implements OnInit, OnDestroy {
         const dates = Object.keys(dailyMap).reverse();
         const amounts = dates.map(d => dailyMap[d]);
 
+        const ctx = lineCtx.getContext('2d');
+        let blueGradient: any = 'rgba(59, 130, 246, 0.15)';
+        if (ctx) {
+          blueGradient = ctx.createLinearGradient(0, 0, 0, 300);
+          blueGradient.addColorStop(0, 'rgba(59, 130, 246, 0.35)');
+          blueGradient.addColorStop(1, 'rgba(59, 130, 246, 0.02)');
+        }
+
         this.lineChartInstance = new Chart(lineCtx, {
           type: 'line',
           data: {
             labels: dates,
             datasets: [
               {
-                label: 'Daily Expenses',
+                label: 'Daily Outflow ($)',
                 data: amounts,
-                borderColor: '#2563EB', // Blue 600
-                backgroundColor: isDark ? 'rgba(37, 99, 235, 0.15)' : 'rgba(37, 99, 235, 0.05)',
-                borderWidth: 2,
-                tension: 0.3,
+                borderColor: '#3B82F6',
+                backgroundColor: blueGradient,
+                borderWidth: 3,
+                tension: 0.4,
                 fill: true,
-                pointBackgroundColor: '#2563EB'
+                pointBackgroundColor: '#D4AF37',
+                pointRadius: 5
               }
             ]
           },
           options: {
             responsive: true,
             maintainAspectRatio: false,
+            animation: { duration: 1200 },
             plugins: {
               legend: { labels: { color: labelColor, font: { family: 'Inter' } } }
             },
@@ -325,7 +368,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       }
     }
 
-    // C. Pie Chart: Category breakdown
+    // Pie Chart
     if (pieCtx) {
       const activeCategories = this.categoryBreakdown.filter(c => c.amount > 0);
       if (activeCategories.length > 0) {
@@ -340,24 +383,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
               {
                 data: data,
                 backgroundColor: [
-                  '#F59E0B', // Food (Amber)
-                  '#3B82F6', // Travel (Blue)
-                  '#06B6D4', // Shopping (Cyan)
-                  '#EF4444', // Rent (Red)
-                  '#64748B', // Bills (Slate)
-                  '#10B981', // Medical (Emerald)
-                  '#8B5CF6', // Entertainment (Purple)
-                  '#EC4899', // Education (Pink)
-                  '#94A3B8'  // Others (Grey)
+                  '#D4AF37',
+                  '#3B82F6',
+                  '#F59E0B',
+                  '#EF4444',
+                  '#10B981',
+                  '#8B5CF6',
+                  '#EC4899',
+                  '#94A3B8'
                 ],
                 borderWidth: 2,
-                borderColor: isDark ? '#1E293B' : '#FFFFFF'
+                borderColor: '#111111'
               }
             ]
           },
           options: {
             responsive: true,
             maintainAspectRatio: false,
+            animation: { animateRotate: true, duration: 1000 },
             plugins: {
               legend: {
                 position: 'right',
@@ -373,14 +416,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   getFormattedAdvice(advice: string): string {
     if (!advice) return '';
     let html = advice;
-    
-    // Replace headings ### (removed hardcoded .text-dark for dark mode legibility)
-    html = html.replace(/### (.*?)\n/g, '<h6 class="fw-bold mt-3 mb-2 font-premium-header text-primary">$1</h6>');
-    
-    // Replace bold text **text** (removed hardcoded .text-dark for dark mode legibility)
-    html = html.replace(/\*\*(.*?)\*\*/g, '<strong class="fw-semibold">$1</strong>');
-    
-    // Replace bullet points
+    html = html.replace(/### (.*?)\n/g, '<h6 class="fw-bold mt-3 mb-2 font-heading text-gold">$1</h6>');
+    html = html.replace(/\*\*(.*?)\*\*/g, '<strong class="text-gold-bright fw-bold">$1</strong>');
     html = html.replace(/^- (.*?)\n/gm, '<li class="mb-1 text-secondary">$1</li>');
     return html;
   }
@@ -399,17 +436,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.aiLoading = false;
         if (res.success && res.data) {
           this.aiAdvice = res.data;
+          this.triggerTypingEffect(this.aiAdvice);
           this.aiError = false;
           
-          // Save to local history list
           this.aiHistory.unshift(this.aiAdvice);
           if (this.aiHistory.length > 5) this.aiHistory.pop();
           localStorage.setItem(this.getStorageKey(), JSON.stringify(this.aiHistory));
 
-          this.notificationService.showToast('AI suggestions successfully updated!', 'success');
+          this.notificationService.showToast('Gemini AI recommendations synthesized!', 'success');
         } else {
           this.aiError = true;
-          this.notificationService.showToast('Failed to load AI suggestions', 'warning');
+          this.notificationService.showToast('Failed to load AI advice', 'warning');
         }
         this.cdr.detectChanges();
       },
@@ -417,7 +454,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.aiLoading = false;
         this.aiError = true;
         console.error(err);
-        const errMsg = err.error?.message || 'Could not fetch AI advisor recommendations';
+        const errMsg = err.error?.message || 'Could not fetch AI recommendations';
         this.notificationService.showToast(errMsg, 'danger');
         this.cdr.detectChanges();
       }
@@ -452,6 +489,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.aiHistory = JSON.parse(raw);
         if (this.aiHistory.length > 0) {
           this.aiAdvice = this.aiHistory[0];
+          this.displayedAdvice = this.aiAdvice;
         }
       } catch (e) {
         console.error(e);
@@ -459,11 +497,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     } else {
       this.aiHistory = [];
       this.aiAdvice = '';
+      this.displayedAdvice = '';
     }
   }
 
   selectHistoryAdvice(advice: string): void {
     this.aiAdvice = advice;
+    this.triggerTypingEffect(this.aiAdvice);
   }
 
   mathAbs(val: number): number {
