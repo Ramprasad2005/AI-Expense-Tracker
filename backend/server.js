@@ -17,7 +17,9 @@ connectDB();
 // Security Middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.FRONTEND_URL ? [process.env.FRONTEND_URL, 'http://localhost:4200'] : '*',
+  origin: process.env.FRONTEND_URL 
+    ? [process.env.FRONTEND_URL.trim().replace(/\/$/, ''), 'https://aiexpensetrackerbeta.vercel.app', 'http://localhost:4200'] 
+    : ['https://aiexpensetrackerbeta.vercel.app', 'http://localhost:4200', '*'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']

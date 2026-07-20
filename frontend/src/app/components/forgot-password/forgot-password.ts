@@ -21,8 +21,11 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private cdr = inject(ChangeDetectorRef);
 
-  step = 1; // 1: Request Email, 2: Email Dispatched Notice, 3: Reset Password (with token)
+  step = 1; // 1: Request Email, 2: Email Sent Notice, 3: Reset Password Form, 4: Expired Token Error
   loading = false;
+  validatingToken = false;
+  tokenValid = false;
+  tokenErrorMessage = '';
   
   emailForm!: FormGroup;
   resetForm!: FormGroup;
@@ -31,6 +34,7 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
   submitted3 = false;
 
   resetToken = '';
+  dispatchedEmailMessage = "We've securely sent a password reset link to your registered email address.";
 
   showPassword = false;
   strengthScore = 0;
@@ -57,15 +61,22 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
     this.routeSub = this.route.url.subscribe(urlSegments => {
       const path = urlSegments[0]?.path;
       if (path === 'reset-password') {
-        this.step = 3;
+        const token = this.route.snapshot.queryParams['token'];
+        if (token) {
+          this.resetToken = token;
+          this.verifyTokenOnLoad(token);
+        } else {
+          this.step = 4;
+          this.tokenErrorMessage = 'No reset token provided in URL. Please request a new reset link.';
+        }
       }
       this.cdr.detectChanges();
     });
 
     this.querySub = this.route.queryParams.subscribe(params => {
-      if (params['token']) {
+      if (params['token'] && this.step !== 3 && this.step !== 4) {
         this.resetToken = params['token'];
-        this.step = 3;
+        this.verifyTokenOnLoad(params['token']);
       }
       this.cdr.detectChanges();
     });
@@ -88,6 +99,33 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
     return null;
   }
 
+  verifyTokenOnLoad(token: string): void {
+    this.validatingToken = true;
+    this.cdr.detectChanges();
+
+    this.authService.validateResetToken(token).subscribe({
+      next: (res) => {
+        this.validatingToken = false;
+        if (res.success) {
+          this.tokenValid = true;
+          this.step = 3;
+        } else {
+          this.tokenValid = false;
+          this.step = 4;
+          this.tokenErrorMessage = res.message || 'Verification link expired or invalid.';
+        }
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.validatingToken = false;
+        this.tokenValid = false;
+        this.step = 4;
+        this.tokenErrorMessage = err.error?.message || 'Verification link expired or invalid. Please request a new recovery link.';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
   sendResetLink(): void {
     this.submitted1 = true;
     if (this.emailForm.invalid) return;
@@ -101,7 +139,10 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
         this.loading = false;
         if (res.success) {
           this.step = 2;
-          this.notificationService.showToast('Verification email sent.', 'success');
+          if (res.message) {
+            this.dispatchedEmailMessage = res.message;
+          }
+          this.notificationService.showToast(this.dispatchedEmailMessage, 'success');
         } else {
           this.notificationService.showToast(res.message || 'Failed to dispatch email', 'danger');
         }
@@ -114,6 +155,13 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  goToRequestStep(): void {
+    this.step = 1;
+    this.resetToken = '';
+    this.tokenValid = false;
+    this.router.navigate(['/forgot-password']);
   }
 
   toggleShowPassword(): void {
@@ -160,8 +208,10 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
       next: (res) => {
         this.loading = false;
         if (res.success) {
-          this.notificationService.showToast('Password reset successful.', 'success');
-          this.router.navigate(['/login']);
+          this.notificationService.showToast('Password reset successful! Redirecting to sign in...', 'success');
+          setTimeout(() => {
+            this.router.navigate(['/login']);
+          }, 1500);
         } else {
           this.notificationService.showToast(res.message || 'Reset failed', 'danger');
         }
@@ -170,7 +220,8 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
       error: (err) => {
         this.loading = false;
         console.error(err);
-        this.notificationService.showToast(err.error?.message || 'Verification link expired.', 'danger');
+        const msg = err.error?.message || 'Verification link expired or invalid.';
+        this.notificationService.showToast(msg, 'danger');
         this.cdr.detectChanges();
       }
     });

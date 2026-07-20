@@ -6,6 +6,7 @@ const {
   verifyEmail,
   resendVerificationEmail,
   forgotPassword,
+  validateResetToken,
   resetPassword,
   getUserProfile,
   updateUserProfile,
@@ -33,6 +34,7 @@ router.post('/resend-verification', authActionLimit, resendVerificationEmail);
 
 // Password Reset Links
 router.post('/forgot-password', authActionLimit, forgotPassword);
+router.get('/validate-reset-token', authActionLimit, validateResetToken);
 router.post('/reset-password', authActionLimit, resetPassword);
 
 // Protected Routes

@@ -177,8 +177,10 @@ exports.forgotPassword = async (req, res, next) => {
     const cleanEmail = email.toLowerCase().trim();
     const user = await User.findOne({ email: cleanEmail });
 
+    const successMessage = "We've securely sent a password reset link to your registered email address.";
+
     if (!user) {
-      return res.status(200).json({ success: true, message: 'Verification email sent.' });
+      return res.status(200).json({ success: true, message: successMessage });
     }
 
     const rawResetToken = crypto.randomBytes(32).toString('hex');
@@ -192,7 +194,34 @@ exports.forgotPassword = async (req, res, next) => {
       console.error('[AUTH ERROR] Forgot password email failed:', emailErr.message);
     }
 
-    res.status(200).json({ success: true, message: 'Verification email sent.' });
+    res.status(200).json({ success: true, message: successMessage });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Validate password reset token on page load
+// @route   GET /api/auth/validate-reset-token
+// @access  Public
+exports.validateResetToken = async (req, res, next) => {
+  try {
+    const token = req.query.token;
+    if (!token) {
+      return res.status(400).json({ success: false, message: 'Please provide token.' });
+    }
+
+    const hashedToken = hashToken(token);
+
+    const user = await User.findOne({
+      resetToken: hashedToken,
+      resetExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).json({ success: false, message: 'Verification link expired or invalid.' });
+    }
+
+    res.status(200).json({ success: true, message: 'Token is valid.' });
   } catch (error) {
     next(error);
   }
