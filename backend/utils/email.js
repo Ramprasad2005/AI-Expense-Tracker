@@ -261,10 +261,45 @@ const sendAccountNotificationEmail = async (email, subject, message) => {
   });
 };
 
+// Modern 6-Digit Registration OTP Email
+const sendOtpVerificationEmail = async (email, username, otp) => {
+  const content = `
+    <h2 style="margin: 0 0 12px 0; color: #FFFFFF; font-size: 22px; font-weight: 700; letter-spacing: 0.5px;">Verify Your Email Address</h2>
+    <p style="margin: 0 0 20px 0; color: #B5B5B5; font-size: 15px; line-height: 1.6;">Hello <strong style="color: #FFFFFF;">${username || 'User'}</strong>,</p>
+    <p style="margin: 0 0 24px 0; color: #B5B5B5; font-size: 15px; line-height: 1.6;">
+      Thank you for registering with <strong>AI Expense Tracker</strong>. Please enter the following 6-digit verification code to complete your account activation:
+    </p>
+
+    <!-- OTP Code Display Card -->
+    <div style="background-color: #0D0D0D; border: 1px solid rgba(212, 175, 55, 0.4); border-radius: 12px; padding: 24px 16px; margin: 0 auto 24px auto; max-width: 380px; text-align: center; box-shadow: 0 8px 24px rgba(0,0,0,0.6);">
+      <p style="margin: 0 0 8px 0; color: #D4AF37; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;">YOUR VERIFICATION CODE</p>
+      <div style="color: #D4AF37; font-family: 'Courier New', Courier, monospace, sans-serif; font-size: 38px; font-weight: 800; letter-spacing: 12px; padding: 8px 0; display: inline-block;">
+        ${otp}
+      </div>
+      <p style="margin: 12px 0 0 0; color: #E5C158; font-size: 13px; font-weight: 600;">
+        This code expires in 10 minutes.
+      </p>
+    </div>
+
+    <p style="margin: 0 0 16px 0; color: #B5B5B5; font-size: 14px; line-height: 1.5;">
+      If you did not request this verification code, please ignore this email.
+    </p>
+    <p style="margin: 0; color: #777777; font-size: 12px; line-height: 1.4;">
+      Never share your OTP with anyone. Our security team will never ask for your verification code.
+    </p>
+  `;
+  return await sendEmail({
+    email,
+    subject: 'Verify Your AI Expense Tracker Account',
+    html: getHtmlLayout('Verify Your Email', content)
+  });
+};
+
 module.exports = {
   getFrontendUrl,
   sendWelcomeEmail,
   sendVerificationEmail,
+  sendOtpVerificationEmail,
   sendPasswordResetEmail,
   sendPasswordChangedEmail,
   sendBudgetAlertEmail,

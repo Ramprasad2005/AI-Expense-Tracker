@@ -1,116 +1,148 @@
-<div class="forgot-container fade-in-up">
-  <div class="card forgot-card border-0">
+<div class="verify-otp-container fade-in-up">
+  <div class="glass-card p-4 p-md-5 verify-card" [class.shake-animation]="isError">
     <div class="card-body p-0">
-      
-      <div class="text-center mb-4">
-        <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-3 p-3 mb-3">
-          <i class="fa-solid fa-envelope-circle-check fs-2 text-primary"></i>
+
+      <!-- Success Animation Overlay -->
+      <div *ngIf="isSuccess" class="text-center py-4 success-burst-animation">
+        <div class="brand-badge-gold mx-auto mb-3 pulse-glow" style="width: 72px; height: 72px; background: #D4AF37;">
+          <i class="fa-solid fa-check fs-1 text-dark"></i>
         </div>
-        <h3 class="fw-bold mb-1">Verify Your Email</h3>
-        <p class="text-muted small">We've sent a 6-digit activation OTP code to <strong>{{ email }}</strong>. Please enter the code below to verify your account.</p>
+        <h3 class="font-heading h4 text-gold mb-2">Account Verified!</h3>
+        <p class="text-secondary-custom small mb-0 font-body">Redirecting to executive dashboard...</p>
       </div>
 
-      <form [formGroup]="otpForm" (ngSubmit)="onSubmit()">
-        <div class="mb-4 text-center">
-          <label class="form-label-premium d-block text-start mb-3">Verification Code</label>
-          
-          <!-- Six individual OTP boxes container -->
-          <div class="d-flex justify-content-center gap-2 mb-2" (paste)="onOtpPaste($event)">
-            <input 
-              type="text" 
-              id="otp-0"
-              maxLength="1"
-              class="form-control-premium text-center fw-bold fs-4"
-              style="width: 48px; height: 56px; padding: 0;"
-              formControlName="otp0"
-              (input)="onOtpInput($event, 0)"
-              (keydown)="onOtpKeyDown($event, 0)"
-              autocomplete="off"
-            >
-            <input 
-              type="text" 
-              id="otp-1"
-              maxLength="1"
-              class="form-control-premium text-center fw-bold fs-4"
-              style="width: 48px; height: 56px; padding: 0;"
-              formControlName="otp1"
-              (input)="onOtpInput($event, 1)"
-              (keydown)="onOtpKeyDown($event, 1)"
-              autocomplete="off"
-            >
-            <input 
-              type="text" 
-              id="otp-2"
-              maxLength="1"
-              class="form-control-premium text-center fw-bold fs-4"
-              style="width: 48px; height: 56px; padding: 0;"
-              formControlName="otp2"
-              (input)="onOtpInput($event, 2)"
-              (keydown)="onOtpKeyDown($event, 2)"
-              autocomplete="off"
-            >
-            <input 
-              type="text" 
-              id="otp-3"
-              maxLength="1"
-              class="form-control-premium text-center fw-bold fs-4"
-              style="width: 48px; height: 56px; padding: 0;"
-              formControlName="otp3"
-              (input)="onOtpInput($event, 3)"
-              (keydown)="onOtpKeyDown($event, 3)"
-              autocomplete="off"
-            >
-            <input 
-              type="text" 
-              id="otp-4"
-              maxLength="1"
-              class="form-control-premium text-center fw-bold fs-4"
-              style="width: 48px; height: 56px; padding: 0;"
-              formControlName="otp4"
-              (input)="onOtpInput($event, 4)"
-              (keydown)="onOtpKeyDown($event, 4)"
-              autocomplete="off"
-            >
-            <input 
-              type="text" 
-              id="otp-5"
-              maxLength="1"
-              class="form-control-premium text-center fw-bold fs-4"
-              style="width: 48px; height: 56px; padding: 0;"
-              formControlName="otp5"
-              (input)="onOtpInput($event, 5)"
-              (keydown)="onOtpKeyDown($event, 5)"
-              autocomplete="off"
-            >
+      <!-- Main Verification Content -->
+      <div *ngIf="!isSuccess">
+
+        <!-- Brand & Title -->
+        <div class="text-center mb-4">
+          <div class="brand-badge-gold mx-auto mb-3" style="width: 56px; height: 56px;">
+            <i class="fa-solid fa-shield-halved fs-3 text-dark"></i>
           </div>
-          
-          <div *ngIf="submitted && otpForm.invalid" class="text-danger small mt-2 text-start">
-            Please enter the complete 6-digit verification code.
+          <h2 class="font-heading h3 text-gold mb-1">Verify Your Email</h2>
+          <p class="text-secondary-custom small mb-2 font-body">Enter the 6-digit verification code sent to:</p>
+          <div class="d-inline-block bg-dark-gold-tag px-3 py-1 rounded-pill mb-1">
+            <span class="text-gold font-bold small font-monospace"><i class="fa-solid fa-envelope me-2"></i>{{ email || 'user@example.com' }}</span>
           </div>
         </div>
 
-        <div class="d-flex justify-content-between align-items-center mb-4 text-muted small">
-          <span>Remaining time: <strong>{{ timerLabel }}</strong></span>
-          <button 
-            type="button" 
-            class="btn btn-link btn-sm text-decoration-none p-0 fw-semibold" 
-            [disabled]="resendCooldown > 0" 
-            (click)="resendOtp()"
-          >
-            {{ resendCooldown > 0 ? 'Resend in ' + resendCooldown + 's' : 'Resend OTP' }}
+        <form [formGroup]="otpForm" (ngSubmit)="onSubmit()">
+          
+          <!-- OTP Input Boxes (6-Digits) -->
+          <div class="mb-4 text-center">
+            <label class="form-label-premium d-block text-center mb-3">6-Digit OTP Code</label>
+            
+            <div class="d-flex justify-content-center gap-2 gap-sm-3 mb-2" (paste)="onOtpPaste($event)">
+              <input 
+                type="text" 
+                id="otp-0"
+                maxLength="1"
+                class="otp-box-gold text-center font-monospace"
+                formControlName="otp0"
+                (input)="onOtpInput($event, 0)"
+                (keydown)="onOtpKeyDown($event, 0)"
+                autocomplete="off"
+                placeholder="•"
+              >
+              <input 
+                type="text" 
+                id="otp-1"
+                maxLength="1"
+                class="otp-box-gold text-center font-monospace"
+                formControlName="otp1"
+                (input)="onOtpInput($event, 1)"
+                (keydown)="onOtpKeyDown($event, 1)"
+                autocomplete="off"
+                placeholder="•"
+              >
+              <input 
+                type="text" 
+                id="otp-2"
+                maxLength="1"
+                class="otp-box-gold text-center font-monospace"
+                formControlName="otp2"
+                (input)="onOtpInput($event, 2)"
+                (keydown)="onOtpKeyDown($event, 2)"
+                autocomplete="off"
+                placeholder="•"
+              >
+              <input 
+                type="text" 
+                id="otp-3"
+                maxLength="1"
+                class="otp-box-gold text-center font-monospace"
+                formControlName="otp3"
+                (input)="onOtpInput($event, 3)"
+                (keydown)="onOtpKeyDown($event, 3)"
+                autocomplete="off"
+                placeholder="•"
+              >
+              <input 
+                type="text" 
+                id="otp-4"
+                maxLength="1"
+                class="otp-box-gold text-center font-monospace"
+                formControlName="otp4"
+                (input)="onOtpInput($event, 4)"
+                (keydown)="onOtpKeyDown($event, 4)"
+                autocomplete="off"
+                placeholder="•"
+              >
+              <input 
+                type="text" 
+                id="otp-5"
+                maxLength="1"
+                class="otp-box-gold text-center font-monospace"
+                formControlName="otp5"
+                (input)="onOtpInput($event, 5)"
+                (keydown)="onOtpKeyDown($event, 5)"
+                autocomplete="off"
+                placeholder="•"
+              >
+            </div>
+
+            <div *ngIf="submitted && otpForm.invalid" class="invalid-feedback-premium d-block text-center mt-2">
+              <span>Please enter all 6 digits of the verification code</span>
+            </div>
+          </div>
+
+          <!-- Timer & Resend Section -->
+          <div class="d-flex justify-content-between align-items-center mb-4 px-1">
+            <div class="d-flex align-items-center text-secondary-custom small font-body">
+              <i class="fa-regular fa-clock me-1 text-gold"></i>
+              <span>Expires in <strong class="text-gold font-monospace">{{ timerLabel }}</strong></span>
+            </div>
+
+            <button 
+              type="button" 
+              class="btn btn-link text-decoration-none p-0 small font-bold"
+              [class.text-gold]="resendCooldown <= 0"
+              [class.text-muted]="resendCooldown > 0"
+              [disabled]="resendCooldown > 0 || loading" 
+              (click)="resendOtp()"
+            >
+              <i class="fa-solid fa-rotate-right me-1" *ngIf="resendCooldown <= 0"></i>
+              <span>{{ resendCooldown > 0 ? 'Resend OTP in ' + resendCooldown + 's' : 'Resend OTP' }}</span>
+            </button>
+          </div>
+
+          <!-- Verify Button -->
+          <button type="submit" class="btn-gold-primary w-100 py-3 d-flex justify-content-center align-items-center" [disabled]="loading">
+            <span class="spinner-border spinner-border-sm me-2" *ngIf="loading" role="status" aria-hidden="true"></span>
+            <span>{{ loading ? 'Verifying Code...' : 'Verify Email Address' }}</span>
           </button>
+        </form>
+
+        <!-- Back to Login Navigation -->
+        <div class="text-center mt-4">
+          <p class="mb-0 text-secondary-custom small font-body">
+            Already verified or want to sign in? 
+            <a routerLink="/login" class="text-gold font-bold text-decoration-none ms-1">
+              <i class="fa-solid fa-arrow-left me-1"></i>Sign In
+            </a>
+          </p>
         </div>
 
-        <button type="submit" class="btn-premium-primary w-100 py-3 d-flex justify-content-center align-items-center" [disabled]="loading">
-          <span class="spinner-border spinner-border-sm me-2" *ngIf="loading"></span>
-          <span>Verify Account</span>
-        </button>
-      </form>
-
-      <div class="text-center mt-4">
-        <a routerLink="/login" class="text-secondary text-decoration-none small fw-semibold">
-          <i class="fa-solid fa-arrow-left me-1"></i> Back to Sign In
-        </a>
       </div>
 
     </div>

@@ -80,24 +80,32 @@ export class LoginComponent implements OnInit {
     });
   }
 
+  goToVerify(): void {
+    if (this.unverifiedEmail) {
+      this.router.navigate(['/verify-otp'], { queryParams: { email: this.unverifiedEmail } });
+    }
+  }
+
   resendVerification(): void {
     if (!this.unverifiedEmail) return;
 
     this.resendLoading = true;
-    this.authService.resendVerification(this.unverifiedEmail).subscribe({
+    this.authService.resendOtp(this.unverifiedEmail).subscribe({
       next: (res) => {
         this.resendLoading = false;
         if (res.success) {
-          this.notificationService.showToast('Verification email sent.', 'success');
+          this.notificationService.showToast('New 6-digit verification code sent!', 'success');
+          this.router.navigate(['/verify-otp'], { queryParams: { email: this.unverifiedEmail } });
         } else {
-          this.notificationService.showToast(res.message || 'Failed to send verification email.', 'danger');
+          this.notificationService.showToast(res.message || 'Failed to send verification code.', 'danger');
         }
       },
       error: (err) => {
         this.resendLoading = false;
         console.error(err);
-        const msg = err.error?.message || 'Failed to send verification email.';
+        const msg = err.error?.message || 'Failed to send verification code.';
         this.notificationService.showToast(msg, 'danger');
+        this.router.navigate(['/verify-otp'], { queryParams: { email: this.unverifiedEmail } });
       }
     });
   }

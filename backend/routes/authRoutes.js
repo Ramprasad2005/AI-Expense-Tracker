@@ -3,8 +3,11 @@ const router = express.Router();
 const {
   registerUser,
   loginUser,
+  verifyOtp,
   verifyEmail,
+  resendOtp,
   resendVerificationEmail,
+  checkOtp,
   forgotPassword,
   validateResetToken,
   resetPassword,
@@ -27,10 +30,15 @@ const authActionLimit = rateLimiter(10, 900000); // 10 requests / 15 mins
 router.post('/register', registerLimit, registerUser);
 router.post('/login', loginLimit, loginUser);
 
-// Verification Links
+// OTP Verification Endpoints
+router.post('/verify-otp', authActionLimit, verifyOtp);
+router.post('/resend-otp', authActionLimit, resendOtp);
+router.post('/check-otp', authActionLimit, checkOtp);
+
+// Compatibility Verification Endpoints
 router.get('/verify-email', authActionLimit, verifyEmail);
-router.post('/verify-email', authActionLimit, verifyEmail);
-router.post('/resend-verification', authActionLimit, resendVerificationEmail);
+router.post('/verify-email', authActionLimit, verifyOtp);
+router.post('/resend-verification', authActionLimit, resendOtp);
 
 // Password Reset Links
 router.post('/forgot-password', authActionLimit, forgotPassword);

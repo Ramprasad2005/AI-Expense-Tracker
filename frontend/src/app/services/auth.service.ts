@@ -70,7 +70,32 @@ export class AuthService {
   }
 
   resendVerification(email: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/resend-verification`, { email });
+    return this.http.post<any>(`${this.apiUrl}/resend-otp`, { email });
+  }
+
+  verifyOtp(email: string, otp: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/verify-otp`, { email, otp }).pipe(
+      tap(res => {
+        if (res && res.success && res.data && res.data.token) {
+          const theme = localStorage.getItem('theme');
+          localStorage.clear();
+          sessionStorage.clear();
+          if (theme) {
+            localStorage.setItem('theme', theme);
+          }
+          localStorage.setItem('currentUser', JSON.stringify(res.data));
+          this.currentUserSubject.next(res.data);
+        }
+      })
+    );
+  }
+
+  resendOtp(email: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/resend-otp`, { email });
+  }
+
+  checkOtp(email: string, otp: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/check-otp`, { email, otp });
   }
 
   forgotPassword(email: string): Observable<any> {
@@ -87,11 +112,11 @@ export class AuthService {
 
   // Compatibility methods
   verifyRegistrationOtp(email: string, otp: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/verify-email`, { email, token: otp });
+    return this.verifyOtp(email, otp);
   }
 
   resendRegistrationOtp(email: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/resend-verification`, { email });
+    return this.resendOtp(email);
   }
 
   getProfile(): Observable<any> {

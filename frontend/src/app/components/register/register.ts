@@ -57,26 +57,16 @@ export class RegisterComponent implements OnInit {
     }
 
     this.loading = true;
-    const { username, email, password } = this.registerForm.value;
+    const { fullName, username, email, password } = this.registerForm.value;
     const role = email.toLowerCase().startsWith('admin@') ? 'admin' : 'user';
 
-    this.authService.register({ username, email, password, role }).subscribe({
+    this.authService.register({ fullName, username, email, password, role }).subscribe({
       next: (res) => {
+        this.loading = false;
         if (res.success) {
-          this.notificationService.showToast('Registration successful! Signing in...', 'success');
-          // Auto login after registration
-          this.authService.login({ email, password }).subscribe({
-            next: () => {
-              this.loading = false;
-              this.router.navigate(['/dashboard']);
-            },
-            error: () => {
-              this.loading = false;
-              this.router.navigate(['/login']);
-            }
-          });
+          this.notificationService.showToast('Verification code sent to your email!', 'success');
+          this.router.navigate(['/verify-otp'], { queryParams: { email: email.toLowerCase().trim() } });
         } else {
-          this.loading = false;
           this.notificationService.showToast(res.message || 'Registration failed', 'danger');
         }
       },
@@ -84,7 +74,7 @@ export class RegisterComponent implements OnInit {
         this.loading = false;
         console.error(err);
         const errMsg = err.status === 409
-          ? (err.error?.message || 'Email already registered.')
+          ? (err.error?.message || 'Email or Username already registered.')
           : (err.error?.message || 'Registration failed.');
         this.notificationService.showToast(errMsg, 'danger');
       }

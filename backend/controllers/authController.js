@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const {
   sendWelcomeEmail,
+  sendOtpVerificationEmail,
   sendPasswordResetEmail,
   sendPasswordChangedEmail
 } = require('../utils/email');
@@ -21,100 +22,300 @@ const generateToken = (id, tokenVersion = 0) => {
   });
 };
 
-// @desc    Register a new user (Auto-Verified)
+// @desc    Register a new user & Send 6-digit OTP
 // @route   POST /api/auth/register
 // @access  Public
 exports.registerUser = async (req, res, next) => {
   try {
-    const { username, email, password, role } = req.body;
+    const { fullName, username, email, password, role } = req.body;
 
     if (!username || !email || !password) {
       return res.status(400).json({ success: false, message: 'Please provide all required fields' });
     }
 
+    if (password.length < 6) {
+      return res.status(400).json({ success: false, message: 'Password must be at least 6 characters long' });
+    }
+
     const cleanEmail = email.toLowerCase().trim();
     const cleanUsername = username.trim();
 
-    // Check MongoDB for duplicate email
-    const existingEmail = await User.findOne({ email: cleanEmail });
-    if (existingEmail) {
-      return res.status(409).json({ success: false, message: 'Email already registered.' });
-    }
-
-    // Check MongoDB for duplicate username
-    const existingUsername = await User.findOne({ username: cleanUsername });
-    if (existingUsername) {
-      return res.status(409).json({ success: false, message: 'Username is already taken.' });
-    }
-
-    // Create user with isVerified: true for instant demo deployment readiness
-    const user = await User.create({
-      username: cleanUsername,
-      email: cleanEmail,
-      password,
-      role: role || 'user',
-      tokenVersion: 0,
-      isVerified: true
+    // Check if user already exists
+    let existingUser = await User.findOne({
+      $or: [{ email: cleanEmail }, { username: cleanUsername }]
     });
 
-    if (user) {
-      console.log(`[AUTH] User registered & auto-verified: ${user.username} (${user.email})`);
-
-      sendWelcomeEmail(user.email, user.username).catch(err => console.error('[AUTH ERROR] Welcome email failed:', err.message));
-
-      res.status(201).json({
-        success: true,
-        message: 'Registration successful. You can log in now.',
-        data: {
-          _id: user._id,
-          username: user.username,
-          email: user.email,
-          role: user.role,
-          notificationPreferences: user.notificationPreferences,
-          token: generateToken(user._id, user.tokenVersion)
+    if (existingUser) {
+      if (existingUser.isVerified || existingUser.emailVerified) {
+        if (existingUser.email === cleanEmail) {
+          return res.status(409).json({ success: false, message: 'Email already registered.' });
         }
-      });
-    } else {
-      res.status(400).json({ success: false, message: 'Invalid user data' });
+        return res.status(409).json({ success: false, message: 'Username is already taken.' });
+      }
     }
+
+    // Generate secure 6-digit OTP
+    const otp = crypto.randomInt(100000, 1000000).toString();
+    const hashedOtp = hashToken(otp);
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+
+    let user;
+    if (existingUser && !existingUser.isVerified && !existingUser.emailVerified) {
+      // Re-registering unverified account: update existing record
+      existingUser.fullName = fullName || existingUser.fullName;
+      existingUser.username = cleanUsername;
+      existingUser.email = cleanEmail;
+      existingUser.password = password; // pre-save hook will hash password if modified
+      existingUser.role = role || existingUser.role || 'user';
+      existingUser.verificationOTP = hashedOtp;
+      existingUser.verificationOTPExpiry = otpExpiry;
+      existingUser.verificationAttempts = 0;
+      existingUser.lastResendTimestamp = new Date();
+      user = await existingUser.save();
+    } else {
+      // Create new user record in unverified state
+      user = await User.create({
+        fullName: fullName || '',
+        username: cleanUsername,
+        email: cleanEmail,
+        password,
+        role: role || 'user',
+        tokenVersion: 0,
+        isVerified: false,
+        emailVerified: false,
+        verificationOTP: hashedOtp,
+        verificationOTPExpiry: otpExpiry,
+        verificationAttempts: 0,
+        lastResendTimestamp: new Date()
+      });
+    }
+
+    console.log(`[AUTH OTP GENERATED] Email: ${cleanEmail} | OTP: ${otp} (Expires in 10 mins)`);
+
+    // Send OTP email asynchronously
+    sendOtpVerificationEmail(user.email, user.username, otp).catch(err =>
+      console.error('[AUTH ERROR] OTP Email failed:', err.message)
+    );
+
+    res.status(201).json({
+      success: true,
+      message: 'Verification code sent to your email.',
+      data: {
+        email: user.email
+      }
+    });
   } catch (error) {
     if (error.code === 11000) {
-      return res.status(409).json({ success: false, message: 'Email already registered.' });
+      return res.status(409).json({ success: false, message: 'Email or Username already registered.' });
     }
     next(error);
   }
 };
 
-// @desc    Verify Email Link Token (Compatibility Stub)
-// @route   POST /api/auth/verify-email or GET /api/auth/verify-email
+// @desc    Verify 6-Digit Registration OTP
+// @route   POST /api/auth/verify-otp (and POST /api/auth/verify-email)
 // @access  Public
-exports.verifyEmail = async (req, res, next) => {
+exports.verifyOtp = async (req, res, next) => {
   try {
-    const token = req.query.token || req.body.token;
-    if (!token) {
-      return res.status(200).json({ success: true, message: 'Email Verified Successfully' });
+    const email = req.body.email || req.query.email;
+    const otp = req.body.otp || req.body.token || req.query.token;
+
+    if (!email || !otp) {
+      return res.status(400).json({ success: false, message: 'Please provide email and 6-digit verification code.' });
     }
 
-    const hashedToken = hashToken(token);
-    const user = await User.findOne({
-      verificationToken: hashedToken,
-      verificationExpires: { $gt: Date.now() }
-    }).select('+verificationToken +verificationExpires');
+    const cleanEmail = email.toLowerCase().trim();
+    const cleanOtp = String(otp).trim();
 
-    if (user) {
-      user.isVerified = true;
-      user.verificationToken = undefined;
-      user.verificationExpires = undefined;
+    const user = await User.findOne({ email: cleanEmail }).select(
+      '+verificationOTP +verificationOTPExpiry +verificationAttempts'
+    );
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Account not found. Please register first.' });
+    }
+
+    if (user.isVerified || user.emailVerified) {
+      return res.status(200).json({ success: true, message: 'Email is already verified. You can log in.' });
+    }
+
+    // Lock check: max 5 attempts
+    if (user.verificationAttempts >= 5) {
+      return res.status(400).json({
+        success: false,
+        message: 'Maximum OTP verification attempts reached. Please request a new verification code.'
+      });
+    }
+
+    // Expiry check: 10 minutes
+    if (!user.verificationOTPExpiry || Date.now() > new Date(user.verificationOTPExpiry).getTime()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Verification code has expired. Please click "Resend Code" to receive a new OTP.'
+      });
+    }
+
+    // Compare SHA-256 OTP Hash
+    const hashedSubmittedOtp = hashToken(cleanOtp);
+    if (hashedSubmittedOtp !== user.verificationOTP) {
+      user.verificationAttempts = (user.verificationAttempts || 0) + 1;
       await user.save();
+
+      const remainingAttempts = 5 - user.verificationAttempts;
+      if (remainingAttempts <= 0) {
+        return res.status(400).json({
+          success: false,
+          message: 'Maximum verification attempts reached (5/5). Please request a new verification code.'
+        });
+      }
+
+      return res.status(400).json({
+        success: false,
+        message: `Invalid verification code. ${remainingAttempts} attempt${remainingAttempts === 1 ? '' : 's'} remaining.`
+      });
     }
 
-    res.status(200).json({ success: true, message: 'Email Verified Successfully' });
+    // Verification Success: Activate Account & Delete OTP
+    user.isVerified = true;
+    user.emailVerified = true;
+    user.verifiedAt = new Date();
+    user.verificationOTP = undefined;
+    user.verificationOTPExpiry = undefined;
+    user.verificationAttempts = 0;
+    await user.save();
+
+    console.log(`[AUTH VERIFIED] Account activated for: ${user.username} (${user.email})`);
+
+    // Send Welcome Email
+    sendWelcomeEmail(user.email, user.username).catch(err =>
+      console.error('[AUTH ERROR] Welcome email failed:', err.message)
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Email verified successfully!',
+      data: {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        notificationPreferences: user.notificationPreferences,
+        token: generateToken(user._id, user.tokenVersion)
+      }
+    });
   } catch (error) {
     next(error);
   }
 };
 
-// @desc    Auth user & get token (Instant Access)
+// @desc    Alias for verifyOtp to maintain backward compatibility
+exports.verifyEmail = exports.verifyOtp;
+
+// @desc    Resend 6-Digit OTP Code
+// @route   POST /api/auth/resend-otp (and POST /api/auth/resend-verification)
+// @access  Public
+exports.resendOtp = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Please provide email address.' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const user = await User.findOne({ email: cleanEmail }).select(
+      '+lastResendTimestamp +verificationOTP +verificationOTPExpiry +verificationAttempts'
+    );
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Account not found.' });
+    }
+
+    if (user.isVerified || user.emailVerified) {
+      return res.status(400).json({ success: false, message: 'Email is already verified.' });
+    }
+
+    // Enforce 60-second cooldown rate limit
+    if (user.lastResendTimestamp) {
+      const timeElapsed = Date.now() - new Date(user.lastResendTimestamp).getTime();
+      if (timeElapsed < 60000) {
+        const secondsLeft = Math.ceil((60000 - timeElapsed) / 1000);
+        return res.status(429).json({
+          success: false,
+          message: `Please wait ${secondsLeft} seconds before requesting a new code.`,
+          secondsLeft
+        });
+      }
+    }
+
+    // Generate new OTP & invalidate previous OTP
+    const newOtp = crypto.randomInt(100000, 1000000).toString();
+    user.verificationOTP = hashToken(newOtp);
+    user.verificationOTPExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+    user.verificationAttempts = 0;
+    user.lastResendTimestamp = new Date();
+
+    await user.save();
+
+    console.log(`[AUTH OTP RESENT] Email: ${cleanEmail} | New OTP: ${newOtp}`);
+
+    sendOtpVerificationEmail(user.email, user.username, newOtp).catch(err =>
+      console.error('[AUTH ERROR] Resend OTP Email failed:', err.message)
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'A new 6-digit verification code has been sent to your email.'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Alias for resendOtp
+exports.resendVerificationEmail = exports.resendOtp;
+
+// @desc    Check OTP Status (Pre-validation check)
+// @route   POST /api/auth/check-otp
+// @access  Public
+exports.checkOtp = async (req, res, next) => {
+  try {
+    const { email, otp } = req.body;
+    if (!email || !otp) {
+      return res.status(400).json({ success: false, message: 'Email and OTP are required' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const cleanOtp = String(otp).trim();
+
+    const user = await User.findOne({ email: cleanEmail }).select(
+      '+verificationOTP +verificationOTPExpiry +verificationAttempts'
+    );
+
+    if (!user || user.isVerified || user.emailVerified) {
+      return res.status(200).json({ success: false, valid: false, message: 'Invalid or already verified account.' });
+    }
+
+    if (user.verificationAttempts >= 5) {
+      return res.status(200).json({ success: false, valid: false, message: 'Max attempts exceeded.' });
+    }
+
+    if (!user.verificationOTPExpiry || Date.now() > new Date(user.verificationOTPExpiry).getTime()) {
+      return res.status(200).json({ success: false, valid: false, message: 'OTP expired.' });
+    }
+
+    const isValid = hashToken(cleanOtp) === user.verificationOTP;
+    res.status(200).json({
+      success: true,
+      valid: isValid,
+      message: isValid ? 'OTP code is valid.' : 'Incorrect verification code.'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Auth user & get token (Requires verified email)
 // @route   POST /api/auth/login
 // @access  Public
 exports.loginUser = async (req, res, next) => {
@@ -137,6 +338,16 @@ exports.loginUser = async (req, res, next) => {
       return res.status(401).json({ success: false, message: 'Invalid email or password.' });
     }
 
+    // Check email verification state
+    if (!user.isVerified && !user.emailVerified) {
+      return res.status(401).json({
+        success: false,
+        isUnverified: true,
+        email: user.email,
+        message: 'Your email is not verified.'
+      });
+    }
+
     res.status(200).json({
       success: true,
       data: {
@@ -148,17 +359,6 @@ exports.loginUser = async (req, res, next) => {
         token: generateToken(user._id, user.tokenVersion)
       }
     });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// @desc    Resend Verification Email Link (Compatibility)
-// @route   POST /api/auth/resend-verification
-// @access  Public
-exports.resendVerificationEmail = async (req, res, next) => {
-  try {
-    res.status(200).json({ success: true, message: 'Your email address is already verified.' });
   } catch (error) {
     next(error);
   }

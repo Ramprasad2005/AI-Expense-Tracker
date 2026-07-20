@@ -25,15 +25,19 @@ export class VerifyRegistrationComponent implements OnInit, OnDestroy {
   loading = false;
   submitted = false;
 
+  // Animation states
+  isSuccess = false;
+  isError = false;
+
   otpForm!: FormGroup;
 
   // Timers
   private expiryTimer: any;
   private resendInterval: any;
-  
-  expirySecondsLeft = 600; // Registration OTP valid for 10 mins (600s)
+
+  expirySecondsLeft = 600; // 10 minutes
   timerLabel = '10:00';
-  resendCooldown = 0;
+  resendCooldown = 60; // 60s cooldown
 
   private querySub?: Subscription;
 
@@ -55,13 +59,20 @@ export class VerifyRegistrationComponent implements OnInit, OnDestroy {
     this.querySub = this.route.queryParams.subscribe(params => {
       this.email = params['email'] || '';
       if (!this.email) {
-        this.notificationService.showToast('Invalid email parameter.', 'danger');
+        this.notificationService.showToast('Email address is required for verification.', 'danger');
         this.router.navigate(['/register']);
+        return;
       }
       this.cdr.detectChanges();
     });
 
     this.startOtpTimers();
+
+    // Auto-focus first input box
+    setTimeout(() => {
+      const firstInput = document.getElementById('otp-0');
+      if (firstInput) firstInput.focus();
+    }, 150);
   }
 
   ngOnDestroy(): void {
@@ -76,7 +87,7 @@ export class VerifyRegistrationComponent implements OnInit, OnDestroy {
 
   startOtpTimers(): void {
     this.clearTimers();
-    
+
     this.expirySecondsLeft = 600;
     this.updateTimerLabel();
     this.expiryTimer = setInterval(() => {
@@ -84,7 +95,7 @@ export class VerifyRegistrationComponent implements OnInit, OnDestroy {
       this.updateTimerLabel();
       if (this.expirySecondsLeft <= 0) {
         clearInterval(this.expiryTimer);
-        this.notificationService.showToast('Verification code has expired. Resend code.', 'warning');
+        this.notificationService.showToast('Verification code has expired. Please request a new code.', 'warning');
       }
       this.cdr.detectChanges();
     }, 1000);
@@ -100,15 +111,15 @@ export class VerifyRegistrationComponent implements OnInit, OnDestroy {
   }
 
   updateTimerLabel(): void {
-    const mins = Math.floor(this.expirySecondsLeft / 60);
-    const secs = this.expirySecondsLeft % 60;
+    const mins = Math.floor(Math.max(0, this.expirySecondsLeft) / 60);
+    const secs = Math.max(0, this.expirySecondsLeft) % 60;
     this.timerLabel = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   }
 
   onOtpInput(event: any, index: number): void {
     const input = event.target as HTMLInputElement;
     const value = input.value;
-    
+
     if (value && !/^[0-9]$/.test(value)) {
       input.value = '';
       return;
@@ -155,7 +166,7 @@ export class VerifyRegistrationComponent implements OnInit, OnDestroy {
       }
       this.otpForm.patchValue(patchObj);
       this.cdr.detectChanges();
-      
+
       const lastInput = document.getElementById('otp-5');
       if (lastInput) lastInput.focus();
     }
@@ -163,7 +174,12 @@ export class VerifyRegistrationComponent implements OnInit, OnDestroy {
 
   onSubmit(): void {
     this.submitted = true;
-    if (this.otpForm.invalid) return;
+    this.isError = false;
+
+    if (this.otpForm.invalid) {
+      this.triggerErrorAnimation();
+      return;
+    }
 
     this.loading = true;
     this.cdr.detectChanges();
@@ -177,24 +193,43 @@ export class VerifyRegistrationComponent implements OnInit, OnDestroy {
       this.otpForm.value.otp5
     ].join('');
 
-    this.authService.verifyRegistrationOtp(this.email, otp).subscribe({
+    this.authService.verifyOtp(this.email, otp).subscribe({
       next: (res: any) => {
         this.loading = false;
         if (res.success) {
-          this.notificationService.showToast('Account activated successfully! Please log in.', 'success');
-          this.router.navigate(['/login']);
+          this.isSuccess = true;
+          this.notificationService.showToast('Email verified successfully! Welcome to AI Expense Tracker.', 'success');
+          this.cdr.detectChanges();
+
+          setTimeout(() => {
+            if (this.authService.isLoggedIn()) {
+              this.router.navigate(['/dashboard']);
+            } else {
+              this.router.navigate(['/login']);
+            }
+          }, 1200);
         } else {
-          this.notificationService.showToast(res.message || 'Verification failed', 'danger');
+          this.triggerErrorAnimation();
+          this.notificationService.showToast(res.message || 'Verification failed.', 'danger');
         }
-        this.cdr.detectChanges();
       },
       error: (err: any) => {
         this.loading = false;
+        this.triggerErrorAnimation();
         console.error(err);
-        this.notificationService.showToast(err.error?.message || 'Verification failed. Try again.', 'danger');
+        const msg = err.error?.message || 'Verification failed. Please check your OTP and try again.';
+        this.notificationService.showToast(msg, 'danger');
         this.cdr.detectChanges();
       }
     });
+  }
+
+  triggerErrorAnimation(): void {
+    this.isError = true;
+    setTimeout(() => {
+      this.isError = false;
+      this.cdr.detectChanges();
+    }, 800);
   }
 
   resendOtp(): void {
@@ -203,21 +238,22 @@ export class VerifyRegistrationComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.cdr.detectChanges();
 
-    this.authService.resendRegistrationOtp(this.email).subscribe({
+    this.authService.resendOtp(this.email).subscribe({
       next: (res: any) => {
         this.loading = false;
         if (res.success) {
-          this.notificationService.showToast('New verification code sent successfully!', 'success');
+          this.notificationService.showToast('A new 6-digit verification code has been sent to your email.', 'success');
           this.startOtpTimers();
         } else {
-          this.notificationService.showToast(res.message || 'Resend failed', 'danger');
+          this.notificationService.showToast(res.message || 'Failed to resend verification code.', 'danger');
         }
         this.cdr.detectChanges();
       },
       error: (err: any) => {
         this.loading = false;
         console.error(err);
-        this.notificationService.showToast(err.error?.message || 'Failed to resend code.', 'danger');
+        const msg = err.error?.message || 'Failed to resend code.';
+        this.notificationService.showToast(msg, 'danger');
         this.cdr.detectChanges();
       }
     });

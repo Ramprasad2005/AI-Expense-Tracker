@@ -2,6 +2,10 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
+  fullName: {
+    type: String,
+    trim: true
+  },
   username: {
     type: String,
     required: [true, 'Please provide a username'],
@@ -33,7 +37,13 @@ const userSchema = new mongoose.Schema({
   },
   isVerified: {
     type: Boolean,
-    default: true
+    default: false,
+    index: true
+  },
+  emailVerified: {
+    type: Boolean,
+    default: false,
+    index: true
   },
   verificationToken: {
     type: String,
@@ -42,6 +52,22 @@ const userSchema = new mongoose.Schema({
   verificationExpires: {
     type: Date,
     select: false
+  },
+  verificationOTP: {
+    type: String,
+    select: false
+  },
+  verificationOTPExpiry: {
+    type: Date,
+    select: false
+  },
+  verificationAttempts: {
+    type: Number,
+    default: 0,
+    select: false
+  },
+  verifiedAt: {
+    type: Date
   },
   resetToken: {
     type: String,
