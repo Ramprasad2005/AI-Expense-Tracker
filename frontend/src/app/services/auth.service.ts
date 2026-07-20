@@ -35,20 +35,7 @@ export class AuthService {
   }
 
   register(userData: any): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/register`, userData).pipe(
-      tap(res => {
-        if (res && res.success && res.data) {
-          const theme = localStorage.getItem('theme');
-          localStorage.clear();
-          sessionStorage.clear();
-          if (theme) {
-            localStorage.setItem('theme', theme);
-          }
-          localStorage.setItem('currentUser', JSON.stringify(res.data));
-          this.currentUserSubject.next(res.data);
-        }
-      })
-    );
+    return this.http.post<any>(`${this.apiUrl}/register`, userData);
   }
 
   login(credentials: any): Observable<any> {
@@ -76,6 +63,31 @@ export class AuthService {
       localStorage.setItem('theme', theme);
     }
     this.currentUserSubject.next(null);
+  }
+
+  verifyEmail(token: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/verify-email`, { token });
+  }
+
+  resendVerification(email: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/resend-verification`, { email });
+  }
+
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/forgot-password`, { email });
+  }
+
+  resetPassword(resetData: { token: string; newPassword: string }): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/reset-password`, resetData);
+  }
+
+  // Compatibility methods
+  verifyRegistrationOtp(email: string, otp: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/verify-email`, { email, token: otp });
+  }
+
+  resendRegistrationOtp(email: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/resend-verification`, { email });
   }
 
   getProfile(): Observable<any> {
@@ -127,26 +139,6 @@ export class AuthService {
 
   deleteUserAccount(): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/account`);
-  }
-
-  forgotPassword(email: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/forgot-password`, { email });
-  }
-
-  verifyOtp(email: string, otp: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/verify-otp`, { email, otp });
-  }
-
-  resetPassword(resetData: any): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/reset-password`, resetData);
-  }
-
-  verifyRegistrationOtp(email: string, otp: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/verify-registration-otp`, { email, otp });
-  }
-
-  resendRegistrationOtp(email: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/resend-registration-otp`, { email });
   }
 
   isLoggedIn(): boolean {

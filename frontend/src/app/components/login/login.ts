@@ -22,6 +22,11 @@ export class LoginComponent implements OnInit {
   loading = false;
   submitted = false;
 
+  // Unverified state tracker
+  isUnverified = false;
+  unverifiedEmail = '';
+  resendLoading = false;
+
   ngOnInit(): void {
     if (this.authService.isLoggedIn()) {
       this.router.navigate(['/dashboard']);
@@ -39,13 +44,16 @@ export class LoginComponent implements OnInit {
 
   onSubmit(): void {
     this.submitted = true;
+    this.isUnverified = false;
 
     if (this.loginForm.invalid) {
       return;
     }
 
     this.loading = true;
-    this.authService.login(this.loginForm.value).subscribe({
+    const credentials = this.loginForm.value;
+
+    this.authService.login(credentials).subscribe({
       next: (res) => {
         this.loading = false;
         if (res.success) {
@@ -58,8 +66,38 @@ export class LoginComponent implements OnInit {
       error: (err) => {
         this.loading = false;
         console.error(err);
-        const errMsg = err.error?.message || 'Invalid email or password';
-        this.notificationService.showToast(errMsg, 'danger');
+        const errMsg = err.error?.message || 'Invalid email or password.';
+        
+        // ISSUE 2 & 11: Catch unverified state
+        if (errMsg.includes('not verified') || err.status === 401 && err.error?.email) {
+          this.isUnverified = true;
+          this.unverifiedEmail = err.error?.email || credentials.email;
+          this.notificationService.showToast('Your email is not verified.', 'warning');
+        } else {
+          this.notificationService.showToast(errMsg, 'danger');
+        }
+      }
+    });
+  }
+
+  resendVerification(): void {
+    if (!this.unverifiedEmail) return;
+
+    this.resendLoading = true;
+    this.authService.resendVerification(this.unverifiedEmail).subscribe({
+      next: (res) => {
+        this.resendLoading = false;
+        if (res.success) {
+          this.notificationService.showToast('Verification email sent.', 'success');
+        } else {
+          this.notificationService.showToast(res.message || 'Failed to send verification email.', 'danger');
+        }
+      },
+      error: (err) => {
+        this.resendLoading = false;
+        console.error(err);
+        const msg = err.error?.message || 'Failed to send verification email.';
+        this.notificationService.showToast(msg, 'danger');
       }
     });
   }

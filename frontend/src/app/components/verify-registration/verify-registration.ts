@@ -178,7 +178,7 @@ export class VerifyRegistrationComponent implements OnInit, OnDestroy {
     ].join('');
 
     this.authService.verifyRegistrationOtp(this.email, otp).subscribe({
-      next: (res) => {
+      next: (res: any) => {
         this.loading = false;
         if (res.success) {
           this.notificationService.showToast('Account activated successfully! Please log in.', 'success');
@@ -188,7 +188,7 @@ export class VerifyRegistrationComponent implements OnInit, OnDestroy {
         }
         this.cdr.detectChanges();
       },
-      error: (err) => {
+      error: (err: any) => {
         this.loading = false;
         console.error(err);
         this.notificationService.showToast(err.error?.message || 'Verification failed. Try again.', 'danger');
@@ -204,7 +204,7 @@ export class VerifyRegistrationComponent implements OnInit, OnDestroy {
     this.cdr.detectChanges();
 
     this.authService.resendRegistrationOtp(this.email).subscribe({
-      next: (res) => {
+      next: (res: any) => {
         this.loading = false;
         if (res.success) {
           this.notificationService.showToast('New verification code sent successfully!', 'success');
@@ -214,7 +214,7 @@ export class VerifyRegistrationComponent implements OnInit, OnDestroy {
         }
         this.cdr.detectChanges();
       },
-      error: (err) => {
+      error: (err: any) => {
         this.loading = false;
         console.error(err);
         this.notificationService.showToast(err.error?.message || 'Failed to resend code.', 'danger');

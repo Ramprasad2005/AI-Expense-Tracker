@@ -13,7 +13,8 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Please provide an email'],
     unique: true,
     lowercase: true,
-    trim: true
+    trim: true,
+    index: true
   },
   password: {
     type: String,
@@ -30,28 +31,27 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  resetOtp: {
-    type: String,
-    select: false
-  },
-  resetOtpExpire: {
-    type: Date,
-    select: false
-  },
-  resetOtpAttempts: {
-    type: Number,
-    default: 0,
-    select: false
-  },
   isVerified: {
     type: Boolean,
     default: false
   },
-  verificationOtp: {
+  verificationToken: {
     type: String,
     select: false
   },
-  verificationOtpExpire: {
+  verificationExpires: {
+    type: Date,
+    select: false
+  },
+  resetToken: {
+    type: String,
+    select: false
+  },
+  resetExpires: {
+    type: Date,
+    select: false
+  },
+  lastResendTimestamp: {
     type: Date,
     select: false
   },
@@ -74,7 +74,7 @@ userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) {
     return next();
   }
-  const salt = await bcrypt.genSalt(10);
+  const salt = await bcrypt.genSalt(12);
   this.password = await bcrypt.hash(this.password, salt);
   next();
 });

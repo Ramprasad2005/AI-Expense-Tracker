@@ -1,0 +1,41 @@
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+      <div class="card border-0 shadow-lg rounded-4 overflow-hidden text-center p-4">
+        
+        <!-- Loading State -->
+        <div *ngIf="loading" class="py-5">
+          <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <h4 class="fw-bold mb-2">Verifying Email</h4>
+          <p class="text-muted small">Please wait while we validate your email verification token...</p>
+        </div>
+
+        <!-- Success State -->
+        <div *ngIf="!loading && success" class="py-4">
+          <div class="d-inline-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success rounded-circle p-4 mb-4" style="width: 80px; height: 80px;">
+            <i class="fa-solid fa-circle-check fs-1 text-success"></i>
+          </div>
+          <h3 class="fw-bold text-dark mb-2">Email Verified Successfully</h3>
+          <p class="text-muted mb-4 fs-6">Your account is fully activated. You can now log in and access your financial dashboard.</p>
+          <a routerLink="/login" class="btn btn-primary btn-lg w-100 py-3 rounded-3 fw-bold">Login Now</a>
+        </div>
+
+        <!-- Error State -->
+        <div *ngIf="!loading && !success" class="py-4">
+          <div class="d-inline-flex align-items-center justify-content-center bg-danger bg-opacity-10 text-danger rounded-circle p-4 mb-4" style="width: 80px; height: 80px;">
+            <i class="fa-solid fa-circle-xmark fs-1 text-danger"></i>
+          </div>
+          <h3 class="fw-bold text-dark mb-2">Verification Failed</h3>
+          <p class="text-muted mb-4 fs-6">{{ errorMessage }}</p>
+          <div class="d-grid gap-2">
+            <a routerLink="/login" class="btn btn-primary py-3 rounded-3 fw-bold">Go to Login</a>
+            <a routerLink="/register" class="btn btn-outline-secondary py-3 rounded-3 fw-semibold">Register New Account</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

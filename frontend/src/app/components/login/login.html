@@ -2,6 +2,24 @@
   <div class="card login-card border-0">
     <div class="card-body p-0">
       
+      <!-- Unverified Email Alert Box -->
+      <div *ngIf="isUnverified" class="alert alert-warning border-warning rounded-3 p-4 mb-4">
+        <div class="d-flex align-items-start mb-3">
+          <i class="fa-solid fa-triangle-exclamation fs-3 text-warning me-3 mt-1"></i>
+          <div>
+            <h5 class="fw-bold mb-1">Your email is not verified.</h5>
+            <p class="mb-0 small text-muted">We sent a verification link to <strong>{{ unverifiedEmail }}</strong>. Please check your inbox to activate your account.</p>
+          </div>
+        </div>
+        <div class="d-flex gap-2">
+          <button (click)="resendVerification()" class="btn btn-warning btn-sm fw-bold flex-fill py-2" [disabled]="resendLoading">
+            <span class="spinner-border spinner-border-sm me-1" *ngIf="resendLoading" role="status"></span>
+            <span>{{ resendLoading ? 'Sending...' : 'Resend Verification Email' }}</span>
+          </button>
+          <a routerLink="/register" class="btn btn-outline-secondary btn-sm fw-semibold py-2">Change Email</a>
+        </div>
+      </div>
+
       <!-- Brand & Title -->
       <div class="text-center mb-4">
         <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-3 p-3 mb-3">

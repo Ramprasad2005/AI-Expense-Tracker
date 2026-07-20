@@ -2,27 +2,25 @@ const nodemailer = require('nodemailer');
 
 // Main helper to send email
 const sendEmail = async (options) => {
-  const host = process.env.EMAIL_HOST;
-  const port = process.env.EMAIL_PORT;
+  const host = process.env.EMAIL_HOST || 'smtp.gmail.com';
+  const port = parseInt(process.env.EMAIL_PORT || '587');
   const user = process.env.EMAIL_USER;
-  const pass = process.env.EMAIL_PASSWORD || process.env.EMAIL_PASS;
-  const from = process.env.EMAIL_FROM || user || 'noreply@tracker.com';
+  const pass = process.env.EMAIL_PASS || process.env.EMAIL_PASSWORD;
+  const from = user || 'noreply@tracker.com';
 
   console.log('\n[EMAIL DEBUG] ─── sendEmail called ───');
   console.log(`[EMAIL DEBUG] To: ${options.email}`);
   console.log(`[EMAIL DEBUG] Subject: ${options.subject}`);
-  console.log(`[EMAIL DEBUG] EMAIL_HOST: ${host || '(not set)'}`);
-  console.log(`[EMAIL DEBUG] EMAIL_PORT: ${port || '(not set)'}`);
+  console.log(`[EMAIL DEBUG] EMAIL_HOST: ${host}`);
+  console.log(`[EMAIL DEBUG] EMAIL_PORT: ${port}`);
   console.log(`[EMAIL DEBUG] EMAIL_USER: ${user || '(not set)'}`);
-  console.log(`[EMAIL DEBUG] EMAIL_PASSWORD: ${pass ? '****' + pass.slice(-4) : '(not set)'}`);
   console.log(`[EMAIL DEBUG] EMAIL_FROM: ${from}`);
 
-  const hasCredentials = host && port && user && pass;
+  const hasCredentials = user && pass;
 
   if (!hasCredentials) {
     console.warn('[EMAIL WARN] Missing SMTP credentials. Falling back to mock console email.');
-    console.warn('[EMAIL WARN] Set EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASSWORD in .env');
-    // Graceful fallback to console logging for local sandbox testing
+    console.warn('[EMAIL WARN] Set EMAIL_USER and EMAIL_PASS in .env');
     const plainText = options.html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
     console.log('\n========================================================================');
     console.log(`[MOCK EMAIL SENT]`);
@@ -34,17 +32,12 @@ const sendEmail = async (options) => {
   }
 
   try {
-    console.log('[EMAIL DEBUG] Creating Nodemailer transporter...');
     const transporter = nodemailer.createTransport({
       host,
-      port: parseInt(port),
-      secure: parseInt(port) === 465,
+      port,
+      secure: port === 465,
       auth: { user, pass }
     });
-
-    console.log('[EMAIL DEBUG] Verifying SMTP connection with transporter.verify()...');
-    await transporter.verify();
-    console.log('[EMAIL DEBUG] ✅ SMTP connection verified successfully.');
 
     const mailOptions = {
       from: `"AI Expense Tracker" <${from}>`,
@@ -53,22 +46,14 @@ const sendEmail = async (options) => {
       html: options.html
     };
 
-    console.log('[EMAIL DEBUG] Sending email...');
     const info = await transporter.sendMail(mailOptions);
-    console.log(`[EMAIL DEBUG] ✅ Email sent successfully!`);
-    console.log(`[EMAIL DEBUG] Message ID: ${info.messageId}`);
-    console.log(`[EMAIL DEBUG] Response: ${info.response}`);
+    console.log(`[EMAIL DEBUG] ✅ Email sent successfully! Message ID: ${info.messageId}`);
     return { success: true, mock: false, messageId: info.messageId };
   } catch (error) {
-    console.error('[EMAIL ERROR] ❌ Failed to send email:');
-    console.error(`[EMAIL ERROR] Code: ${error.code || 'N/A'}`);
-    console.error(`[EMAIL ERROR] Message: ${error.message}`);
-    console.error(`[EMAIL ERROR] Stack: ${error.stack}`);
-    // Re-throw so the caller can decide how to handle it
+    console.error('[EMAIL ERROR] ❌ Failed to send email:', error.message);
     throw error;
   }
 };
-
 
 // HTML Email Layout Wrapper
 const getHtmlLayout = (title, content) => {
@@ -86,7 +71,7 @@ const getHtmlLayout = (title, content) => {
     .header h2 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
     .content { padding: 40px 30px; line-height: 1.6; }
     .content p { font-size: 15px; margin-bottom: 20px; color: #334155; }
-    .btn { display: inline-block; padding: 12px 24px; background-color: #2563EB; color: #FFFFFF !important; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px; margin-top: 10px; }
+    .btn { display: inline-block; padding: 14px 28px; background-color: #2563EB; color: #FFFFFF !important; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 15px; margin-top: 15px; }
     .footer { background-color: #F8FAFC; padding: 20px; text-align: center; border-top: 1px solid #E2E8F0; font-size: 12px; color: #64748B; }
   </style>
 </head>
@@ -99,8 +84,8 @@ const getHtmlLayout = (title, content) => {
       ${content}
     </div>
     <div class="footer">
-      &copy; 2026 AI Expense Tracker. All rights reserved.<br>
-      This is an automated transaction warning message. Please do not reply directly.
+      &copy; ${new Date().getFullYear()} AI Expense Tracker. All rights reserved.<br>
+      This is an automated system message. Please do not reply directly.
     </div>
   </div>
 </body>
@@ -113,7 +98,7 @@ const sendWelcomeEmail = async (email, username) => {
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
   const content = `
     <h3>Welcome to AI Expense Tracker, ${username}!</h3>
-    <p>We are excited to help you optimize your personal budget. Log in to create custom limits, export PDF statements, and receive financial optimization suggestions compiled by Google Gemini AI.</p>
+    <p>We are excited to help you optimize your personal budget. Log in to create custom limits, export PDF statements, and receive financial optimization suggestions.</p>
     <a href="${frontendUrl}/login" class="btn">Access Dashboard</a>
   `;
   await sendEmail({
@@ -123,37 +108,44 @@ const sendWelcomeEmail = async (email, username) => {
   });
 };
 
-// Verification OTP for Registration
-const sendVerificationEmail = async (email, username, otpCode) => {
+// Verification Link for Registration
+const sendVerificationEmail = async (email, username, token) => {
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
+  const verificationUrl = `${frontendUrl}/verify-email?token=${token}`;
   const content = `
     <h3>Welcome to AI Expense Tracker, ${username}!</h3>
-    <p>Thank you for registering. Use the following 6-digit verification code to complete your registration and activate your account. This code is valid for exactly <strong>24 hours</strong>.</p>
-    <div style="font-size: 32px; font-weight: 800; text-align: center; margin: 30px 0; letter-spacing: 5px; color: #2563EB;">
-      ${otpCode}
+    <p>Thank you for registering. Please click the button below to verify your email address and activate your account. This link is valid for <strong>24 hours</strong>.</p>
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="${verificationUrl}" class="btn">Verify Email Address</a>
     </div>
+    <p style="font-size: 13px; color: #64748B;">Or copy and paste this link in your browser:<br><a href="${verificationUrl}">${verificationUrl}</a></p>
     <p>If you did not create an account, please ignore this email.</p>
   `;
   await sendEmail({
     email,
-    subject: 'Activate Your AI Expense Tracker Account - Verification Code',
+    subject: 'Verify Your Email Address - AI Expense Tracker',
     html: getHtmlLayout('Email Verification', content)
   });
 };
 
-// Password Reset OTP
-const sendOtpEmail = async (email, otpCode) => {
+// Password Reset Link
+const sendPasswordResetEmail = async (email, username, token) => {
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
+  const resetUrl = `${frontendUrl}/reset-password?token=${token}`;
   const content = `
-    <h3>Verify Password Reset Request</h3>
-    <p>You requested to reset your password. Use the following 6-digit code to authorize this action. This code is valid for exactly <strong>5 minutes</strong>.</p>
-    <div style="font-size: 32px; font-weight: 800; text-align: center; margin: 30px 0; letter-spacing: 5px; color: #2563EB;">
-      ${otpCode}
+    <h3>Reset Your Password</h3>
+    <p>Hello ${username},</p>
+    <p>You requested to reset your password for AI Expense Tracker. Click the button below to choose a new password. This link is valid for <strong>1 hour</strong>.</p>
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="${resetUrl}" class="btn">Reset Password</a>
     </div>
-    <p>If you did not request this code, please secure your credentials immediately.</p>
+    <p style="font-size: 13px; color: #64748B;">Or copy and paste this link in your browser:<br><a href="${resetUrl}">${resetUrl}</a></p>
+    <p>If you did not request a password reset, please ignore this email and your password will remain unchanged.</p>
   `;
   await sendEmail({
     email,
-    subject: 'Password Reset OTP Verification',
-    html: getHtmlLayout('Password Reset Code', content)
+    subject: 'Password Reset Request - AI Expense Tracker',
+    html: getHtmlLayout('Password Reset Link', content)
   });
 };
 
@@ -163,7 +155,7 @@ const sendPasswordChangedEmail = async (email, username) => {
     <h3>Security Alert: Password Updated</h3>
     <p>Hello ${username},</p>
     <p>This is to confirm that the password for your AI Expense Tracker account has been successfully changed.</p>
-    <p>If you did not perform this change, please contact administration or reset your credentials immediately to secure your active assets.</p>
+    <p>If you did not perform this change, please contact support or reset your password immediately.</p>
   `;
   await sendEmail({
     email,
@@ -181,7 +173,7 @@ const sendBudgetAlertEmail = async (email, budgetLimit, totalSpent, month) => {
       <p style="margin: 5px 0;"><strong>Budget Limit:</strong> $${budgetLimit.toFixed(2)}</p>
       <p style="margin: 5px 0; color: #DC2626;"><strong>Total Spent:</strong> $${totalSpent.toFixed(2)}</p>
     </div>
-    <p>Review your expense records to identify categories for cost optimization, or request suggestions from the AI financial advisor.</p>
+    <p>Review your expense records to identify categories for cost optimization.</p>
   `;
   await sendEmail({
     email,
@@ -206,7 +198,7 @@ const sendAccountNotificationEmail = async (email, subject, message) => {
 module.exports = {
   sendWelcomeEmail,
   sendVerificationEmail,
-  sendOtpEmail,
+  sendPasswordResetEmail,
   sendPasswordChangedEmail,
   sendBudgetAlertEmail,
   sendAccountNotificationEmail

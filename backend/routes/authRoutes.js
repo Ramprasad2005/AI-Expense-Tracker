@@ -3,29 +3,39 @@ const router = express.Router();
 const {
   registerUser,
   loginUser,
+  verifyEmail,
+  resendVerificationEmail,
+  forgotPassword,
+  resetPassword,
   getUserProfile,
   updateUserProfile,
   changePassword,
   updateNotificationPreferences,
   logoutAllDevices,
-  deleteUserAccount,
-  forgotPassword,
-  verifyOtp,
-  resetPassword,
-  verifyRegistrationOtp,
-  resendRegistrationOtp
+  deleteUserAccount
 } = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
 const { rateLimiter } = require('../middleware/rateLimiter');
 
-// Rate limiters: 15 minutes window (900000ms)
-const loginLimit = rateLimiter(15, 900000);
-const registerLimit = rateLimiter(10, 900000);
-const otpLimit = rateLimiter(10, 900000);
+// Rate limiters
+const loginLimit = rateLimiter(15, 900000); // 15 requests / 15 mins
+const registerLimit = rateLimiter(10, 900000); // 10 requests / 15 mins
+const authActionLimit = rateLimiter(10, 900000); // 10 requests / 15 mins
 
+// Authentication & Registration
 router.post('/register', registerLimit, registerUser);
 router.post('/login', loginLimit, loginUser);
 
+// Verification Links
+router.get('/verify-email', authActionLimit, verifyEmail);
+router.post('/verify-email', authActionLimit, verifyEmail);
+router.post('/resend-verification', authActionLimit, resendVerificationEmail);
+
+// Password Reset Links
+router.post('/forgot-password', authActionLimit, forgotPassword);
+router.post('/reset-password', authActionLimit, resetPassword);
+
+// Protected Routes
 router.route('/profile')
   .get(protect, getUserProfile)
   .put(protect, updateUserProfile);
@@ -34,16 +44,5 @@ router.put('/password', protect, changePassword);
 router.put('/preferences', protect, updateNotificationPreferences);
 router.post('/logout-all', protect, logoutAllDevices);
 router.delete('/account', protect, deleteUserAccount);
-
-// Forgot Password Paths
-router.post('/forgot-password', otpLimit, forgotPassword);
-router.post('/verify-otp', otpLimit, verifyOtp);
-router.post('/reset-password', otpLimit, resetPassword);
-
-// Registration Verification Paths
-router.post('/verify-registration-otp', otpLimit, verifyRegistrationOtp);
-router.post('/resend-registration-otp', otpLimit, resendRegistrationOtp);
-
-
 
 module.exports = router;

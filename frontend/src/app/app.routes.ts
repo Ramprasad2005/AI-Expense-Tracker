@@ -10,6 +10,7 @@ import { ProfileComponent } from './components/profile/profile';
 import { AdminComponent } from './components/admin/admin';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password';
 import { VerifyRegistrationComponent } from './components/verify-registration/verify-registration';
+import { VerifyEmailComponent } from './components/verify-email/verify-email';
 import { SettingsComponent } from './components/settings/settings';
 import { LandingComponent } from './components/landing/landing';
 import { authGuard } from './guards/auth.guard';
@@ -19,6 +20,7 @@ export const routes: Routes = [
   { path: '', component: LandingComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
+  { path: 'verify-email', component: VerifyEmailComponent },
   { path: 'verify-registration', component: VerifyRegistrationComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'verify-otp', component: ForgotPasswordComponent },
