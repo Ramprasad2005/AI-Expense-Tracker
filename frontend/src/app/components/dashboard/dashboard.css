@@ -1,52 +1,70 @@
 .dashboard-container {
-  min-height: calc(100vh - 72px);
-  background-color: var(--bg-color);
-  padding: 3rem 1rem;
-  color: var(--text-primary);
-  transition: background-color 0.2s ease, color 0.2s ease;
+  background-color: var(--bg-primary);
+  min-height: calc(100vh - 76px);
 }
 
-.stats-card {
-  background-color: var(--card-color);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  box-shadow: var(--shadow-sm);
-  padding: 24px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+.kpi-card-income {
+  border-left: 4px solid var(--gold-luxury) !important;
 }
 
-.stats-card:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
+.kpi-card-expense {
+  border-left: 4px solid var(--color-danger) !important;
 }
 
-.chart-card {
-  background-color: var(--card-color);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  box-shadow: var(--shadow-sm);
-  padding: 28px;
+.kpi-card-savings {
+  border-left: 4px solid var(--color-success) !important;
 }
 
-.ai-card {
-  background: var(--card-color);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  box-shadow: var(--shadow-sm);
-  padding: 28px;
+.kpi-card-balance {
+  border-left: 4px solid var(--text-platinum) !important;
+}
+
+.kpi-icon-gold {
+  width: 48px;
+  height: 48px;
+  background: var(--gold-gradient);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 15px var(--glow-gold);
+}
+
+.kpi-icon-red {
+  width: 48px;
+  height: 48px;
+  background: var(--color-danger);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 15px rgba(192, 57, 43, 0.4);
+}
+
+.kpi-icon-emerald {
+  width: 48px;
+  height: 48px;
+  background: var(--color-success);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 15px rgba(46, 204, 113, 0.4);
+}
+
+.kpi-icon-platinum {
+  width: 48px;
+  height: 48px;
+  background: var(--text-platinum);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 15px rgba(245, 245, 245, 0.3);
 }
 
 .chart-container {
   position: relative;
-  height: 280px;
+  min-height: 280px;
   width: 100%;
-}
-
-.recent-transaction-item {
-  border-bottom: 1px solid #F3F4F6;
-  padding: 12px 8px;
-}
-
-.recent-transaction-item:last-child {
-  border-bottom: none;
 }

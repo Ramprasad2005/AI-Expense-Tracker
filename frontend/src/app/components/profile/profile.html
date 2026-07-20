@@ -1,26 +1,26 @@
-<div class="profile-container">
+<div class="profile-container py-4">
   <div class="container">
     <div class="row justify-content-center">
       <div class="col-lg-10">
         
         <!-- Header -->
         <div class="d-flex align-items-center mb-5 fade-in-up">
-          <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-3 me-3">
-            <i class="fa-solid fa-user-gear fs-3"></i>
+          <div class="brand-badge-gold me-3" style="width: 48px; height: 48px;">
+            <i class="fa-solid fa-user-gear fs-4 text-dark"></i>
           </div>
           <div>
-            <h2 class="fw-bold mb-1">Settings</h2>
-            <p class="text-muted mb-0">Update your profile parameters and secure your credentials.</p>
+            <h1 class="font-heading display-6 mb-1 text-gold">Account & Security Settings</h1>
+            <p class="text-secondary-custom small mb-0 font-body">Manage profile credentials, communication preferences, and security access.</p>
           </div>
         </div>
 
         <div class="row g-4 fade-in-up">
           <!-- Main Profile Info -->
           <div class="col-md-6">
-            <div class="card profile-card border-0">
-              <h5 class="fw-bold mb-4 border-bottom border-light pb-2">
-                <i class="fa-solid fa-id-card me-2 text-primary small"></i>Account Details
-              </h5>
+            <div class="glass-card p-4 h-100">
+              <h3 class="font-heading h5 mb-4 text-gold border-bottom-gold pb-3">
+                <i class="fa-solid fa-id-card me-2 text-gold"></i>Account Identity
+              </h3>
               
               <form [formGroup]="infoForm" (ngSubmit)="onUpdateInfo()">
                 
@@ -30,7 +30,7 @@
                   <input 
                     type="text" 
                     id="username" 
-                    class="form-control-premium" 
+                    class="form-control-luxury" 
                     formControlName="username"
                     [class.is-invalid]="infoSubmitted && fi['username'].errors"
                   >
@@ -46,7 +46,7 @@
                   <input 
                     type="email" 
                     id="email" 
-                    class="form-control-premium" 
+                    class="form-control-luxury" 
                     formControlName="email"
                     [class.is-invalid]="infoSubmitted && fi['email'].errors"
                   >
@@ -58,13 +58,13 @@
 
                 <!-- Role -->
                 <div class="mb-4">
-                  <label class="form-label-premium">Access Level</label>
-                  <input type="text" class="form-control-premium bg-light border-light text-muted" [value]="authService.currentUserValue?.role | uppercase" readonly style="pointer-events: none;">
+                  <label class="form-label-premium">Access Privilege Level</label>
+                  <input type="text" class="form-control-luxury font-number font-bold text-gold" [value]="authService.currentUserValue?.role | uppercase" readonly style="pointer-events: none;">
                 </div>
 
-                <button type="submit" class="btn-premium-primary w-100 d-flex justify-content-center align-items-center" [disabled]="infoLoading">
+                <button type="submit" class="btn-gold-primary w-100 py-3" [disabled]="infoLoading">
                   <span class="spinner-border spinner-border-sm me-2" *ngIf="infoLoading"></span>
-                  <span>{{ infoLoading ? 'Saving...' : 'Save Changes' }}</span>
+                  <span>{{ infoLoading ? 'Saving...' : 'Save Profile Changes' }}</span>
                 </button>
               </form>
             </div>
@@ -72,10 +72,10 @@
 
           <!-- Change Password -->
           <div class="col-md-6">
-            <div class="card profile-card border-0">
-              <h5 class="fw-bold mb-4 border-bottom border-light pb-2">
-                <i class="fa-solid fa-key me-2 text-warning small"></i>Security Credentials
-              </h5>
+            <div class="glass-card p-4 h-100">
+              <h3 class="font-heading h5 mb-4 text-gold border-bottom-gold pb-3">
+                <i class="fa-solid fa-key me-2 text-gold"></i>Security Credentials
+              </h3>
               
               <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()">
                 
@@ -85,7 +85,7 @@
                   <input 
                     type="password" 
                     id="oldPassword" 
-                    class="form-control-premium" 
+                    class="form-control-luxury" 
                     formControlName="oldPassword"
                     placeholder="••••••••"
                     [class.is-invalid]="pwSubmitted && fp['oldPassword'].errors"
@@ -101,7 +101,7 @@
                   <input 
                     type="password" 
                     id="newPassword" 
-                    class="form-control-premium" 
+                    class="form-control-luxury" 
                     formControlName="newPassword"
                     placeholder="••••••••"
                     [class.is-invalid]="pwSubmitted && fp['newPassword'].errors"
@@ -118,7 +118,7 @@
                   <input 
                     type="password" 
                     id="confirmPassword" 
-                    class="form-control-premium" 
+                    class="form-control-luxury" 
                     formControlName="confirmPassword"
                     placeholder="••••••••"
                     [class.is-invalid]="pwSubmitted && (fp['confirmPassword'].errors || passwordForm.errors?.['mismatch'])"
@@ -131,9 +131,9 @@
                   </div>
                 </div>
 
-                <button type="submit" class="btn-premium-primary w-100 d-flex justify-content-center align-items-center" [disabled]="pwLoading">
+                <button type="submit" class="btn-gold-primary w-100 py-3" [disabled]="pwLoading">
                   <span class="spinner-border spinner-border-sm me-2" *ngIf="pwLoading"></span>
-                  <span>{{ pwLoading ? 'Changing...' : 'Update Password' }}</span>
+                  <span>{{ pwLoading ? 'Updating...' : 'Update Password Credentials' }}</span>
                 </button>
               </form>
             </div>

@@ -1,16 +1,4 @@
 .profile-container {
-  min-height: calc(100vh - 72px);
-  background-color: var(--bg-color);
-  color: var(--text-primary);
-  padding: 3rem 1rem;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.profile-card {
-  background-color: var(--card-color);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-card);
-  box-shadow: var(--shadow-sm);
-  padding: 32px;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  background-color: var(--bg-primary);
+  min-height: calc(100vh - 76px);
 }

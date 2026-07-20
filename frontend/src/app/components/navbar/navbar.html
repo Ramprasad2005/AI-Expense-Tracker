@@ -1,115 +1,115 @@
-<nav class="navbar navbar-expand-lg navbar-light sticky-top py-0">
+<nav class="navbar navbar-expand-lg sticky-top py-0 custom-luxury-nav">
   <div class="container h-100">
     
     <!-- Branding -->
     <a class="navbar-brand d-flex align-items-center h-100 py-0" routerLink="/dashboard">
-      <i class="fa-solid fa-wallet text-primary me-2"></i>
-      <span>AI Expense Tracker</span>
+      <div class="brand-badge-gold me-2.5">
+        <i class="fa-solid fa-crown text-dark"></i>
+      </div>
+      <div class="d-flex flex-column">
+        <span class="brand-title-gold font-heading">AI EXPENSE TRACKER</span>
+        <span class="brand-subtitle-gold">ENTERPRISE FINTECH</span>
+      </div>
     </a>
     
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
+    <button class="navbar-toggler border-gold" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon text-gold"></span>
     </button>
 
     <div class="collapse navbar-collapse h-100" id="navbarContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0 h-100 align-items-center" *ngIf="authService.isLoggedIn()">
         <li class="nav-item">
-          <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">
-            <i class="fa-solid fa-chart-line me-1.5 small text-muted"></i> Dashboard
+          <a class="nav-link nav-link-luxury" routerLink="/dashboard" routerLinkActive="active">
+            <i class="fa-solid fa-chart-line me-1.5 text-gold"></i> Dashboard
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/income" routerLinkActive="active">
-            <i class="fa-solid fa-arrow-trend-up me-1.5 small text-muted"></i> Income
+          <a class="nav-link nav-link-luxury" routerLink="/income" routerLinkActive="active">
+            <i class="fa-solid fa-arrow-trend-up me-1.5 text-gold"></i> Income
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/expenses" routerLinkActive="active">
-            <i class="fa-solid fa-arrow-trend-down me-1.5 small text-muted"></i> Expenses
+          <a class="nav-link nav-link-luxury" routerLink="/expenses" routerLinkActive="active">
+            <i class="fa-solid fa-arrow-trend-down me-1.5 text-gold"></i> Expenses
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/budget" routerLinkActive="active">
-            <i class="fa-solid fa-piggy-bank me-1.5 small text-muted"></i> Budget
+          <a class="nav-link nav-link-luxury" routerLink="/budget" routerLinkActive="active">
+            <i class="fa-solid fa-piggy-bank me-1.5 text-gold"></i> Budget
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/reports" routerLinkActive="active">
-            <i class="fa-solid fa-file-invoice-dollar me-1.5 small text-muted"></i> Reports
+          <a class="nav-link nav-link-luxury" routerLink="/reports" routerLinkActive="active">
+            <i class="fa-solid fa-file-invoice-dollar me-1.5 text-gold"></i> Reports
           </a>
         </li>
         <li class="nav-item" *ngIf="authService.isAdmin()">
-          <a class="nav-link text-danger fw-semibold" routerLink="/admin" routerLinkActive="active">
-            <i class="fa-solid fa-shield-halved me-1.5 small text-danger"></i> Admin
+          <a class="nav-link nav-link-luxury text-gold-bright font-bold" routerLink="/admin" routerLinkActive="active">
+            <i class="fa-solid fa-shield-halved me-1.5 text-gold"></i> Admin
           </a>
         </li>
       </ul>
 
       <ul class="navbar-nav ms-auto align-items-center h-100" *ngIf="authService.isLoggedIn()">
         <!-- Notification Dropdown -->
-        <li class="nav-item dropdown me-2">
-          <a class="nav-link notification-bell dropdown-toggle no-caret py-0" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <li class="nav-item dropdown me-3">
+          <a class="nav-link notification-bell dropdown-toggle no-caret py-0 text-gold" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             <i class="fa-solid fa-bell fs-5"></i>
-            <span class="notification-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+            <span class="notification-badge-gold" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
           </a>
-          <ul class="dropdown-menu dropdown-menu-end notification-menu py-0" aria-labelledby="notificationDropdown">
-            <li class="p-3 border-bottom d-flex justify-content-between align-items-center">
-              <span class="fw-bold">Notifications</span>
-              <button class="btn btn-sm btn-link text-decoration-none text-primary p-0 fw-semibold" (click)="markAllAsRead()" *ngIf="unreadCount > 0">
-                Mark all as read
+          <ul class="dropdown-menu dropdown-menu-end notification-menu-glass py-0" aria-labelledby="notificationDropdown">
+            <li class="p-3 border-bottom-gold d-flex justify-content-between align-items-center">
+              <span class="fw-bold font-heading text-gold">Notifications</span>
+              <button class="btn btn-sm btn-link text-decoration-none text-gold p-0 font-semibold" (click)="markAllAsRead()" *ngIf="unreadCount > 0">
+                Mark all read
               </button>
             </li>
-            <div style="max-height: 300px; overflow-y: auto;">
-              <li *ngIf="notifications.length === 0" class="text-center py-4 text-muted small">
-                No new notifications
+            <div style="max-height: 320px; overflow-y: auto;">
+              <li *ngIf="notifications.length === 0" class="text-center py-4 text-secondary-custom small">
+                No new alerts
               </li>
-              <li *ngFor="let notification of notifications" class="notification-item" [class.unread]="!notification.isRead">
+              <li *ngFor="let notification of notifications" class="notification-item-glass" [class.unread]="!notification.isRead">
                 <div class="d-flex justify-content-between align-items-center">
-                  <span class="fw-bold small">
+                  <span class="fw-bold small text-light">
                     <i class="fa-solid me-1" 
                        [class.fa-triangle-exclamation]="notification.type === 'budget_exceeded'"
                        [class.fa-circle-exclamation]="notification.type === 'high_expense'"
                        [class.fa-calendar-check]="notification.type === 'month_end'"
                        [class.text-danger]="notification.type === 'budget_exceeded'"
                        [class.text-warning]="notification.type === 'high_expense'"
-                       [class.text-info]="notification.type === 'month_end'">
+                       [class.text-gold]="notification.type === 'month_end'">
                     </i>
-                    {{ notification.type === 'budget_exceeded' ? 'Budget Overrun' : (notification.type === 'high_expense' ? 'Large Transaction' : 'Monthly Wrapup') }}
+                    {{ notification.type === 'budget_exceeded' ? 'Budget Overrun' : (notification.type === 'high_expense' ? 'Large Transaction' : 'Monthly Notice') }}
                   </span>
-                  <button class="btn btn-sm p-0 text-muted" (click)="markAsRead(notification._id); $event.stopPropagation()" *ngIf="!notification.isRead">
+                  <button class="btn btn-sm p-0 text-secondary-custom" (click)="markAsRead(notification._id); $event.stopPropagation()" *ngIf="!notification.isRead">
                     <i class="fa-solid fa-check text-success"></i>
                   </button>
                 </div>
-                <div class="mt-1 text-secondary small">{{ notification.message }}</div>
-                <div class="notification-time">{{ notification.createdAt | date:'short' }}</div>
+                <div class="mt-1 text-secondary-custom small">{{ notification.message }}</div>
+                <div class="notification-time text-muted">{{ notification.createdAt | date:'short' }}</div>
               </li>
             </div>
           </ul>
         </li>
 
-        <!-- Theme Toggle -->
-        <li class="nav-item me-2">
-          <button class="btn btn-link nav-link py-0 text-secondary border-0" (click)="toggleTheme()" type="button" [title]="currentTheme === 'dark' ? 'Switch to Light' : 'Switch to Dark'">
-            <i class="fa-solid" [class.fa-sun]="currentTheme === 'dark'" [class.fa-moon]="currentTheme === 'light'"></i>
-          </button>
-        </li>
-
         <!-- User Profile Dropdown -->
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle d-flex align-items-center text-secondary" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fa-solid fa-circle-user fs-5 me-1.5 text-muted"></i>
-            <span>{{ authService.currentUserValue?.username }}</span>
+          <a class="nav-link dropdown-toggle d-flex align-items-center text-platinum" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <div class="user-avatar-gold me-2">
+              <i class="fa-solid fa-user text-dark"></i>
+            </div>
+            <span class="font-heading font-semibold text-platinum">{{ authService.currentUserValue?.username }}</span>
           </a>
-          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+          <ul class="dropdown-menu dropdown-menu-end profile-menu-glass" aria-labelledby="profileDropdown">
             <li>
-              <a class="dropdown-item" routerLink="/profile">
-                <i class="fa-solid fa-user-gear me-2 text-muted"></i> Settings
+              <a class="dropdown-item dropdown-item-gold" routerLink="/profile">
+                <i class="fa-solid fa-user-gear me-2 text-gold"></i> Settings & Profile
               </a>
             </li>
-            <li><hr class="dropdown-divider"></li>
+            <li><hr class="dropdown-divider border-gold"></li>
             <li>
-              <button class="dropdown-item text-danger" (click)="onLogout()">
-                <i class="fa-solid fa-right-from-bracket me-2 text-danger"></i> Logout
+              <button class="dropdown-item dropdown-item-gold text-danger" (click)="onLogout()">
+                <i class="fa-solid fa-right-from-bracket me-2 text-danger"></i> Sign Out
               </button>
             </li>
           </ul>
@@ -118,18 +118,12 @@
 
       <!-- Guest Links -->
       <ul class="navbar-nav ms-auto align-items-center h-100" *ngIf="!authService.isLoggedIn()">
-        <!-- Theme Toggle -->
-        <li class="nav-item me-3">
-          <button class="btn btn-link nav-link py-0 text-secondary border-0" (click)="toggleTheme()" type="button" [title]="currentTheme === 'dark' ? 'Switch to Light' : 'Switch to Dark'">
-            <i class="fa-solid" [class.fa-sun]="currentTheme === 'dark'" [class.fa-moon]="currentTheme === 'light'"></i>
-          </button>
-        </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/login" routerLinkActive="active">Login</a>
+          <a class="nav-link nav-link-luxury me-2" routerLink="/login" routerLinkActive="active">Sign In</a>
         </li>
         <li class="nav-item ms-lg-2">
-          <a class="btn btn-primary btn-sm px-3 rounded-pill text-white" routerLink="/register" routerLinkActive="active" style="background-color: var(--accent-color); border: none; font-weight: 500; font-size: 0.85rem;">
-            Register
+          <a class="btn-gold-primary px-4 py-2" routerLink="/register" routerLinkActive="active">
+            Join Platform
           </a>
         </li>
       </ul>

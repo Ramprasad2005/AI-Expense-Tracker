@@ -1,323 +1,177 @@
-<div class="landing-wrapper">
-  <!-- Sticky Premium Navbar -->
-  <nav class="landing-nav navbar navbar-expand-lg sticky-top">
-    <div class="container">
-      <a class="navbar-brand d-flex align-items-center" href="#">
-        <div class="logo-orb me-2">
-          <div class="logo-inner-orb"></div>
-        </div>
-        <span class="brand-text">AI Expense Tracker</span>
-      </a>
-
-      <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#landingNavCollapse">
-        <span class="toggler-icon-bar"></span>
-        <span class="toggler-icon-bar"></span>
-        <span class="toggler-icon-bar"></span>
-      </button>
-
-      <div class="collapse navbar-collapse" id="landingNavCollapse">
-        <ul class="navbar-nav mx-auto align-items-center">
-          <li class="nav-item">
-            <a class="nav-link" (click)="scrollToSection('features')">Features</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" (click)="scrollToSection('preview')">Dashboard Preview</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" (click)="scrollToSection('advisor')">AI Advisor</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link disabled-link">Pricing <span class="badge-soon">Soon</span></a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" (click)="scrollToSection('about')">About</a>
-          </li>
-        </ul>
-
-        <div class="nav-right d-flex align-items-center gap-3">
-          <!-- Theme Toggle Button -->
-          <button class="btn btn-link theme-toggle-btn p-2" (click)="toggleTheme()" type="button" [title]="currentTheme === 'dark' ? 'Light Mode' : 'Dark Mode'">
-            <i class="fa-solid" [class.fa-sun]="currentTheme === 'dark'" [class.fa-moon]="currentTheme === 'light'"></i>
-          </button>
-          
-          <a class="btn btn-login-nav" routerLink="/login">Login</a>
-          <a class="btn btn-register-nav px-4" routerLink="/register">Get Started</a>
-        </div>
-      </div>
-    </div>
-  </nav>
-
+<div class="landing-wrapper spotlight-bg">
+  
   <!-- Hero Section -->
-  <header class="hero-section position-relative overflow-hidden">
-    <div class="glow-accent-1"></div>
-    <div class="glow-accent-2"></div>
-    <div class="radial-grid-overlay"></div>
-
-    <div class="container position-relative z-1 text-center">
+  <header class="hero-section position-relative overflow-hidden py-6">
+    <div class="container position-relative z-1 text-center py-5">
       <div class="row justify-content-center">
-        <div class="col-xl-9 col-lg-10">
-          <span class="badge-feature mb-3 fade-in-up">
-            <i class="fa-solid fa-sparkles text-primary me-2"></i> Introducing Gemini-Powered Intelligence
-          </span>
-          <h1 class="hero-headline mb-4 fade-in-up">
-            Take Control of Your Finances with <span class="gradient-text">AI Power</span>
+        <div class="col-xl-10 col-lg-11">
+          
+          <div class="luxury-badge-pill mb-4 fade-in-up">
+            <i class="fa-solid fa-crown text-gold me-2"></i> INTRODUCING CENTURION FINANCIAL INTELLIGENCE
+          </div>
+
+          <h1 class="hero-headline mb-4 fade-in-up font-heading">
+            Take Control of Your <span class="text-gold-gradient">Financial Future</span>
           </h1>
-          <p class="hero-subtitle mb-5 mx-auto fade-in-up">
-            Track income, expenses, budgets, reports, and receive AI-powered financial insights in one secure, beautiful platform designed for modern builders.
+
+          <p class="hero-subtitle mb-5 mx-auto fade-in-up text-secondary-custom">
+            Track high-net-worth assets, income flows, enterprise budgets, and receive real-time financial advice powered by Google Gemini AI in an ultra-secure, royal-grade platform.
           </p>
-          <div class="hero-ctas d-flex flex-sm-row flex-column justify-content-center gap-3 align-items-center mb-5 fade-in-up">
-            <a class="btn btn-hero-primary px-5 py-3" routerLink="/register">
-              Start Tracking Free <i class="fa-solid fa-arrow-right ms-2 fs-7"></i>
+
+          <div class="hero-ctas d-flex flex-sm-row flex-column justify-content-center gap-4 align-items-center mb-5 fade-in-up">
+            <a class="btn-gold-primary px-5 py-3 fs-6" routerLink="/register">
+              Initialize Dashboard <i class="fa-solid fa-arrow-right ms-2"></i>
             </a>
-            <a class="btn btn-hero-secondary px-5 py-3" routerLink="/login">
-              Login to Account
+            <a class="btn-glass-secondary px-5 py-3 fs-6" routerLink="/login">
+              Access Private Portal
             </a>
           </div>
+
         </div>
       </div>
 
-      <!-- Dashboard Mockup -->
-      <div class="mockup-wrapper fade-in-up">
-        <div class="mockup-frame">
-          <div class="mockup-header d-flex align-items-center justify-content-between px-3 py-2">
-            <div class="mockup-dots d-flex gap-1.5">
-              <span></span><span></span><span></span>
+      <!-- Dashboard Mockup Frame -->
+      <div class="mockup-wrapper fade-in-up mt-4">
+        <div class="mockup-frame-glass p-1">
+          <div class="mockup-header-glass d-flex align-items-center justify-content-between px-4 py-3">
+            <div class="mockup-dots d-flex gap-2">
+              <span class="dot-gold"></span><span class="dot-gold"></span><span class="dot-gold"></span>
             </div>
-            <div class="mockup-url text-truncate px-3 py-0.5 rounded-3">ai-expense-tracker.app/dashboard</div>
+            <div class="mockup-url-glass text-truncate px-4 py-1 font-number">https://fintech.ai-expensetracker.app/dashboard</div>
             <div style="width: 48px;"></div>
           </div>
-          <div class="mockup-body p-4 bg-light text-start position-relative">
-            <!-- Simulated Premium Dashboard UI -->
-            <div class="row g-3">
-              <!-- Sidebar Simulated -->
-              <div class="col-md-3 d-none d-md-block border-end border-light pe-3">
-                <div class="d-flex align-items-center mb-4 gap-2">
-                  <div class="logo-orb-sm"></div>
-                  <strong style="font-size: 0.9rem;">Workspace</strong>
-                </div>
-                <div class="d-flex flex-column gap-2">
-                  <span class="sidebar-item active"><i class="fa-solid fa-chart-line me-2"></i>Dashboard</span>
-                  <span class="sidebar-item"><i class="fa-solid fa-arrow-trend-up me-2"></i>Inflows</span>
-                  <span class="sidebar-item"><i class="fa-solid fa-arrow-trend-down me-2"></i>Expenses</span>
-                  <span class="sidebar-item"><i class="fa-solid fa-piggy-bank me-2"></i>Budgets</span>
-                  <span class="sidebar-item"><i class="fa-solid fa-file-invoice-dollar me-2"></i>Reports</span>
+          
+          <div class="mockup-body-glass p-4 text-start position-relative">
+            <div class="row g-4">
+              <!-- KPI Mockup 1 -->
+              <div class="col-md-3 col-sm-6">
+                <div class="kpi-mock-glass p-3 border-gold-left">
+                  <span class="text-secondary-custom d-block small uppercase font-heading">Total Portfolio</span>
+                  <strong class="text-gold font-number fs-4">$1,248,500.00</strong>
                 </div>
               </div>
-
-              <!-- Main Content Mockup -->
-              <div class="col-md-9">
-                <!-- Mini Cards -->
-                <div class="row g-3 mb-4">
-                  <div class="col-sm-4">
-                    <div class="mock-card p-3" style="border-left: 3px solid #10b981;">
-                      <span class="text-muted d-block small">Monthly Inflow</span>
-                      <strong class="text-success fs-5">+$12,480.00</strong>
-                    </div>
-                  </div>
-                  <div class="col-sm-4">
-                    <div class="mock-card p-3" style="border-left: 3px solid #ef4444;">
-                      <span class="text-muted d-block small">Outflow Volume</span>
-                      <strong class="text-danger fs-5">-$4,210.00</strong>
-                    </div>
-                  </div>
-                  <div class="col-sm-4">
-                    <div class="mock-card p-3" style="border-left: 3px solid #3b82f6;">
-                      <span class="text-muted d-block small">Savings Rate</span>
-                      <strong class="text-primary fs-5">66.2%</strong>
-                    </div>
-                  </div>
+              <!-- KPI Mockup 2 -->
+              <div class="col-md-3 col-sm-6">
+                <div class="kpi-mock-glass p-3 border-emerald-left">
+                  <span class="text-secondary-custom d-block small uppercase font-heading">Monthly Inflow</span>
+                  <strong class="text-success font-number fs-4">+$84,200.00</strong>
                 </div>
-
-                <!-- Chart Mockup -->
-                <div class="mock-card p-3 mb-3">
-                  <div class="d-flex justify-content-between align-items-center mb-3">
-                    <strong style="font-size: 0.85rem;">Inflow vs Outflow Trend</strong>
-                    <span class="badge bg-light text-dark small" style="font-size: 0.7rem;">Active Month</span>
-                  </div>
-                  <div class="mock-chart-bars d-flex align-items-end gap-3 justify-content-around pt-3" style="height: 120px;">
-                    <div class="bar-pair"><div class="bar-in bg-success" style="height: 70px;"></div><div class="bar-out bg-danger" style="height: 35px;"></div></div>
-                    <div class="bar-pair"><div class="bar-in bg-success" style="height: 80px;"></div><div class="bar-out bg-danger" style="height: 45px;"></div></div>
-                    <div class="bar-pair"><div class="bar-in bg-success" style="height: 95px;"></div><div class="bar-out bg-danger" style="height: 30px;"></div></div>
-                    <div class="bar-pair"><div class="bar-in bg-success" style="height: 110px;"></div><div class="bar-out bg-danger" style="height: 50px;"></div></div>
-                  </div>
+              </div>
+              <!-- KPI Mockup 3 -->
+              <div class="col-md-3 col-sm-6">
+                <div class="kpi-mock-glass p-3 border-crimson-left">
+                  <span class="text-secondary-custom d-block small uppercase font-heading">Outflow Volume</span>
+                  <strong class="text-danger font-number fs-4">-$18,450.00</strong>
+                </div>
+              </div>
+              <!-- KPI Mockup 4 -->
+              <div class="col-md-3 col-sm-6">
+                <div class="kpi-mock-glass p-3 border-platinum-left">
+                  <span class="text-secondary-custom d-block small uppercase font-heading">Net Yield</span>
+                  <strong class="text-platinum font-number fs-4">+78.1%</strong>
                 </div>
               </div>
             </div>
 
-            <!-- Floating Mockup Card 1 -->
-            <div class="floating-mock-card card-glow-green p-3 d-none d-lg-block position-absolute" style="top: 20%; left: -8%;">
-              <div class="d-flex align-items-center gap-2">
-                <span class="badge bg-success bg-opacity-10 text-success rounded-circle p-1.5"><i class="fa-solid fa-check fs-7"></i></span>
+            <!-- Floating Intelligence Notice -->
+            <div class="floating-ai-glass p-3 d-none d-lg-block position-absolute">
+              <div class="d-flex align-items-center gap-3">
+                <div class="ai-orb-gold">
+                  <i class="fa-solid fa-wand-magic-sparkles text-dark fs-6"></i>
+                </div>
                 <div>
-                  <span class="d-block text-muted" style="font-size: 0.65rem;">Budget Alert</span>
-                  <strong style="font-size: 0.75rem; color: #0f172a;">Goal Set Successfully!</strong>
+                  <span class="d-block text-gold font-heading font-semibold small">Gemini Advisor Insight</span>
+                  <p class="mb-0 text-light small font-body">"Capital yield increased by +14.2% following cost optimizations."</p>
                 </div>
               </div>
-            </div>
-
-            <!-- Floating Mockup Card 2 -->
-            <div class="floating-mock-card card-glow-indigo p-3 d-none d-lg-block position-absolute" style="bottom: 10%; right: -8%;">
-              <span class="d-block text-muted" style="font-size: 0.65rem;">AI Recommendation</span>
-              <strong style="font-size: 0.75rem; color: #0f172a; line-height: 1.3; display: block;" class="mt-1">
-                🪄 "Save up to $420 this month by adjusting Bills subscriptions."
-              </strong>
             </div>
           </div>
         </div>
       </div>
+
     </div>
   </header>
 
   <!-- Features Grid Section -->
-  <section id="features" class="features-section py-6">
-    <div class="container text-center">
+  <section id="features" class="features-section py-6 position-relative">
+    <div class="container text-center py-4">
       <div class="row justify-content-center mb-5">
-        <div class="col-lg-7">
-          <span class="badge-feature mb-2">Capabilities</span>
-          <h2 class="section-title">Designed for Financial Clarity</h2>
-          <p class="section-subtitle">Everything you need to automate your budget logging, analyze outlays, and prepare audits.</p>
+        <div class="col-lg-8">
+          <span class="luxury-badge-pill mb-2">CAPABILITIES</span>
+          <h2 class="section-title-gold font-heading display-5 mb-3">Enterprise Wealth Management</h2>
+          <p class="text-secondary-custom fs-5">Everything required to track transactions, analyze outlays, and project asset growths.</p>
         </div>
       </div>
 
       <div class="row g-4">
         <!-- Feature 1 -->
         <div class="col-lg-4 col-md-6">
-          <div class="feature-card h-100 p-4 border-0">
-            <div class="icon-box-premium mb-4">
-              <i class="fa-solid fa-wand-magic-sparkles text-primary"></i>
+          <div class="glass-card h-100 p-4 text-start">
+            <div class="feature-icon-gold mb-4">
+              <i class="fa-solid fa-brain text-dark fs-4"></i>
             </div>
-            <h4 class="fw-bold mb-3">AI Financial Advice</h4>
-            <p class="text-secondary small">Get direct, high-value consulting advice from Gemini analyzing your budget overruns and spending distributions.</p>
+            <h3 class="font-heading h4 text-light mb-3">AI Financial Consulting</h3>
+            <p class="text-secondary-custom">Direct wealth advice compiled by Google Gemini analyzing spending patterns and budget allocations.</p>
           </div>
         </div>
         <!-- Feature 2 -->
         <div class="col-lg-4 col-md-6">
-          <div class="feature-card h-100 p-4 border-0">
-            <div class="icon-box-premium icon-green mb-4">
-              <i class="fa-solid fa-chart-line text-success"></i>
+          <div class="glass-card h-100 p-4 text-start">
+            <div class="feature-icon-gold mb-4">
+              <i class="fa-solid fa-chart-line text-dark fs-4"></i>
             </div>
-            <h4 class="fw-bold mb-3">Interactive Dashboards</h4>
-            <p class="text-secondary small">Filter, search, sort, and paginate ledger entries with beautiful animations and instant client-side rendering.</p>
+            <h3 class="font-heading h4 text-light mb-3">Real-Time Ledger Analytics</h3>
+            <p class="text-secondary-custom">Instant data visualizations, Space Grotesk counter metrics, dynamic category ratios, and ledger filters.</p>
           </div>
         </div>
         <!-- Feature 3 -->
         <div class="col-lg-4 col-md-6 mx-auto">
-          <div class="feature-card h-100 p-4 border-0">
-            <div class="icon-box-premium icon-blue mb-4">
-              <i class="fa-solid fa-file-pdf text-info"></i>
+          <div class="glass-card h-100 p-4 text-start">
+            <div class="feature-icon-gold mb-4">
+              <i class="fa-solid fa-file-shield text-dark fs-4"></i>
             </div>
-            <h4 class="fw-bold mb-3">Professional PDF Audits</h4>
-            <p class="text-secondary small">Generate gorgeous corporate-level multi-page reports featuring custom radial charts, daily spending lines, and formatted ledgers.</p>
+            <h3 class="font-heading h4 text-light mb-3">Institutional PDF Audits</h3>
+            <p class="text-secondary-custom">Generate multi-page financial statements with charts, summary metrics, and itemized records.</p>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Dashboard Preview Block -->
-  <section id="preview" class="preview-section py-6 position-relative overflow-hidden">
-    <div class="container text-center">
+  <!-- AI Wealth Advisor Showcase -->
+  <section id="advisor" class="py-6 position-relative">
+    <div class="container text-center py-4">
       <div class="row justify-content-center mb-5">
         <div class="col-lg-8">
-          <h2 class="section-title">Visualizing your financial pipeline</h2>
-          <p class="section-subtitle">Real-time charts automatically generated as you add records. Zero manual configuration required.</p>
-        </div>
-      </div>
-
-      <div class="row align-items-center g-5 text-start">
-        <div class="col-lg-6">
-          <div class="card-glow-indigo p-4 rounded-4 shadow-sm border border-light">
-            <h4 class="fw-bold mb-3">Real-time Category Distribution</h4>
-            <p class="text-secondary small mb-4">See exactly where your funds are allocated. Beautiful animated charts display spending ratios for Food, Travel, Rent, Bills, and more.</p>
-            <div class="progress-bar-group d-flex flex-column gap-3">
-              <div>
-                <div class="d-flex justify-content-between small mb-1">
-                  <span>Food & Dining</span>
-                  <strong>32%</strong>
-                </div>
-                <div class="progress" style="height: 6px;">
-                  <div class="progress-bar bg-primary" role="progressbar" style="width: 32%"></div>
-                </div>
-              </div>
-              <div>
-                <div class="d-flex justify-content-between small mb-1">
-                  <span>Utilities & Bills</span>
-                  <strong>24%</strong>
-                </div>
-                <div class="progress" style="height: 6px;">
-                  <div class="progress-bar bg-success" role="progressbar" style="width: 24%"></div>
-                </div>
-              </div>
-              <div>
-                <div class="d-flex justify-content-between small mb-1">
-                  <span>Entertainment</span>
-                  <strong>15%</strong>
-                </div>
-                <div class="progress" style="height: 6px;">
-                  <div class="progress-bar bg-warning" role="progressbar" style="width: 15%"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-6">
-          <div class="p-3">
-            <span class="badge-feature mb-3"><i class="fa-solid fa-chart-pie me-2"></i> Animated Visuals</span>
-            <h3 class="fw-bold mb-3">No more spreadsheet clutter</h3>
-            <p class="text-secondary mb-4">
-              We translate raw numbers into intuitive data displays. Track your spending trends day-by-day and compare against your established budgets dynamically.
-            </p>
-            <div class="d-flex gap-3">
-              <div class="d-flex align-items-center gap-2">
-                <i class="fa-solid fa-circle text-primary fs-8"></i>
-                <span class="small text-secondary">Automatic Categorization</span>
-              </div>
-              <div class="d-flex align-items-center gap-2">
-                <i class="fa-solid fa-circle text-success fs-8"></i>
-                <span class="small text-secondary">Offline Cache Support</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- AI Financial Advisor Showcase -->
-  <section id="advisor" class="advisor-showcase py-6">
-    <div class="container text-center">
-      <div class="row justify-content-center mb-5">
-        <div class="col-lg-7">
-          <span class="badge-feature mb-2"><i class="fa-solid fa-wand-magic-sparkles me-2"></i> Generative AI</span>
-          <h2 class="section-title">Your Private Wealth Advisor</h2>
-          <p class="section-subtitle">Ask for recommendations or read the auto-generated advice report compiled specifically from your transactions.</p>
+          <span class="luxury-badge-pill mb-2"><i class="fa-solid fa-sparkles text-gold me-2"></i> GENERATIVE INTELLIGENCE</span>
+          <h2 class="section-title-gold font-heading display-5 mb-3">Your Private AI Wealth Advisor</h2>
+          <p class="text-secondary-custom fs-5">Receive private wealth recommendations tailored specifically to your accounts.</p>
         </div>
       </div>
 
       <div class="row justify-content-center">
-        <div class="col-lg-8">
-          <!-- Glassmorphic AI Interface Mockup -->
-          <div class="ai-mockup border-0 p-4 text-start">
-            <div class="ai-mockup-header border-bottom border-light pb-3 mb-3 d-flex align-items-center gap-3">
-              <div class="ai-avatar">
-                <i class="fa-solid fa-wand-magic-sparkles text-white fs-6"></i>
+        <div class="col-lg-9">
+          <div class="glass-card p-5 text-start">
+            <div class="d-flex align-items-center gap-3 border-bottom-gold pb-3 mb-4">
+              <div class="brand-badge-gold">
+                <i class="fa-solid fa-crown text-dark"></i>
               </div>
               <div>
-                <strong style="color: #0f172a;" class="d-block">Gemini Finance Model</strong>
-                <span style="font-size: 0.65rem;" class="text-success"><i class="fa-solid fa-circle fs-9 me-1"></i> Ready to consult</span>
+                <strong class="font-heading h5 mb-0 d-block text-gold">Gemini Wealth Advisor</strong>
+                <span class="text-success small font-number"><i class="fa-solid fa-circle fs-9 me-1"></i> Connected to Secure Ledger</span>
               </div>
             </div>
 
-            <div class="ai-mockup-body d-flex flex-column gap-3">
-              <div class="chat-bubble user-bubble align-self-end p-3 small">
-                How can I optimize my subscriptions to increase my net savings rate next month?
+            <div class="d-flex flex-column gap-3">
+              <div class="chat-bubble-user p-3 align-self-end text-light font-body small">
+                Analyze my recent outflows and suggest portfolio optimization steps.
               </div>
-              <div class="chat-bubble bot-bubble p-3 small">
-                <p class="mb-2"><strong>Recommended Adjustments:</strong></p>
-                <ul class="mb-0 ps-3">
-                  <li class="mb-1">You have 3 entertainment subscriptions active totaling $54.00, but reports show zero category activity.</li>
-                  <li class="mb-1">Your utility billing shows a 15% increase compared to last June. Consider auditing active heating/cooling setups.</li>
-                  <li>Adjusting these will increase your savings rate from <strong>66%</strong> to <strong>71%</strong> ($420.00 extra saved).</li>
+              <div class="chat-bubble-ai p-4 align-self-start text-light font-body small">
+                <p class="text-gold font-heading font-bold mb-2">Executive Wealth Analysis:</p>
+                <ul class="mb-0 ps-3 text-secondary-custom">
+                  <li class="mb-2">Discrepancy detected: Recurring recurring software subscriptions increased by +12.5% this quarter.</li>
+                  <li class="mb-2">Reallocating 15% of surplus cash flow into yield reserves will optimize net monthly balance.</li>
+                  <li>Projected quarterly savings growth: <strong>+$4,250.00</strong>.</li>
                 </ul>
               </div>
             </div>
@@ -327,48 +181,18 @@
     </div>
   </section>
 
-  <!-- About Section -->
-  <section id="about" class="about-section py-6">
-    <div class="container">
-      <div class="row align-items-center g-5">
-        <div class="col-lg-6">
-          <span class="badge-feature mb-3">About Us</span>
-          <h2 class="section-title text-start mb-3">Enterprise Security, Personal Privacy</h2>
-          <p class="text-secondary small mb-4">
-            AI Expense Tracker is a secure platform built to make accounting easy. Your data is encrypted and securely stored. We do not sell your personal financial profiles. Our only goal is to provide tools that help you save money and understand your spending patterns.
-          </p>
-          <div class="row g-3">
-            <div class="col-6">
-              <h5 class="fw-bold mb-1"><i class="fa-solid fa-lock text-primary me-2"></i> Secure SSL</h5>
-              <p class="text-secondary small">AES-256 grade encryption for all ledger items.</p>
-            </div>
-            <div class="col-6">
-              <h5 class="fw-bold mb-1"><i class="fa-solid fa-bolt text-success me-2"></i> Fast Loading</h5>
-              <p class="text-secondary small">Vercel Edge-hosted client for 100ms loading speeds.</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-6">
-          <div class="card-glow-green p-4 rounded-4 shadow-sm border border-light text-center">
-            <h4 class="fw-bold mb-3">Start budgeting today</h4>
-            <p class="text-secondary small mb-4">Join thousands of users utilizing intelligence to take control of their cash inflows.</p>
-            <a class="btn btn-hero-primary px-5 py-3 w-100" routerLink="/register">Register Free Account</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- Footer -->
-  <footer class="landing-footer py-5 border-top border-light">
+  <footer class="landing-footer py-5 border-top-gold mt-5">
     <div class="container text-center text-md-start">
       <div class="row justify-content-between align-items-center g-3">
-        <div class="col-md-6 d-flex align-items-center justify-content-center justify-content-md-start gap-2">
-          <div class="logo-orb-sm"></div>
-          <span class="brand-text fs-6">AI Expense Tracker</span>
+        <div class="col-md-6 d-flex align-items-center justify-content-center justify-content-md-start gap-3">
+          <div class="brand-badge-gold">
+            <i class="fa-solid fa-crown text-dark"></i>
+          </div>
+          <span class="font-heading font-bold text-gold fs-5">AI Expense Tracker Enterprise</span>
         </div>
         <div class="col-md-6 text-center text-md-end">
-          <span class="text-secondary small">&copy; 2026 AI Expense Tracker. All rights reserved.</span>
+          <span class="text-secondary-custom small font-number">&copy; {{ currentYear }} AI Expense Tracker. All rights reserved.</span>
         </div>
       </div>
     </div>

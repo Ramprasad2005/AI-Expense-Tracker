@@ -15,6 +15,7 @@ export class LandingComponent implements OnInit, OnDestroy {
   router = inject(Router);
 
   currentTheme: 'light' | 'dark' = 'light';
+  currentYear = new Date().getFullYear();
   private themeListener?: () => void;
 
   ngOnInit(): void {

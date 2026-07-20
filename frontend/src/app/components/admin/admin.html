@@ -1,28 +1,28 @@
-<div class="admin-container">
+<div class="admin-container py-4">
   <div class="container">
     
     <!-- Header -->
-    <div class="row mb-5 fade-in-up">
-      <div class="col-12">
-        <h2 class="fw-bold text-dark mb-1">
-          <i class="fa-solid fa-shield-halved text-danger me-2"></i>Administration Panel
-        </h2>
-        <p class="text-muted small mb-0">System metrics, global transaction statistics, and active user accounts registry management.</p>
+    <div class="d-flex justify-content-between align-items-center mb-4 fade-in-up">
+      <div>
+        <h1 class="font-heading display-6 mb-1 text-gold">
+          <i class="fa-solid fa-shield-halved text-gold me-2"></i>Administration Telemetry
+        </h1>
+        <p class="text-secondary-custom small mb-0 font-body">System metrics, global transaction statistics, and active user accounts registry management.</p>
       </div>
     </div>
 
     <!-- Stats Grid -->
-    <div class="row g-4 mb-5 fade-in-up" *ngIf="analytics">
+    <div class="row g-4 mb-4 fade-in-up" *ngIf="analytics">
       <!-- Users -->
       <div class="col-md-3 col-sm-6">
-        <div class="card stats-card border-0">
+        <div class="glass-card p-4 kpi-card-income">
           <div class="d-flex align-items-center">
-            <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-3 me-3">
-              <i class="fa-solid fa-users fs-4"></i>
+            <div class="kpi-icon-gold me-3">
+              <i class="fa-solid fa-users fs-4 text-dark"></i>
             </div>
             <div>
-              <span class="text-muted small d-block">Registered Users</span>
-              <strong class="fs-4 text-dark">{{ analytics.totalUsers }}</strong>
+              <span class="text-secondary-custom small uppercase font-heading d-block">Registered Accounts</span>
+              <strong class="font-number fs-3 text-gold">{{ analytics.totalUsers }}</strong>
             </div>
           </div>
         </div>
@@ -30,44 +30,44 @@
 
       <!-- Transactions -->
       <div class="col-md-3 col-sm-6">
-        <div class="card stats-card border-0">
+        <div class="glass-card p-4 kpi-card-balance">
           <div class="d-flex align-items-center">
-            <div class="p-3 bg-info bg-opacity-10 text-info rounded-3 me-3">
-              <i class="fa-solid fa-receipt fs-4"></i>
+            <div class="kpi-icon-platinum me-3">
+              <i class="fa-solid fa-receipt fs-4 text-dark"></i>
             </div>
             <div>
-              <span class="text-muted small d-block">System Transactions</span>
-              <strong class="fs-4 text-dark">{{ analytics.totalTransactions }}</strong>
+              <span class="text-secondary-custom small uppercase font-heading d-block">System Ledgers</span>
+              <strong class="font-number fs-3 text-platinum">{{ analytics.totalTransactions }}</strong>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Income -->
+      <!-- Income Volume -->
       <div class="col-md-3 col-sm-6">
-        <div class="card stats-card border-0">
+        <div class="glass-card p-4 kpi-card-savings">
           <div class="d-flex align-items-center">
-            <div class="p-3 bg-success bg-opacity-10 text-success rounded-3 me-3">
-              <i class="fa-solid fa-money-bill-trend-up fs-4"></i>
+            <div class="kpi-icon-emerald me-3">
+              <i class="fa-solid fa-money-bill-trend-up fs-4 text-dark"></i>
             </div>
             <div>
-              <span class="text-muted small d-block">Total Income Volume</span>
-              <strong class="fs-4 text-success">${{ analytics.totalIncomeVolume.toFixed(2) }}</strong>
+              <span class="text-secondary-custom small uppercase font-heading d-block">System Inflow</span>
+              <strong class="font-number fs-3 text-success">${{ analytics.totalIncomeVolume.toFixed(2) }}</strong>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Expenses -->
+      <!-- Expense Volume -->
       <div class="col-md-3 col-sm-6">
-        <div class="card stats-card border-0">
+        <div class="glass-card p-4 kpi-card-expense">
           <div class="d-flex align-items-center">
-            <div class="p-3 bg-danger bg-opacity-10 text-danger rounded-3 me-3">
-              <i class="fa-solid fa-wallet fs-4"></i>
+            <div class="kpi-icon-red me-3">
+              <i class="fa-solid fa-wallet fs-4 text-light"></i>
             </div>
             <div>
-              <span class="text-muted small d-block">Total Expense Volume</span>
-              <strong class="fs-4 text-danger">${{ analytics.totalExpenseVolume.toFixed(2) }}</strong>
+              <span class="text-secondary-custom small uppercase font-heading d-block">System Outflow</span>
+              <strong class="font-number fs-3 text-danger">${{ analytics.totalExpenseVolume.toFixed(2) }}</strong>
             </div>
           </div>
         </div>
@@ -75,48 +75,48 @@
     </div>
 
     <!-- Users Table -->
-    <div class="card table-card border-0 overflow-hidden fade-in-up">
-      <h5 class="fw-bold text-dark mb-4 border-bottom border-light pb-2">
-        Registered Accounts
-      </h5>
+    <div class="glass-card p-0 overflow-hidden fade-in-up">
+      <div class="p-4 border-bottom-gold">
+        <h3 class="font-heading h5 mb-0 text-gold">Registered System Users</h3>
+      </div>
       <div class="table-responsive">
-        <table class="table align-middle mb-0">
-          <thead class="table-light">
+        <table class="table-luxury table align-middle mb-0">
+          <thead>
             <tr>
-              <th scope="col" class="ps-4 text-secondary small fw-bold py-3">USERNAME</th>
-              <th scope="col" class="text-secondary small fw-bold py-3">EMAIL ADDRESS</th>
-              <th scope="col" class="text-secondary small fw-bold py-3">ACCESS LEVEL</th>
-              <th scope="col" class="text-secondary small fw-bold py-3">JOINED DATE</th>
-              <th scope="col" class="text-end pe-4 text-secondary small fw-bold py-3">ACTIONS</th>
+              <th scope="col" class="ps-4">USERNAME</th>
+              <th scope="col">EMAIL ADDRESS</th>
+              <th scope="col">ACCESS LEVEL</th>
+              <th scope="col">JOINED TIMESTAMP</th>
+              <th scope="col" class="text-end pe-4">ACTIONS</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngIf="loading" class="text-center">
-              <td colspan="5" class="py-4 text-muted small">
+              <td colspan="5" class="py-4 text-gold small">
                 <span class="spinner-border spinner-border-sm me-2" role="status"></span>
                 Fetching accounts registry...
               </td>
             </tr>
             <tr *ngIf="!loading && analytics.userStats.length === 0" class="text-center">
-              <td colspan="5" class="py-4 text-muted small">No registered accounts found.</td>
+              <td colspan="5" class="py-4 text-secondary-custom small">No registered accounts found.</td>
             </tr>
             <tr *ngFor="let u of analytics.userStats">
-              <td class="ps-4 text-dark fw-bold">{{ u.username }}</td>
-              <td class="text-secondary small">{{ u.email }}</td>
+              <td class="ps-4 font-heading font-bold text-light">{{ u.username }}</td>
+              <td class="text-secondary-custom font-body small">{{ u.email }}</td>
               <td>
-                <span class="badge rounded-pill" [ngClass]="u.role === 'admin' ? 'bg-danger bg-opacity-10 text-danger' : 'bg-primary bg-opacity-10 text-primary'">
+                <span class="badge rounded-pill border-gold bg-dark" [ngClass]="u.role === 'admin' ? 'text-danger fw-bold' : 'text-gold'">
                   {{ u.role | uppercase }}
                 </span>
               </td>
-              <td class="text-secondary small">{{ u.createdAt | date:'mediumDate' }}</td>
+              <td class="text-secondary-custom font-body small">{{ u.createdAt | date:'mediumDate' }}</td>
               <td class="text-end pe-4">
                 <button 
-                  class="btn btn-sm btn-outline-secondary border-0" 
+                  class="btn btn-sm btn-link text-danger border-0 p-1" 
                   (click)="onDeleteUser(u)" 
                   [disabled]="u.email === authService.currentUserValue?.email"
-                  style="padding: 6px 10px;"
+                  title="Purge Account"
                 >
-                  <i class="fa-solid fa-trash-can text-danger"></i>
+                  <i class="fa-solid fa-trash-can"></i>
                 </button>
               </td>
             </tr>
