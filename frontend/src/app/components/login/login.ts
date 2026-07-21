@@ -68,11 +68,11 @@ export class LoginComponent implements OnInit {
         console.error(err);
         const errMsg = err.error?.message || 'Invalid email or password.';
         
-        // ISSUE 2 & 11: Catch unverified state
-        if (errMsg.includes('not verified') || err.status === 401 && err.error?.email) {
+        // Catch unverified state
+        if (err.error?.isUnverified || errMsg.toLowerCase().includes('verify your email') || errMsg.toLowerCase().includes('not verified')) {
           this.isUnverified = true;
           this.unverifiedEmail = err.error?.email || credentials.email;
-          this.notificationService.showToast('Your email is not verified.', 'warning');
+          this.notificationService.showToast('Verify your email first.', 'warning');
         } else {
           this.notificationService.showToast(errMsg, 'danger');
         }

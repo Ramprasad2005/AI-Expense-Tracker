@@ -1,10 +1,12 @@
 const User = require('../models/User');
+const PendingUser = require('../models/PendingUser');
 const Income = require('../models/Income');
 const Expense = require('../models/Expense');
 const Budget = require('../models/Budget');
 const Notification = require('../models/Notification');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
 const {
   sendWelcomeEmail,
   sendOtpVerificationEmail,
@@ -22,7 +24,7 @@ const generateToken = (id, tokenVersion = 0) => {
   });
 };
 
-// @desc    Register a new user & Send 6-digit OTP
+// @desc    Register a new user & Send 6-digit OTP (Do NOT create account before OTP verification)
 // @route   POST /api/auth/register
 // @access  Public
 exports.registerUser = async (req, res, next) => {
@@ -38,62 +40,51 @@ exports.registerUser = async (req, res, next) => {
     }
 
     const cleanEmail = email.toLowerCase().trim();
-    const cleanUsername = username.trim();
+    const cleanUsername = username.trim().toLowerCase();
 
-    // Check if user already exists
-    let existingUser = await User.findOne({
+    // 1. Check if user ALREADY exists in verified User database
+    const existingUser = await User.findOne({
       $or: [{ email: cleanEmail }, { username: cleanUsername }]
     });
 
     if (existingUser) {
-      if (existingUser.isVerified || existingUser.emailVerified) {
-        if (existingUser.email === cleanEmail) {
-          return res.status(409).json({ success: false, message: 'Email already registered.' });
-        }
-        return res.status(409).json({ success: false, message: 'Username is already taken.' });
+      if (existingUser.email === cleanEmail) {
+        return res.status(409).json({ success: false, message: 'Email already registered.' });
       }
+      return res.status(409).json({ success: false, message: 'Username is already taken.' });
     }
 
-    // Generate secure 6-digit OTP
+    // 2. Remove any previous unverified pending registration for this email/username
+    await PendingUser.deleteMany({
+      $or: [{ email: cleanEmail }, { username: cleanUsername }]
+    });
+
+    // 3. Hash password for secure temporary storage
+    const salt = await bcrypt.genSalt(12);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // 4. Generate secure 6-digit OTP
     const otp = crypto.randomInt(100000, 1000000).toString();
     const hashedOtp = hashToken(otp);
     const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
 
-    let user;
-    if (existingUser && !existingUser.isVerified && !existingUser.emailVerified) {
-      // Re-registering unverified account: update existing record
-      existingUser.fullName = fullName || existingUser.fullName;
-      existingUser.username = cleanUsername;
-      existingUser.email = cleanEmail;
-      existingUser.password = password; // pre-save hook will hash password if modified
-      existingUser.role = role || existingUser.role || 'user';
-      existingUser.verificationOTP = hashedOtp;
-      existingUser.verificationOTPExpiry = otpExpiry;
-      existingUser.verificationAttempts = 0;
-      existingUser.lastResendTimestamp = new Date();
-      user = await existingUser.save();
-    } else {
-      // Create new user record in unverified state
-      user = await User.create({
-        fullName: fullName || '',
-        username: cleanUsername,
-        email: cleanEmail,
-        password,
-        role: role || 'user',
-        tokenVersion: 0,
-        isVerified: false,
-        emailVerified: false,
-        verificationOTP: hashedOtp,
-        verificationOTPExpiry: otpExpiry,
-        verificationAttempts: 0,
-        lastResendTimestamp: new Date()
-      });
-    }
+    // 5. Store registration details in temporary PendingUser collection (NOT User collection)
+    await PendingUser.create({
+      fullName: fullName || '',
+      username: cleanUsername,
+      email: cleanEmail,
+      password: hashedPassword,
+      role: role || (cleanEmail.startsWith('admin@') ? 'admin' : 'user'),
+      otp: hashedOtp,
+      otpExpiry,
+      verificationAttempts: 0,
+      lastResendTimestamp: new Date()
+    });
 
     console.log(`[AUTH OTP GENERATED] Email: ${cleanEmail} | OTP: ${otp} (Expires in 10 mins)`);
 
-    // Send OTP email asynchronously
-    sendOtpVerificationEmail(user.email, user.username, otp).catch(err =>
+    // 6. Dispatch OTP email asynchronously
+    sendOtpVerificationEmail(cleanEmail, cleanUsername, otp).catch(err =>
       console.error('[AUTH ERROR] OTP Email failed:', err.message)
     );
 
@@ -101,7 +92,7 @@ exports.registerUser = async (req, res, next) => {
       success: true,
       message: 'Verification code sent to your email.',
       data: {
-        email: user.email
+        email: cleanEmail
       }
     });
   } catch (error) {
@@ -112,7 +103,7 @@ exports.registerUser = async (req, res, next) => {
   }
 };
 
-// @desc    Verify 6-Digit Registration OTP
+// @desc    Verify 6-Digit OTP Code & Create User Account
 // @route   POST /api/auth/verify-otp (and POST /api/auth/verify-email)
 // @access  Public
 exports.verifyOtp = async (req, res, next) => {
@@ -127,28 +118,31 @@ exports.verifyOtp = async (req, res, next) => {
     const cleanEmail = email.toLowerCase().trim();
     const cleanOtp = String(otp).trim();
 
-    const user = await User.findOne({ email: cleanEmail }).select(
-      '+verificationOTP +verificationOTPExpiry +verificationAttempts'
-    );
+    // Look for pending registration
+    const pendingUser = await PendingUser.findOne({ email: cleanEmail });
 
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'Account not found. Please register first.' });
-    }
-
-    if (user.isVerified || user.emailVerified) {
-      return res.status(200).json({ success: true, message: 'Email is already verified. You can log in.' });
+    if (!pendingUser) {
+      // Check if user is already registered in User database
+      const existingUser = await User.findOne({ email: cleanEmail });
+      if (existingUser) {
+        return res.status(200).json({ success: true, message: 'Email is already verified. You can log in.' });
+      }
+      return res.status(400).json({
+        success: false,
+        message: 'Verification code expired or registration timed out. Please register again.'
+      });
     }
 
     // Lock check: max 5 attempts
-    if (user.verificationAttempts >= 5) {
+    if (pendingUser.verificationAttempts >= 5) {
       return res.status(400).json({
         success: false,
-        message: 'Maximum OTP verification attempts reached. Please request a new verification code.'
+        message: 'Maximum OTP verification attempts reached. Please register again or request a new code.'
       });
     }
 
     // Expiry check: 10 minutes
-    if (!user.verificationOTPExpiry || Date.now() > new Date(user.verificationOTPExpiry).getTime()) {
+    if (!pendingUser.otpExpiry || Date.now() > new Date(pendingUser.otpExpiry).getTime()) {
       return res.status(400).json({
         success: false,
         message: 'Verification code has expired. Please click "Resend Code" to receive a new OTP.'
@@ -157,11 +151,11 @@ exports.verifyOtp = async (req, res, next) => {
 
     // Compare SHA-256 OTP Hash
     const hashedSubmittedOtp = hashToken(cleanOtp);
-    if (hashedSubmittedOtp !== user.verificationOTP) {
-      user.verificationAttempts = (user.verificationAttempts || 0) + 1;
-      await user.save();
+    if (hashedSubmittedOtp !== pendingUser.otp) {
+      pendingUser.verificationAttempts = (pendingUser.verificationAttempts || 0) + 1;
+      await pendingUser.save();
 
-      const remainingAttempts = 5 - user.verificationAttempts;
+      const remainingAttempts = 5 - pendingUser.verificationAttempts;
       if (remainingAttempts <= 0) {
         return res.status(400).json({
           success: false,
@@ -175,35 +169,47 @@ exports.verifyOtp = async (req, res, next) => {
       });
     }
 
-    // Verification Success: Activate Account & Delete OTP
-    user.isVerified = true;
-    user.emailVerified = true;
-    user.verifiedAt = new Date();
-    user.verificationOTP = undefined;
-    user.verificationOTPExpiry = undefined;
-    user.verificationAttempts = 0;
-    await user.save();
+    // Verification Success: NOW create the actual User Account in MongoDB
+    const newUser = await User.create({
+      fullName: pendingUser.fullName,
+      username: pendingUser.username,
+      email: pendingUser.email,
+      password: pendingUser.password, // already hashed
+      role: pendingUser.role,
+      tokenVersion: 0,
+      isVerified: true,
+      emailVerified: true,
+      verifiedAt: new Date()
+    });
 
-    console.log(`[AUTH VERIFIED] Account activated for: ${user.username} (${user.email})`);
+    // Delete temporary PendingUser record
+    await PendingUser.deleteOne({ _id: pendingUser._id });
+
+    console.log(`[AUTH VERIFIED & CREATED] User account created: ${newUser.username} (${newUser.email})`);
 
     // Send Welcome Email
-    sendWelcomeEmail(user.email, user.username).catch(err =>
+    sendWelcomeEmail(newUser.email, newUser.username).catch(err =>
       console.error('[AUTH ERROR] Welcome email failed:', err.message)
     );
+
+    const token = generateToken(newUser._id, newUser.tokenVersion);
 
     res.status(200).json({
       success: true,
       message: 'Email verified successfully!',
       data: {
-        _id: user._id,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-        notificationPreferences: user.notificationPreferences,
-        token: generateToken(user._id, user.tokenVersion)
+        _id: newUser._id,
+        username: newUser.username,
+        email: newUser.email,
+        role: newUser.role,
+        notificationPreferences: newUser.notificationPreferences,
+        token
       }
     });
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(409).json({ success: false, message: 'Email or Username already registered.' });
+    }
     next(error);
   }
 };
@@ -223,21 +229,19 @@ exports.resendOtp = async (req, res, next) => {
     }
 
     const cleanEmail = email.toLowerCase().trim();
-    const user = await User.findOne({ email: cleanEmail }).select(
-      '+lastResendTimestamp +verificationOTP +verificationOTPExpiry +verificationAttempts'
-    );
+    const pendingUser = await PendingUser.findOne({ email: cleanEmail });
 
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'Account not found.' });
-    }
-
-    if (user.isVerified || user.emailVerified) {
-      return res.status(400).json({ success: false, message: 'Email is already verified.' });
+    if (!pendingUser) {
+      const existingUser = await User.findOne({ email: cleanEmail });
+      if (existingUser) {
+        return res.status(400).json({ success: false, message: 'Email is already verified.' });
+      }
+      return res.status(404).json({ success: false, message: 'No pending registration found for this email. Please register first.' });
     }
 
     // Enforce 60-second cooldown rate limit
-    if (user.lastResendTimestamp) {
-      const timeElapsed = Date.now() - new Date(user.lastResendTimestamp).getTime();
+    if (pendingUser.lastResendTimestamp) {
+      const timeElapsed = Date.now() - new Date(pendingUser.lastResendTimestamp).getTime();
       if (timeElapsed < 60000) {
         const secondsLeft = Math.ceil((60000 - timeElapsed) / 1000);
         return res.status(429).json({
@@ -250,16 +254,16 @@ exports.resendOtp = async (req, res, next) => {
 
     // Generate new OTP & invalidate previous OTP
     const newOtp = crypto.randomInt(100000, 1000000).toString();
-    user.verificationOTP = hashToken(newOtp);
-    user.verificationOTPExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
-    user.verificationAttempts = 0;
-    user.lastResendTimestamp = new Date();
+    pendingUser.otp = hashToken(newOtp);
+    pendingUser.otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+    pendingUser.verificationAttempts = 0;
+    pendingUser.lastResendTimestamp = new Date();
 
-    await user.save();
+    await pendingUser.save();
 
     console.log(`[AUTH OTP RESENT] Email: ${cleanEmail} | New OTP: ${newOtp}`);
 
-    sendOtpVerificationEmail(user.email, user.username, newOtp).catch(err =>
+    sendOtpVerificationEmail(pendingUser.email, pendingUser.username, newOtp).catch(err =>
       console.error('[AUTH ERROR] Resend OTP Email failed:', err.message)
     );
 
@@ -288,23 +292,20 @@ exports.checkOtp = async (req, res, next) => {
     const cleanEmail = email.toLowerCase().trim();
     const cleanOtp = String(otp).trim();
 
-    const user = await User.findOne({ email: cleanEmail }).select(
-      '+verificationOTP +verificationOTPExpiry +verificationAttempts'
-    );
-
-    if (!user || user.isVerified || user.emailVerified) {
-      return res.status(200).json({ success: false, valid: false, message: 'Invalid or already verified account.' });
+    const pendingUser = await PendingUser.findOne({ email: cleanEmail });
+    if (!pendingUser) {
+      return res.status(200).json({ success: false, valid: false, message: 'No pending registration found.' });
     }
 
-    if (user.verificationAttempts >= 5) {
+    if (pendingUser.verificationAttempts >= 5) {
       return res.status(200).json({ success: false, valid: false, message: 'Max attempts exceeded.' });
     }
 
-    if (!user.verificationOTPExpiry || Date.now() > new Date(user.verificationOTPExpiry).getTime()) {
+    if (!pendingUser.otpExpiry || Date.now() > new Date(pendingUser.otpExpiry).getTime()) {
       return res.status(200).json({ success: false, valid: false, message: 'OTP expired.' });
     }
 
-    const isValid = hashToken(cleanOtp) === user.verificationOTP;
+    const isValid = hashToken(cleanOtp) === pendingUser.otp;
     res.status(200).json({
       success: true,
       valid: isValid,
@@ -315,7 +316,7 @@ exports.checkOtp = async (req, res, next) => {
   }
 };
 
-// @desc    Auth user & get token (Requires verified email)
+// @desc    Auth user & get token (Only verified users can log in)
 // @route   POST /api/auth/login
 // @access  Public
 exports.loginUser = async (req, res, next) => {
@@ -330,6 +331,16 @@ exports.loginUser = async (req, res, next) => {
 
     const user = await User.findOne({ email: cleanEmail }).select('+password');
     if (!user) {
+      // Check if there is a pending unverified registration for this email
+      const pending = await PendingUser.findOne({ email: cleanEmail });
+      if (pending) {
+        return res.status(401).json({
+          success: false,
+          isUnverified: true,
+          email: pending.email,
+          message: 'Verify your email first.'
+        });
+      }
       return res.status(401).json({ success: false, message: 'Invalid email or password.' });
     }
 
@@ -344,7 +355,7 @@ exports.loginUser = async (req, res, next) => {
         success: false,
         isUnverified: true,
         email: user.email,
-        message: 'Your email is not verified.'
+        message: 'Verify your email first.'
       });
     }
 
@@ -507,12 +518,12 @@ exports.updateUserProfile = async (req, res, next) => {
     if (user) {
       const { username, email } = req.body;
 
-      if (username && username.trim() !== user.username) {
-        const usernameExists = await User.findOne({ username: username.trim() });
+      if (username && username.trim().toLowerCase() !== user.username) {
+        const usernameExists = await User.findOne({ username: username.trim().toLowerCase() });
         if (usernameExists) {
           return res.status(409).json({ success: false, message: 'Username is already taken' });
         }
-        user.username = username.trim();
+        user.username = username.trim().toLowerCase();
       }
 
       if (email && email.toLowerCase().trim() !== user.email) {

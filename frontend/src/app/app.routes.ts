@@ -10,7 +10,6 @@ import { ProfileComponent } from './components/profile/profile';
 import { AdminComponent } from './components/admin/admin';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password';
 import { VerifyRegistrationComponent } from './components/verify-registration/verify-registration';
-import { VerifyEmailComponent } from './components/verify-email/verify-email';
 import { SettingsComponent } from './components/settings/settings';
 import { LandingComponent } from './components/landing/landing';
 import { authGuard } from './guards/auth.guard';

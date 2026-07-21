@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:5050'
+  apiUrl: 'https://ai-expense-tracker-zzhn.vercel.app'
 };

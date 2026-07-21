@@ -5,10 +5,7 @@ const getFrontendUrl = () => {
   if (process.env.FRONTEND_URL && process.env.FRONTEND_URL.trim() !== '') {
     return process.env.FRONTEND_URL.trim().replace(/\/$/, '');
   }
-  if (process.env.NODE_ENV === 'production' || process.env.VERCEL) {
-    return 'https://aiexpensetrackerbeta.vercel.app';
-  }
-  return 'http://localhost:4200';
+  return 'https://aiexpensetrackerbeta.vercel.app';
 };
 
 // Main helper to send email
